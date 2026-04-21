@@ -11,10 +11,10 @@ export interface ModuleEntry {
 
 export const MODULES: ModuleEntry[] = [
   { id: 'finance', name: 'Finance', route: '/finance', icon: LineChart, enabled: true },
-  { id: 'sports', name: 'Sports', route: '/sports', icon: Activity, enabled: false },
-  { id: 'pdf', name: 'PDF Tools', route: '/pdf', icon: FileText, enabled: false },
-  { id: 'health', name: 'Health', route: '/health', icon: HeartPulse, enabled: false },
-  { id: 'assistant', name: 'Assistant', route: '/assistant', icon: MessageSquare, enabled: false }
+  { id: 'sports', name: 'Sports', route: '/sports', icon: Activity, enabled: true },
+  { id: 'pdf', name: 'PDF Tools', route: '/pdf', icon: FileText, enabled: true },
+  { id: 'health', name: 'Health', route: '/health', icon: HeartPulse, enabled: true },
+  { id: 'assistant', name: 'Assistant', route: '/assistant', icon: MessageSquare, enabled: true }
 ]
 
 export const SETTINGS_ENTRY: ModuleEntry = {

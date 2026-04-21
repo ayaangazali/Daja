@@ -13,7 +13,11 @@ const ALLOWED: Record<string, Set<string>> = {
   trades: new Set(['list', 'byTicker', 'add', 'remove']),
   strategies: new Set(['list', 'listActive', 'get', 'add', 'update', 'remove']),
   journal: new Set(['list', 'byTicker', 'add', 'remove']),
-  userContext: new Set(['list', 'add', 'remove'])
+  userContext: new Set(['list', 'add', 'remove']),
+  health: new Set(['list', 'recent', 'add', 'remove']),
+  medications: new Set(['list', 'add', 'setActive', 'remove']),
+  layouts: new Set(['list', 'get', 'save', 'remove']),
+  conversations: new Set(['list', 'get', 'add', 'update', 'remove'])
 }
 
 export const DB_CALL_CHANNEL = 'db:call'
