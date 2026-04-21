@@ -18,7 +18,7 @@ export function SentimentTab({ ticker }: { ticker: string }): React.JSX.Element 
       messages: [
         {
           role: 'user',
-          content: `Scan X/AtSign for recent chatter on $${ticker}. What's the sentiment (bull/bear/mixed)? Any notable posts, cashtag trends, insider/analyst activity mentioned? Cite example posts when possible. 6 bullets max.`
+          content: `Scan X (formerly Twitter) for recent chatter on $${ticker}. What's the sentiment (bull/bear/mixed)? Any notable posts, cashtag trends, insider/analyst activity mentioned? Cite example posts when possible. 6 bullets max.`
         }
       ]
     })
@@ -30,11 +30,7 @@ export function SentimentTab({ ticker }: { ticker: string }): React.JSX.Element 
   return (
     <div className="space-y-3 p-3">
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <Stat
-          label="Reddit Posts (1w)"
-          value={reddit.length.toString()}
-          sub="past 7 days"
-        />
+        <Stat label="Reddit Posts (1w)" value={reddit.length.toString()} sub="past 7 days" />
         <Stat label="Total Upvotes" value={totalScore.toLocaleString()} />
         <Stat label="Total Comments" value={totalComments.toLocaleString()} />
       </div>
@@ -57,7 +53,7 @@ export function SentimentTab({ ticker }: { ticker: string }): React.JSX.Element 
       <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)] p-3">
         <div className="mb-2 flex items-center justify-between">
           <div className="flex items-center gap-2 text-[10px] font-semibold uppercase text-[var(--color-fg-muted)]">
-            <AtSign className="h-3 w-3" /> X/AtSign Scan (via Grok)
+            <AtSign className="h-3 w-3" /> X Scan (via Grok)
           </div>
           {state.streaming ? (
             <button

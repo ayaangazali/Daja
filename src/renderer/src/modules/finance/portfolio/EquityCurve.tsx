@@ -15,7 +15,10 @@ async function fetchHist(ticker: string, range: string): Promise<HistoricalBar[]
   return window.nexus.finance.historical(ticker, range) as Promise<HistoricalBar[]>
 }
 
-function aggregate(trades: Trade[], ticker: string): { buys: Map<string, number>; sells: Map<string, number> } {
+function aggregate(
+  trades: Trade[],
+  ticker: string
+): { buys: Map<string, number>; sells: Map<string, number> } {
   const buys = new Map<string, number>()
   const sells = new Map<string, number>()
   for (const t of trades) {
@@ -161,8 +164,18 @@ export function EquityCurve(): React.JSX.Element {
             />
           </div>
           <div className="mt-2 grid grid-cols-3 gap-2">
-            <Leg label="Portfolio" value={fmtPct(returnPct)} color="#185FA5" tone={returnPct >= 0 ? 'pos' : 'neg'} />
-            <Leg label="SPY" value={fmtPct(benchReturn)} color="#8b95a3" tone={benchReturn >= 0 ? 'pos' : 'neg'} />
+            <Leg
+              label="Portfolio"
+              value={fmtPct(returnPct)}
+              color="#185FA5"
+              tone={returnPct >= 0 ? 'pos' : 'neg'}
+            />
+            <Leg
+              label="SPY"
+              value={fmtPct(benchReturn)}
+              color="#8b95a3"
+              tone={benchReturn >= 0 ? 'pos' : 'neg'}
+            />
             <Leg
               label="Alpha"
               value={fmtPct(alpha)}
@@ -171,8 +184,8 @@ export function EquityCurve(): React.JSX.Element {
             />
           </div>
           <div className="mt-1 text-[9px] text-[var(--color-fg-muted)] tabular">
-            {points[0]?.date} → {last?.date} · {points.length} bars · Base 100 ·{' '}
-            Final portfolio value ${fmtLargeNum(last?.portfolio)}
+            {points[0]?.date} → {last?.date} · {points.length} bars · Base 100 · Final portfolio
+            value ${fmtLargeNum(last?.portfolio)}
           </div>
         </>
       )}
@@ -197,7 +210,12 @@ function Leg({
         <span style={{ background: color }} className="inline-block h-1.5 w-3 rounded-sm" />
         {label}
       </div>
-      <div className={cn('font-mono text-sm font-semibold tabular', signColor(tone === 'pos' ? 1 : -1))}>
+      <div
+        className={cn(
+          'font-mono text-sm font-semibold tabular',
+          signColor(tone === 'pos' ? 1 : -1)
+        )}
+      >
         {value}
       </div>
     </div>

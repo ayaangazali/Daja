@@ -1,44 +1,55 @@
-import Store from 'electron-store'
 import type { AIProviderId, ModuleId, Prefs } from '../../shared/ipc'
+import { createJsonStore } from './jsonStore'
 
-const store = new Store<Prefs>({
-  name: 'nexus-prefs',
-  defaults: { aiByModule: {}, modelByProvider: {}, theme: 'dark' } as Prefs,
-  clearInvalidConfig: true
-}) as unknown as {
-  get: <K extends keyof Prefs>(key: K) => Prefs[K]
-  set: <K extends keyof Prefs>(key: K, value: Prefs[K]) => void
-  store: Prefs
+interface PrefsRecord extends Record<string, unknown> {
+  aiByModule: Partial<Record<ModuleId, AIProviderId>>
+  modelByProvider: Partial<Record<AIProviderId, string>>
+  theme: 'dark' | 'light'
+}
+
+let _store: ReturnType<typeof createJsonStore<PrefsRecord>> | null = null
+function store(): ReturnType<typeof createJsonStore<PrefsRecord>> {
+  if (!_store) {
+    _store = createJsonStore<PrefsRecord>('nexus-prefs', {
+      aiByModule: {},
+      modelByProvider: {},
+      theme: 'dark'
+    })
+  }
+  return _store
 }
 
 export function getAll(): Prefs {
+  const s = store()
   return {
-    aiByModule: store.get('aiByModule') ?? {},
-    modelByProvider: store.get('modelByProvider') ?? {},
-    theme: store.get('theme') ?? 'dark'
+    aiByModule: s.get('aiByModule') ?? {},
+    modelByProvider: s.get('modelByProvider') ?? {},
+    theme: s.get('theme') ?? 'dark'
   }
 }
 
 export function setAiForModule(module: ModuleId, provider: AIProviderId): void {
-  const current = store.get('aiByModule') ?? {}
-  store.set('aiByModule', { ...current, [module]: provider })
+  const s = store()
+  const current = s.get('aiByModule') ?? {}
+  s.set('aiByModule', { ...current, [module]: provider })
 }
 
 export function setModelForProvider(provider: AIProviderId, model: string): void {
-  const current = store.get('modelByProvider') ?? {}
-  store.set('modelByProvider', { ...current, [provider]: model })
+  const s = store()
+  const current = s.get('modelByProvider') ?? {}
+  s.set('modelByProvider', { ...current, [provider]: model })
 }
 
 export function setTheme(theme: 'dark' | 'light'): void {
-  store.set('theme', theme)
+  store().set('theme', theme)
 }
 
 export function getPreferredAI(module: ModuleId): AIProviderId {
-  const map = store.get('aiByModule') ?? {}
+  const map = store().get('aiByModule') ?? {}
   return map[module] ?? 'anthropic'
 }
 
 export function getPreferredModel(provider: AIProviderId): string | undefined {
-  const map = store.get('modelByProvider') ?? {}
+  const map = store().get('modelByProvider') ?? {}
   return map[provider]
 }

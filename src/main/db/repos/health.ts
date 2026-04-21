@@ -66,7 +66,9 @@ export const healthRepo = {
         log.water_intake_oz,
         log.notes
       )
-    return getDb().prepare('SELECT * FROM health_logs WHERE id = ?').get(info.lastInsertRowid) as HealthLog
+    return getDb()
+      .prepare('SELECT * FROM health_logs WHERE id = ?')
+      .get(info.lastInsertRowid) as HealthLog
   },
   remove(id: number): void {
     getDb().prepare('DELETE FROM health_logs WHERE id = ?').run(id)

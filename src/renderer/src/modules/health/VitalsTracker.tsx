@@ -79,9 +79,7 @@ export function VitalsTracker(): React.JSX.Element {
           <input
             type="number"
             value={form.blood_pressure_systolic}
-            onChange={(e) =>
-              setForm({ ...form, blood_pressure_systolic: Number(e.target.value) })
-            }
+            onChange={(e) => setForm({ ...form, blood_pressure_systolic: Number(e.target.value) })}
             className="w-full rounded border border-[var(--color-border)] bg-[var(--color-bg-elev)] px-2 py-1.5 font-mono text-[11px]"
           />
         </Field>
@@ -89,9 +87,7 @@ export function VitalsTracker(): React.JSX.Element {
           <input
             type="number"
             value={form.blood_pressure_diastolic}
-            onChange={(e) =>
-              setForm({ ...form, blood_pressure_diastolic: Number(e.target.value) })
-            }
+            onChange={(e) => setForm({ ...form, blood_pressure_diastolic: Number(e.target.value) })}
             className="w-full rounded border border-[var(--color-border)] bg-[var(--color-bg-elev)] px-2 py-1.5 font-mono text-[11px]"
           />
         </Field>

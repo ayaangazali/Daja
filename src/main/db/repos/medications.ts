@@ -37,7 +37,9 @@ export const medicationsRepo = {
         m.notes,
         m.is_active ?? 1
       )
-    return getDb().prepare('SELECT * FROM medications WHERE id = ?').get(info.lastInsertRowid) as Medication
+    return getDb()
+      .prepare('SELECT * FROM medications WHERE id = ?')
+      .get(info.lastInsertRowid) as Medication
   },
   setActive(id: number, active: 0 | 1): void {
     getDb().prepare('UPDATE medications SET is_active = ? WHERE id = ?').run(active, id)

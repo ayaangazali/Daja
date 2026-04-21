@@ -5,6 +5,7 @@ import { fetchHistorical, fetchQuote, searchTickers } from '../services/finance/
 import { fetchFundamentals } from '../services/finance/fundamentals'
 import { fetchOptions, fetchOwnership, fetchStatements } from '../services/finance/statements'
 import { fetchNews, fetchRedditMentions, fetchSecFilings } from '../services/finance/news'
+import { fetchEarningsCalendar } from '../services/finance/earnings'
 
 const QuotePayload = z.object({ ticker: z.string().min(1) })
 const HistoricalPayload = z.object({ ticker: z.string().min(1), range: z.string().min(1) })
@@ -52,5 +53,9 @@ export function registerFinanceIpc(): void {
   ipcMain.handle(IPC_CHANNELS.financeReddit, async (_e, raw) => {
     const { ticker } = QuotePayload.parse(raw)
     return fetchRedditMentions(ticker)
+  })
+  ipcMain.handle(IPC_CHANNELS.financeEarningsCal, async (_e, raw) => {
+    const parsed = z.object({ daysAhead: z.number().optional() }).parse(raw ?? {})
+    return fetchEarningsCalendar(parsed.daysAhead ?? 14)
   })
 }

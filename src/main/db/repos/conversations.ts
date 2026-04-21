@@ -26,9 +26,9 @@ export const conversationsRepo = {
   },
   get(id: number): AIConversation | null {
     return (
-      (getDb()
-        .prepare('SELECT * FROM ai_conversations WHERE id = ?')
-        .get(id) as AIConversation | undefined) ?? null
+      (getDb().prepare('SELECT * FROM ai_conversations WHERE id = ?').get(id) as
+        | AIConversation
+        | undefined) ?? null
     )
   },
   add(c: {

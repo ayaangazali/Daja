@@ -136,13 +136,7 @@ export function OwnershipTab({ ticker }: { ticker: string }): React.JSX.Element 
   )
 }
 
-function Stat({
-  label,
-  value
-}: {
-  label: string
-  value: string | null
-}): React.JSX.Element {
+function Stat({ label, value }: { label: string; value: string | null }): React.JSX.Element {
   return (
     <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)] p-3">
       <div className="text-[10px] text-[var(--color-fg-muted)]">{label}</div>

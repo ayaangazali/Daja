@@ -26,9 +26,7 @@ export interface Scoreboard {
   week: { number: number } | null
 }
 
-export function useScoreboard(
-  league: string
-): ReturnType<typeof useQuery<Scoreboard, Error>> {
+export function useScoreboard(league: string): ReturnType<typeof useQuery<Scoreboard, Error>> {
   return useQuery<Scoreboard, Error>({
     queryKey: ['scoreboard', league],
     queryFn: () => window.nexus.sports.scoreboard(league) as Promise<Scoreboard>,

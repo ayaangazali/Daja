@@ -28,10 +28,7 @@ export function EarningsTab({ ticker }: { ticker: string }): React.JSX.Element {
           <tbody>
             {hist.length === 0 && (
               <tr>
-                <td
-                  colSpan={4}
-                  className="px-2 py-3 text-center text-[var(--color-fg-muted)]"
-                >
+                <td colSpan={4} className="px-2 py-3 text-center text-[var(--color-fg-muted)]">
                   No earnings history.
                 </td>
               </tr>

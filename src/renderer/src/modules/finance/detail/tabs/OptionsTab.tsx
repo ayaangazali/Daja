@@ -50,18 +50,8 @@ export function OptionsTab({ ticker }: { ticker: string }): React.JSX.Element {
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <ChainTable
-          title="Calls"
-          contracts={calls}
-          underlying={data.underlyingPrice}
-          tone="pos"
-        />
-        <ChainTable
-          title="Puts"
-          contracts={puts}
-          underlying={data.underlyingPrice}
-          tone="neg"
-        />
+        <ChainTable title="Calls" contracts={calls} underlying={data.underlyingPrice} tone="pos" />
+        <ChainTable title="Puts" contracts={puts} underlying={data.underlyingPrice} tone="neg" />
       </div>
     </div>
   )

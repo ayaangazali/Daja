@@ -43,9 +43,27 @@ export function SportsHome(): React.JSX.Element {
         ))}
       </div>
       <div className="flex border-b border-[var(--color-border)]">
-        <TabBtn tab="scoreboard" active={tab} onClick={setTab} label="Scoreboard" icon={<Calendar className="h-3 w-3" />} />
-        <TabBtn tab="standings" active={tab} onClick={setTab} label="Standings" icon={<ListOrdered className="h-3 w-3" />} />
-        <TabBtn tab="live" active={tab} onClick={setTab} label="Watch" icon={<Tv2 className="h-3 w-3" />} />
+        <TabBtn
+          tab="scoreboard"
+          active={tab}
+          onClick={setTab}
+          label="Scoreboard"
+          icon={<Calendar className="h-3 w-3" />}
+        />
+        <TabBtn
+          tab="standings"
+          active={tab}
+          onClick={setTab}
+          label="Standings"
+          icon={<ListOrdered className="h-3 w-3" />}
+        />
+        <TabBtn
+          tab="live"
+          active={tab}
+          onClick={setTab}
+          label="Watch"
+          icon={<Tv2 className="h-3 w-3" />}
+        />
       </div>
       <div className="flex-1 overflow-y-auto">
         {tab === 'scoreboard' && <Scoreboard league={league} />}
@@ -110,7 +128,26 @@ function Scoreboard({ league }: { league: string }): React.JSX.Element {
   )
 }
 
-function GameCard({ game }: { game: { id: string; status: string; statusDetail: string; startDate: string; competitors: { name: string; abbreviation: string; score: string | null; homeAway: string; winner: boolean; logo: string | null }[]; venue: string | null; broadcasts: string[] } }): React.JSX.Element {
+function GameCard({
+  game
+}: {
+  game: {
+    id: string
+    status: string
+    statusDetail: string
+    startDate: string
+    competitors: {
+      name: string
+      abbreviation: string
+      score: string | null
+      homeAway: string
+      winner: boolean
+      logo: string | null
+    }[]
+    venue: string | null
+    broadcasts: string[]
+  }
+}): React.JSX.Element {
   const away = game.competitors.find((c) => c.homeAway === 'away') ?? game.competitors[0]
   const home = game.competitors.find((c) => c.homeAway === 'home') ?? game.competitors[1]
   const live = game.status.toLowerCase().includes('in')
@@ -141,15 +178,10 @@ function GameCard({ game }: { game: { id: string; status: string; statusDetail: 
       {[away, home].filter(Boolean).map((c) => (
         <div
           key={c!.abbreviation + c!.name}
-          className={cn(
-            'flex items-center justify-between py-1',
-            c!.winner && 'font-semibold'
-          )}
+          className={cn('flex items-center justify-between py-1', c!.winner && 'font-semibold')}
         >
           <div className="flex items-center gap-2">
-            {c!.logo && (
-              <img src={c!.logo} alt="" className="h-5 w-5 object-contain" />
-            )}
+            {c!.logo && <img src={c!.logo} alt="" className="h-5 w-5 object-contain" />}
             <div>
               <div>{c!.name}</div>
               <div className="text-[9px] text-[var(--color-fg-muted)]">
@@ -175,8 +207,7 @@ function Standings({ league }: { league: string }): React.JSX.Element {
         Standings failed: {error.message}
       </div>
     )
-  if (isLoading)
-    return <div className="p-4 text-[11px] text-[var(--color-fg-muted)]">Loading…</div>
+  if (isLoading) return <div className="p-4 text-[11px] text-[var(--color-fg-muted)]">Loading…</div>
   if (data.length === 0)
     return (
       <div className="p-6 text-center text-[11px] text-[var(--color-fg-muted)]">
@@ -230,7 +261,13 @@ function parseYouTubeId(input: string): string {
   return ''
 }
 
-function LiveEmbed({ id, onChange }: { id: string; onChange: (s: string) => void }): React.JSX.Element {
+function LiveEmbed({
+  id,
+  onChange
+}: {
+  id: string
+  onChange: (s: string) => void
+}): React.JSX.Element {
   const [input, setInput] = useState('')
   const videoId = parseYouTubeId(id)
   return (

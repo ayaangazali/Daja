@@ -132,8 +132,7 @@ export function SimulationTab({ ticker }: { ticker: string }): React.JSX.Element
     [close, mean, std, days, paths]
   )
   const finals = mcResults.map((p) => p[p.length - 1])
-  const meanFinal =
-    finals.length === 0 ? 0 : finals.reduce((a, b) => a + b, 0) / finals.length
+  const meanFinal = finals.length === 0 ? 0 : finals.reduce((a, b) => a + b, 0) / finals.length
   const sortedFinals = [...finals].sort((a, b) => a - b)
   const p10 = sortedFinals[Math.floor(sortedFinals.length * 0.1)] ?? 0
   const p50 = sortedFinals[Math.floor(sortedFinals.length * 0.5)] ?? 0
@@ -269,11 +268,7 @@ export function SimulationTab({ ticker }: { ticker: string }): React.JSX.Element
           />
           <Stat label="Trades" value={bt.trades.toString()} />
           <Stat label="Win Rate" value={fmtPct(bt.winRate, 1)} />
-          <Stat
-            label="Max DD"
-            value={fmtPct(bt.maxDrawdown, 1)}
-            tone="neg"
-          />
+          <Stat label="Max DD" value={fmtPct(bt.maxDrawdown, 1)} tone="neg" />
         </div>
       </div>
     </div>

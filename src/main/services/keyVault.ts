@@ -1,7 +1,7 @@
 import { safeStorage } from 'electron'
-import Store from 'electron-store'
 import type { KeyMeta, ProviderId } from '../../shared/ipc'
 import { PROVIDER_IDS } from '../../shared/ipc'
+import { createJsonStore } from './jsonStore'
 
 interface VaultEntry {
   cipher: string // base64
@@ -11,25 +11,22 @@ interface VaultEntry {
   lastTestMessage?: string
 }
 
-interface VaultSchema {
+interface VaultSchema extends Record<string, unknown> {
   keys: Record<string, VaultEntry>
 }
 
-const store = new Store<VaultSchema>({
-  name: 'nexus-vault',
-  defaults: { keys: {} },
-  clearInvalidConfig: true
-}) as unknown as {
-  get: <K extends keyof VaultSchema>(key: K) => VaultSchema[K]
-  set: <K extends keyof VaultSchema>(key: K, value: VaultSchema[K]) => void
+let _store: ReturnType<typeof createJsonStore<VaultSchema>> | null = null
+function store(): ReturnType<typeof createJsonStore<VaultSchema>> {
+  if (!_store) _store = createJsonStore<VaultSchema>('nexus-vault', { keys: {} })
+  return _store
 }
 
 function readAll(): Record<string, VaultEntry> {
-  return store.get('keys') ?? {}
+  return store().get('keys') ?? {}
 }
 
 function writeAll(keys: Record<string, VaultEntry>): void {
-  store.set('keys', keys)
+  store().set('keys', keys)
 }
 
 function assertEncryptionAvailable(): void {

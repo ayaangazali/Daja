@@ -132,9 +132,7 @@ export function AssistantHome(): React.JSX.Element {
               onClick={() => setActiveId(c.id)}
               className={cn(
                 'group flex cursor-pointer items-start justify-between gap-1 border-b border-[var(--color-border)] px-2 py-1.5',
-                activeId === c.id
-                  ? 'bg-[var(--color-info)]/10'
-                  : 'hover:bg-[var(--color-bg)]'
+                activeId === c.id ? 'bg-[var(--color-info)]/10' : 'hover:bg-[var(--color-bg)]'
               )}
             >
               <div className="min-w-0 flex-1">

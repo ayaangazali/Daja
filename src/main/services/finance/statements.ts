@@ -124,11 +124,15 @@ export async function fetchStatements(symbol: string): Promise<Statements> {
   }
   const r = json.quoteSummary?.result?.[0]
   if (!r) throw new Error(json.quoteSummary?.error?.description ?? 'No statements')
-  const incomeAnnual = mapIncome(((r.incomeStatementHistory as Obj)?.incomeStatementHistory as Obj[]) ?? [])
+  const incomeAnnual = mapIncome(
+    ((r.incomeStatementHistory as Obj)?.incomeStatementHistory as Obj[]) ?? []
+  )
   const incomeQuarterly = mapIncome(
     ((r.incomeStatementHistoryQuarterly as Obj)?.incomeStatementHistory as Obj[]) ?? []
   )
-  const balanceAnnual = mapBalance(((r.balanceSheetHistory as Obj)?.balanceSheetStatements as Obj[]) ?? [])
+  const balanceAnnual = mapBalance(
+    ((r.balanceSheetHistory as Obj)?.balanceSheetStatements as Obj[]) ?? []
+  )
   const balanceQuarterly = mapBalance(
     ((r.balanceSheetHistoryQuarterly as Obj)?.balanceSheetStatements as Obj[]) ?? []
   )
@@ -307,7 +311,7 @@ export async function fetchOptions(symbol: string, expiration?: number): Promise
     underlyingPrice: num(quote.regularMarketPrice) ?? 0,
     expirationDates: (r.expirationDates as number[]) ?? [],
     currentExpiration:
-      num((chain as Obj).expirationDate) ?? ((r.expirationDates as number[])?.[0] ?? 0),
+      num((chain as Obj).expirationDate) ?? (r.expirationDates as number[])?.[0] ?? 0,
     calls: (((chain as Obj).calls as Obj[]) ?? []).map(mapContract),
     puts: (((chain as Obj).puts as Obj[]) ?? []).map(mapContract)
   }

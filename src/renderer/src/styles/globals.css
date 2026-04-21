@@ -42,3 +42,22 @@ body {
   font-variant-numeric: tabular-nums;
   font-family: var(--font-mono);
 }
+
+/* react-grid-layout tweaks */
+.react-grid-item {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.react-grid-item.react-grid-placeholder {
+  background: var(--color-info);
+  opacity: 0.2;
+  border-radius: 6px;
+}
+.react-grid-item > .react-resizable-handle {
+  opacity: 0.25;
+}
+.react-grid-item:hover > .react-resizable-handle {
+  opacity: 0.7;
+}

@@ -55,7 +55,11 @@ export function HealthTimeline(): React.JSX.Element {
                     BP {l.blood_pressure_systolic}/{l.blood_pressure_diastolic}
                   </span>
                 )}
-                {l.weight != null && <span>{l.weight} {l.weight_unit}</span>}
+                {l.weight != null && (
+                  <span>
+                    {l.weight} {l.weight_unit}
+                  </span>
+                )}
               </div>
             </div>
             <button

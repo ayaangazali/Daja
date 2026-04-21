@@ -29,9 +29,7 @@ export function useHealthLogs(): ReturnType<typeof useQuery<HealthLog[], Error>>
   })
 }
 
-export function useRecentHealth(
-  days = 30
-): ReturnType<typeof useQuery<HealthLog[], Error>> {
+export function useRecentHealth(days = 30): ReturnType<typeof useQuery<HealthLog[], Error>> {
   return useQuery<HealthLog[], Error>({
     queryKey: ['health_logs', 'recent', days],
     queryFn: () => window.nexus.db.call<HealthLog[]>('health', 'recent', [days]),
@@ -40,7 +38,11 @@ export function useRecentHealth(
 }
 
 export function useAddHealthLog(): ReturnType<
-  typeof useMutation<HealthLog, Error, Partial<Omit<HealthLog, 'id' | 'created_at'>> & { date: string }>
+  typeof useMutation<
+    HealthLog,
+    Error,
+    Partial<Omit<HealthLog, 'id' | 'created_at'>> & { date: string }
+  >
 > {
   const qc = useQueryClient()
   return useMutation({
@@ -81,7 +83,11 @@ export function useMedications(): ReturnType<typeof useQuery<Medication[], Error
 }
 
 export function useAddMedication(): ReturnType<
-  typeof useMutation<Medication, Error, Partial<Omit<Medication, 'id' | 'created_at'>> & { name: string }>
+  typeof useMutation<
+    Medication,
+    Error,
+    Partial<Omit<Medication, 'id' | 'created_at'>> & { name: string }
+  >
 > {
   const qc = useQueryClient()
   return useMutation({
@@ -96,8 +102,7 @@ export function useSetMedActive(): ReturnType<
 > {
   const qc = useQueryClient()
   return useMutation<unknown, Error, { id: number; active: 0 | 1 }>({
-    mutationFn: ({ id, active }) =>
-      window.nexus.db.call('medications', 'setActive', [id, active]),
+    mutationFn: ({ id, active }) => window.nexus.db.call('medications', 'setActive', [id, active]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['medications'] })
   })
 }

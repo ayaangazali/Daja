@@ -62,17 +62,17 @@ function atr(high: number[], low: number[], close: number[], p = 14): number | n
   const trs: number[] = []
   for (let i = 1; i < close.length; i++) {
     trs.push(
-      Math.max(
-        high[i] - low[i],
-        Math.abs(high[i] - close[i - 1]),
-        Math.abs(low[i] - close[i - 1])
-      )
+      Math.max(high[i] - low[i], Math.abs(high[i] - close[i - 1]), Math.abs(low[i] - close[i - 1]))
     )
   }
   return trs.slice(-p).reduce((a, b) => a + b, 0) / p
 }
 
-function pivots(high: number, low: number, close: number): {
+function pivots(
+  high: number,
+  low: number,
+  close: number
+): {
   classic: { R3: number; R2: number; R1: number; P: number; S1: number; S2: number; S3: number }
   fibonacci: { R3: number; R2: number; R1: number; P: number; S1: number; S2: number; S3: number }
 } {
@@ -100,7 +100,11 @@ function pivots(high: number, low: number, close: number): {
   }
 }
 
-function score(v: number | null, buyIf: (x: number) => boolean, sellIf: (x: number) => boolean): 'buy' | 'sell' | 'neutral' {
+function score(
+  v: number | null,
+  buyIf: (x: number) => boolean,
+  sellIf: (x: number) => boolean
+): 'buy' | 'sell' | 'neutral' {
   if (v == null) return 'neutral'
   if (buyIf(v)) return 'buy'
   if (sellIf(v)) return 'sell'
@@ -165,13 +169,14 @@ export function TechnicalsTab({ ticker }: { ticker: string }): React.JSX.Element
           <table className="w-full text-[11px]">
             <tbody>
               {maRows.map(([name, v]) => {
-                const sig = v == null
-                  ? 'neutral'
-                  : computed.last > v
-                    ? 'buy'
-                    : computed.last < v
-                      ? 'sell'
-                      : 'neutral'
+                const sig =
+                  v == null
+                    ? 'neutral'
+                    : computed.last > v
+                      ? 'buy'
+                      : computed.last < v
+                        ? 'sell'
+                        : 'neutral'
                 return (
                   <tr key={name} className="border-b border-[var(--color-border)] last:border-0">
                     <td className="py-1 text-[var(--color-fg-muted)]">{name}</td>
@@ -195,7 +200,11 @@ export function TechnicalsTab({ ticker }: { ticker: string }): React.JSX.Element
                 </td>
                 <td className="py-1 pl-2 text-right">
                   <SigPill
-                    sig={score(computed.osc.rsi14, (x) => x < 30, (x) => x > 70)}
+                    sig={score(
+                      computed.osc.rsi14,
+                      (x) => x < 30,
+                      (x) => x > 70
+                    )}
                   />
                 </td>
               </tr>
@@ -206,7 +215,11 @@ export function TechnicalsTab({ ticker }: { ticker: string }): React.JSX.Element
                 </td>
                 <td className="py-1 pl-2 text-right">
                   <SigPill
-                    sig={score(computed.osc.stoch14, (x) => x < 20, (x) => x > 80)}
+                    sig={score(
+                      computed.osc.stoch14,
+                      (x) => x < 20,
+                      (x) => x > 80
+                    )}
                   />
                 </td>
               </tr>
@@ -217,7 +230,11 @@ export function TechnicalsTab({ ticker }: { ticker: string }): React.JSX.Element
                 </td>
                 <td className="py-1 pl-2 text-right">
                   <SigPill
-                    sig={score(computed.osc.williams14, (x) => x < -80, (x) => x > -20)}
+                    sig={score(
+                      computed.osc.williams14,
+                      (x) => x < -80,
+                      (x) => x > -20
+                    )}
                   />
                 </td>
               </tr>
@@ -255,7 +272,9 @@ export function TechnicalsTab({ ticker }: { ticker: string }): React.JSX.Element
               <PivotList values={computed.pivots.classic} last={computed.last} />
             </div>
             <div>
-              <div className="mb-1 text-[10px] uppercase text-[var(--color-fg-muted)]">Fibonacci</div>
+              <div className="mb-1 text-[10px] uppercase text-[var(--color-fg-muted)]">
+                Fibonacci
+              </div>
               <PivotList values={computed.pivots.fibonacci} last={computed.last} />
             </div>
           </div>

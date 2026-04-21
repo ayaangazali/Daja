@@ -1,5 +1,10 @@
 import { useState } from 'react'
-import { useStatements, type BalanceRow, type CashflowRow, type IncomeRow } from '../../../../hooks/useStatements'
+import {
+  useStatements,
+  type BalanceRow,
+  type CashflowRow,
+  type IncomeRow
+} from '../../../../hooks/useStatements'
 import { fmtLargeNum } from '../../../../lib/format'
 import { cn } from '../../../../lib/cn'
 

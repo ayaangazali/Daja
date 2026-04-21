@@ -37,7 +37,15 @@ export function MedicationTracker(): React.JSX.Element {
         notes: form.notes || null
       },
       {
-        onSuccess: () => setForm({ name: '', dosage: '', frequency: '', purpose: '', start_date: new Date().toISOString().slice(0, 10), notes: '' })
+        onSuccess: () =>
+          setForm({
+            name: '',
+            dosage: '',
+            frequency: '',
+            purpose: '',
+            start_date: new Date().toISOString().slice(0, 10),
+            notes: ''
+          })
       }
     )
   }
@@ -123,9 +131,7 @@ export function MedicationTracker(): React.JSX.Element {
               </div>
             </div>
             <button
-              onClick={() =>
-                setActive.mutate({ id: m.id, active: m.is_active === 1 ? 0 : 1 })
-              }
+              onClick={() => setActive.mutate({ id: m.id, active: m.is_active === 1 ? 0 : 1 })}
               className="text-[var(--color-fg-muted)] hover:text-[var(--color-info)]"
             >
               {m.is_active === 1 ? (

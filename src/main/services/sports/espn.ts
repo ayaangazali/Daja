@@ -76,14 +76,15 @@ export async function fetchScoreboard(league: string): Promise<Scoreboard> {
         logo:
           typeof team.logo === 'string'
             ? team.logo
-            : (((team.logos as Obj[])?.[0] as Obj)?.href as string) ?? null
+            : ((((team.logos as Obj[])?.[0] as Obj)?.href as string) ?? null)
       } as Competitor
     })
     const status = (e.status as Obj) ?? {}
     const st = (status.type as Obj) ?? {}
     const venue = ((comp as Obj).venue as Obj) ?? null
-    const bcasts = (((comp as Obj).broadcasts as Obj[]) ?? [])
-      .flatMap((b) => ((b.names as string[]) ?? []))
+    const bcasts = (((comp as Obj).broadcasts as Obj[]) ?? []).flatMap(
+      (b) => (b.names as string[]) ?? []
+    )
     return {
       id: String(e.id ?? ''),
       shortName: String(e.shortName ?? ''),
