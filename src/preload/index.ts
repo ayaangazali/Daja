@@ -76,7 +76,9 @@ const nexus = {
     reddit: (ticker: string): Promise<unknown> =>
       ipcRenderer.invoke(IPC_CHANNELS.financeReddit, { ticker }),
     earningsCalendar: (daysAhead = 14): Promise<unknown> =>
-      ipcRenderer.invoke(IPC_CHANNELS.financeEarningsCal, { daysAhead })
+      ipcRenderer.invoke(IPC_CHANNELS.financeEarningsCal, { daysAhead }),
+    screener: (id: string, count = 25): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financeScreener, { id, count })
   },
   pdf: {
     merge: (paths: string[], outPath: string): Promise<{ ok: boolean; path: string }> =>

@@ -1,4 +1,4 @@
-import { BookOpen, Briefcase, Flag, Home, Plus, Swords, X } from 'lucide-react'
+import { BookOpen, Briefcase, Compass, Flag, Home, Plus, Radio, Swords, X } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
@@ -39,7 +39,9 @@ export function Watchlist(): React.JSX.Element {
           { to: '/finance/portfolio', label: 'Portfolio', icon: <Briefcase className="h-3 w-3" /> },
           { to: '/finance/strategies', label: 'Strategies', icon: <Flag className="h-3 w-3" /> },
           { to: '/finance/journal', label: 'Journal', icon: <BookOpen className="h-3 w-3" /> },
-          { to: '/finance/compare', label: 'Compare', icon: <Swords className="h-3 w-3" /> }
+          { to: '/finance/compare', label: 'Compare', icon: <Swords className="h-3 w-3" /> },
+          { to: '/finance/screener', label: 'Screener', icon: <Compass className="h-3 w-3" /> },
+          { to: '/finance/briefing', label: 'Briefing', icon: <Radio className="h-3 w-3" /> }
         ].map((t) => (
           <NavLink
             key={t.to}

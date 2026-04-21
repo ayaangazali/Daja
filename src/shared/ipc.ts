@@ -76,6 +76,7 @@ export const IPC_CHANNELS = {
   financeFilings: 'finance:filings',
   financeReddit: 'finance:reddit',
   financeEarningsCal: 'finance:earnings-cal',
+  financeScreener: 'finance:screener',
   pdfMerge: 'pdf:merge',
   pdfSplit: 'pdf:split',
   pdfInfo: 'pdf:info',

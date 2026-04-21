@@ -175,7 +175,7 @@ test.describe('NexusHub extended interactions', () => {
     const themeDisplay = await page.locator('span.font-mono').filter({ hasText: /dark|light/ }).first().textContent().catch(() => null)
     console.log(`[SETTINGS] Current theme: ${themeDisplay}`)
 
-    const toggleBtn = page.getByRole('button', { name: 'Toggle' })
+    const toggleBtn = page.getByRole('button', { name: 'Toggle', exact: true })
     await toggleBtn.click()
     await page.waitForTimeout(500)
 
@@ -188,7 +188,7 @@ test.describe('NexusHub extended interactions', () => {
     await snap(page, '08-settings-after-theme-toggle')
 
     // Toggle back to restore state
-    await toggleBtn.click()
+    await page.getByRole('button', { name: 'Toggle', exact: true }).click()
     await page.waitForTimeout(300)
 
     // ── 5. Command Palette Cmd+K ───────────────────────────────────────────────
