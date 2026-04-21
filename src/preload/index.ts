@@ -59,10 +59,8 @@ const nexus = {
       ipcRenderer.invoke(IPC_CHANNELS.aiChatCancel, { requestId })
   },
   db: {
-    exec: (sql: string, params?: unknown[]): Promise<{ changes: number; lastInsertRowid: number }> =>
-      ipcRenderer.invoke(IPC_CHANNELS.dbExec, { sql, params }),
-    query: <T = unknown>(sql: string, params?: unknown[]): Promise<T[]> =>
-      ipcRenderer.invoke(IPC_CHANNELS.dbQuery, { sql, params })
+    call: <T = unknown>(repo: string, method: string, args: unknown[] = []): Promise<T> =>
+      ipcRenderer.invoke('db:call', { repo, method, args })
   },
   finance: {
     quote: (ticker: string): Promise<unknown> =>

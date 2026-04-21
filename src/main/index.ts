@@ -3,6 +3,8 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { registerKeyVaultIpc } from './ipc/registerIpc'
+import { registerDbIpc } from './ipc/dbIpc'
+import { openDatabase, closeDatabase } from './db/client'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -44,7 +46,9 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  openDatabase()
   registerKeyVaultIpc()
+  registerDbIpc()
 
   createWindow()
 
@@ -54,5 +58,6 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
+  closeDatabase()
   if (process.platform !== 'darwin') app.quit()
 })
