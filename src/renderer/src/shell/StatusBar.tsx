@@ -74,15 +74,15 @@ export function StatusBar(): React.JSX.Element {
     closed: 'text-[var(--color-fg-muted)]'
   }[market]
 
-  const configuredAi = keys.filter((k) =>
-    ['anthropic', 'openai', 'gemini', 'grok', 'perplexity'].includes(k.provider) && k.configured
+  const configuredAi = keys.filter(
+    (k) =>
+      ['anthropic', 'openai', 'gemini', 'grok', 'perplexity'].includes(k.provider) && k.configured
   ).length
-  const configuredData = keys.filter((k) =>
-    ['fmp', 'alpha_vantage', 'polygon', 'news_api'].includes(k.provider) && k.configured
+  const configuredData = keys.filter(
+    (k) => ['fmp', 'alpha_vantage', 'polygon', 'news_api'].includes(k.provider) && k.configured
   ).length
 
-  const currentProvider =
-    prefs?.aiByModule?.finance ?? prefs?.aiByModule?.assistant ?? 'anthropic'
+  const currentProvider = prefs?.aiByModule?.finance ?? prefs?.aiByModule?.assistant ?? 'anthropic'
 
   return (
     <footer
@@ -94,9 +94,7 @@ export function StatusBar(): React.JSX.Element {
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1">
           <Circle className={cn('h-2 w-2 fill-current', marketColor)} />
-          <span className="uppercase">
-            Market {market}
-          </span>
+          <span className="uppercase">Market {market}</span>
         </div>
         <div className="flex items-center gap-1">
           {online ? (
@@ -105,9 +103,7 @@ export function StatusBar(): React.JSX.Element {
             <WifiOff className="h-2.5 w-2.5 text-[var(--color-neg)]" />
           )}
           <span>{online ? 'Online' : 'Offline'}</span>
-          {ping != null && ping >= 0 && (
-            <span className="font-mono tabular">{ping}ms</span>
-          )}
+          {ping != null && ping >= 0 && <span className="font-mono tabular">{ping}ms</span>}
         </div>
         <div className="flex items-center gap-1">
           <Database className="h-2.5 w-2.5" />

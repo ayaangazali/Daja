@@ -23,7 +23,7 @@ import { AlertsModal } from '../alerts/AlertsModal'
 import { TickerHoverCard } from './TickerHoverCard'
 import { useQuotes } from '../../../hooks/useFinance'
 import { PercentBadge } from '../../../shared/PercentBadge'
-import { fmtPrice } from '../../../lib/format'
+import { FlashPrice } from '../../../shared/FlashPrice'
 import { cn } from '../../../lib/cn'
 
 export function Watchlist(): React.JSX.Element {
@@ -34,9 +34,20 @@ export function Watchlist(): React.JSX.Element {
   const [input, setInput] = useState('')
   const [alertTicker, setAlertTicker] = useState<string | null>(null)
   const [hover, setHover] = useState<{ ticker: string; x: number; y: number } | null>(null)
+  const [dragFrom, setDragFrom] = useState<number | null>(null)
+  const [dragOver, setDragOver] = useState<number | null>(null)
 
   const tickers = items.map((i) => i.ticker)
   const quotes = useQuotes(tickers)
+
+  const reorder = async (fromIdx: number, toIdx: number): Promise<void> => {
+    if (fromIdx === toIdx) return
+    const reordered = [...items]
+    const [moved] = reordered.splice(fromIdx, 1)
+    reordered.splice(toIdx, 0, moved)
+    await window.nexus.db.call('watchlist', 'reorder', [reordered.map((i) => i.id)])
+    // optimistic: invalidate handled by next query refetch via hook
+  }
 
   const submit = (): void => {
     const v = input.trim().toUpperCase()
@@ -116,25 +127,46 @@ export function Watchlist(): React.JSX.Element {
             <NavLink
               key={item.id}
               to={`/finance/${item.ticker}`}
-              onMouseEnter={(e) =>
-                setHover({ ticker: item.ticker, x: e.clientX, y: e.clientY })
-              }
-              onMouseMove={(e) =>
-                setHover({ ticker: item.ticker, x: e.clientX, y: e.clientY })
-              }
+              draggable
+              onDragStart={(e) => {
+                setDragFrom(i)
+                e.dataTransfer.effectAllowed = 'move'
+              }}
+              onDragOver={(e) => {
+                e.preventDefault()
+                e.dataTransfer.dropEffect = 'move'
+                if (dragOver !== i) setDragOver(i)
+              }}
+              onDragLeave={() => setDragOver(null)}
+              onDrop={(e) => {
+                e.preventDefault()
+                if (dragFrom != null && dragFrom !== i) {
+                  void reorder(dragFrom, i)
+                }
+                setDragFrom(null)
+                setDragOver(null)
+              }}
+              onDragEnd={() => {
+                setDragFrom(null)
+                setDragOver(null)
+              }}
+              onMouseEnter={(e) => setHover({ ticker: item.ticker, x: e.clientX, y: e.clientY })}
+              onMouseMove={(e) => setHover({ ticker: item.ticker, x: e.clientX, y: e.clientY })}
               onMouseLeave={() => setHover(null)}
               className={({ isActive }) =>
                 cn(
                   'group flex items-center justify-between border-b border-[var(--color-border)] px-2 py-1.5',
                   'hover:bg-[var(--color-bg)]',
-                  isActive && 'bg-[var(--color-info)]/10'
+                  isActive && 'bg-[var(--color-info)]/10',
+                  dragOver === i && dragFrom !== i && 'border-t-2 border-t-[var(--color-info)]',
+                  dragFrom === i && 'opacity-40'
                 )
               }
             >
               <div className="min-w-0 flex-1">
                 <div className="truncate font-mono text-[11px] font-semibold">{item.ticker}</div>
-                <div className="text-[10px] text-[var(--color-fg-muted)] tabular">
-                  {fmtPrice(q?.price)}
+                <div className="text-[10px] text-[var(--color-fg-muted)]">
+                  <FlashPrice value={q?.price} />
                 </div>
               </div>
               <div className="flex items-center gap-1">

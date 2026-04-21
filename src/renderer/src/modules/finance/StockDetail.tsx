@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuote } from '../../hooks/useFinance'
 import { useFundamentals } from '../../hooks/useFundamentals'
 import { StockHeader } from './detail/StockHeader'
-import { DetailTabs, type DetailTab } from './detail/DetailTabs'
+import { DetailTabs, DETAIL_TABS, type DetailTab } from './detail/DetailTabs'
 import { OverviewTab } from './detail/tabs/OverviewTab'
 import { FinancialsTab } from './detail/tabs/FinancialsTab'
 import { TechnicalsTab } from './detail/tabs/TechnicalsTab'
@@ -20,6 +20,22 @@ export function StockDetail(): React.JSX.Element {
   const [tab, setTab] = useState<DetailTab>('Overview')
   const { data: quote } = useQuote(upper)
   const { data: fundamentals, error: fundError } = useFundamentals(upper)
+
+  // Keyboard shortcuts 1-9 jump between detail tabs
+  useEffect(() => {
+    const h = (e: KeyboardEvent): void => {
+      const el = document.activeElement as HTMLElement | null
+      const tagName = el?.tagName.toLowerCase()
+      if (tagName === 'input' || tagName === 'textarea' || el?.isContentEditable) return
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+      const n = parseInt(e.key, 10)
+      if (!Number.isFinite(n) || n < 1 || n > DETAIL_TABS.length) return
+      e.preventDefault()
+      setTab(DETAIL_TABS[n - 1])
+    }
+    window.addEventListener('keydown', h)
+    return () => window.removeEventListener('keydown', h)
+  }, [])
 
   return (
     <div className="flex h-full flex-col">

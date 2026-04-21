@@ -105,7 +105,16 @@ export function AssistantHome(): React.JSX.Element {
     } else {
       updateMut.mutate({ id: activeId, patch: { messages: finalMessages } })
     }
-  }, [state.streaming, state.text, messages, activeId, addMut, updateMut, state.provider, state.model])
+  }, [
+    state.streaming,
+    state.text,
+    messages,
+    activeId,
+    addMut,
+    updateMut,
+    state.provider,
+    state.model
+  ])
 
   const currentProvider = prefs?.aiByModule?.assistant ?? 'anthropic'
 
