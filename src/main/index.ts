@@ -6,6 +6,8 @@ import { registerKeyVaultIpc } from './ipc/registerIpc'
 import { registerDbIpc } from './ipc/dbIpc'
 import { registerAiIpc } from './ipc/aiIpc'
 import { registerFinanceIpc } from './ipc/financeIpc'
+import { registerSportsIpc } from './ipc/sportsIpc'
+import { registerPdfIpc } from './ipc/pdfIpc'
 import { openDatabase, closeDatabase } from './db/client'
 
 function createWindow(): void {
@@ -53,6 +55,8 @@ app.whenReady().then(() => {
   registerDbIpc()
   registerAiIpc()
   registerFinanceIpc()
+  registerSportsIpc()
+  registerPdfIpc()
 
   createWindow()
 
