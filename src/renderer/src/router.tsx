@@ -2,6 +2,7 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { Shell } from './shell/Shell'
 import { FinanceModule } from './modules/finance/FinanceModule'
 import { FinanceHome } from './modules/finance/FinanceHome'
+import { StockDetail } from './modules/finance/StockDetail'
 import { ComingSoon } from './modules/_placeholders/ComingSoon'
 import { SettingsPage } from './modules/settings/SettingsPage'
 
@@ -16,7 +17,7 @@ const router = createHashRouter([
         element: <FinanceModule />,
         children: [
           { index: true, element: <FinanceHome /> },
-          { path: ':ticker', element: <ComingSoon name="Stock Detail (Step 7)" /> }
+          { path: ':ticker', element: <StockDetail /> }
         ]
       },
       { path: 'sports', element: <ComingSoon name="Sports Hub" /> },
