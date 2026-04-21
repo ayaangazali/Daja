@@ -56,9 +56,10 @@ export function TradeForm(): React.JSX.Element {
           <option value="sell">Sell</option>
         </select>
         <input
+          data-testid="trade-ticker-input"
           value={ticker}
           onChange={(e) => setTicker(e.target.value)}
-          placeholder="AAPL"
+          placeholder="Ticker (e.g. AAPL)"
           className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-[11px]"
         />
         <input

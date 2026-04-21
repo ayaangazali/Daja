@@ -33,7 +33,7 @@ export function FinancialsTab({ ticker }: { ticker: string }): React.JSX.Element
               key={s}
               onClick={() => setStmt(s)}
               className={cn(
-                'px-3 py-1 text-[10px] uppercase',
+                'px-3 py-1 text-[11px] font-semibold uppercase tracking-wide',
                 stmt === s
                   ? 'bg-[var(--color-info)] text-white'
                   : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-bg)]'

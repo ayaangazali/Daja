@@ -82,5 +82,9 @@ export const IPC_CHANNELS = {
   pdfOpen: 'pdf:open',
   sportsScoreboard: 'sports:scoreboard',
   sportsStandings: 'sports:standings',
-  sportsSchedule: 'sports:schedule'
+  sportsSchedule: 'sports:schedule',
+  windowAlwaysOnTop: 'window:always-on-top',
+  windowToggleDevtools: 'window:toggle-devtools',
+  notify: 'notify',
+  fsSavePath: 'fs:save-path'
 } as const

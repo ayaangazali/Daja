@@ -98,6 +98,25 @@ const nexus = {
       ipcRenderer.invoke(IPC_CHANNELS.sportsStandings, { league }),
     schedule: (league: string, team: string): Promise<unknown> =>
       ipcRenderer.invoke(IPC_CHANNELS.sportsSchedule, { league, team })
+  },
+  window: {
+    setAlwaysOnTop: (enabled: boolean): Promise<{ ok: boolean; enabled: boolean }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.windowAlwaysOnTop, { enabled }),
+    toggleDevTools: (): Promise<{ ok: boolean }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.windowToggleDevtools)
+  },
+  system: {
+    notify: (args: {
+      title: string
+      body: string
+      openUrl?: string
+    }): Promise<{ ok: boolean }> => ipcRenderer.invoke(IPC_CHANNELS.notify, args),
+    saveFile: (args: {
+      defaultPath?: string
+      filters?: { name: string; extensions: string[] }[]
+      contents: string
+    }): Promise<{ ok: boolean; path: string | null }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.fsSavePath, args)
   }
 }
 

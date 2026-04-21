@@ -3,12 +3,22 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { Shell } from './shell/Shell'
 import { FinanceModule } from './modules/finance/FinanceModule'
 import { FinanceHome } from './modules/finance/FinanceHome'
+import { ErrorBoundary } from './shared/ErrorBoundary'
 
 const StockDetail = lazy(() =>
   import('./modules/finance/StockDetail').then((m) => ({ default: m.StockDetail }))
 )
 const PortfolioPage = lazy(() =>
   import('./modules/finance/portfolio/PortfolioPage').then((m) => ({ default: m.PortfolioPage }))
+)
+const StrategyBuilder = lazy(() =>
+  import('./modules/finance/strategy/StrategyBuilder').then((m) => ({ default: m.StrategyBuilder }))
+)
+const JournalPage = lazy(() =>
+  import('./modules/finance/journal/JournalPage').then((m) => ({ default: m.JournalPage }))
+)
+const ComparePage = lazy(() =>
+  import('./modules/finance/compare/ComparePage').then((m) => ({ default: m.ComparePage }))
 )
 const SettingsPage = lazy(() =>
   import('./modules/settings/SettingsPage').then((m) => ({ default: m.SettingsPage }))
@@ -34,8 +44,10 @@ function Fallback(): React.JSX.Element {
   )
 }
 
-const L = (el: React.ReactNode): React.ReactElement => (
-  <Suspense fallback={<Fallback />}>{el}</Suspense>
+const L = (label: string, el: React.ReactNode): React.ReactElement => (
+  <ErrorBoundary label={label}>
+    <Suspense fallback={<Fallback />}>{el}</Suspense>
+  </ErrorBoundary>
 )
 
 const router = createHashRouter([
@@ -49,15 +61,18 @@ const router = createHashRouter([
         element: <FinanceModule />,
         children: [
           { index: true, element: <FinanceHome /> },
-          { path: 'portfolio', element: L(<PortfolioPage />) },
-          { path: ':ticker', element: L(<StockDetail />) }
+          { path: 'portfolio', element: L('Portfolio', <PortfolioPage />) },
+          { path: 'strategies', element: L('Strategies', <StrategyBuilder />) },
+          { path: 'journal', element: L('Journal', <JournalPage />) },
+          { path: 'compare', element: L('Compare', <ComparePage />) },
+          { path: ':ticker', element: L('StockDetail', <StockDetail />) }
         ]
       },
-      { path: 'sports/*', element: L(<SportsModule />) },
-      { path: 'pdf/*', element: L(<PdfModule />) },
-      { path: 'health/*', element: L(<HealthModule />) },
-      { path: 'assistant/*', element: L(<AssistantModule />) },
-      { path: 'settings', element: L(<SettingsPage />) },
+      { path: 'sports/*', element: L('Sports', <SportsModule />) },
+      { path: 'pdf/*', element: L('PDF', <PdfModule />) },
+      { path: 'health/*', element: L('Health', <HealthModule />) },
+      { path: 'assistant/*', element: L('Assistant', <AssistantModule />) },
+      { path: 'settings', element: L('Settings', <SettingsPage />) },
       {
         path: '*',
         element: (

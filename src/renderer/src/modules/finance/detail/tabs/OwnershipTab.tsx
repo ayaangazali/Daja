@@ -110,13 +110,14 @@ export function OwnershipTab({ ticker }: { ticker: string }): React.JSX.Element 
                 <td className="py-1 truncate pr-2">{t.name}</td>
                 <td
                   className={cn(
-                    'py-1 text-[10px]',
+                    'max-w-[12rem] truncate py-1 text-[10px]',
                     t.transaction.toLowerCase().includes('purchase')
                       ? 'text-[var(--color-pos)]'
                       : t.transaction.toLowerCase().includes('sale')
                         ? 'text-[var(--color-neg)]'
                         : 'text-[var(--color-fg-muted)]'
                   )}
+                  title={t.transaction}
                 >
                   {t.transaction}
                 </td>

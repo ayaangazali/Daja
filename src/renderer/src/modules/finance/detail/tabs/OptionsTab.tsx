@@ -109,11 +109,11 @@ function ChainTable({
                 )}
               >
                 <td className="px-1 py-0.5 text-right font-semibold">{c.strike}</td>
-                <td className="px-1 py-0.5 text-right">{c.lastPrice?.toFixed(2) ?? '—'}</td>
-                <td className="px-1 py-0.5 text-right">{c.bid?.toFixed(2) ?? '—'}</td>
-                <td className="px-1 py-0.5 text-right">{c.ask?.toFixed(2) ?? '—'}</td>
-                <td className="px-1 py-0.5 text-right">{c.volume ?? '—'}</td>
-                <td className="px-1 py-0.5 text-right">{c.openInterest ?? '—'}</td>
+                <td className="px-1 py-0.5 text-right">{c.lastPrice && c.lastPrice > 0 ? c.lastPrice.toFixed(2) : '—'}</td>
+                <td className="px-1 py-0.5 text-right">{c.bid && c.bid > 0 ? c.bid.toFixed(2) : '—'}</td>
+                <td className="px-1 py-0.5 text-right">{c.ask && c.ask > 0 ? c.ask.toFixed(2) : '—'}</td>
+                <td className="px-1 py-0.5 text-right">{c.volume && c.volume > 0 ? c.volume.toLocaleString() : '—'}</td>
+                <td className="px-1 py-0.5 text-right">{c.openInterest && c.openInterest > 0 ? c.openInterest.toLocaleString() : '—'}</td>
                 <td className="px-1 py-0.5 text-right">
                   {c.impliedVolatility != null ? fmtPct(c.impliedVolatility * 100, 0) : '—'}
                 </td>

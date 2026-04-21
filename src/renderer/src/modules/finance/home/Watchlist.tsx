@@ -1,4 +1,4 @@
-import { Briefcase, Home, Plus, X } from 'lucide-react'
+import { BookOpen, Briefcase, Flag, Home, Plus, Swords, X } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
@@ -33,34 +33,31 @@ export function Watchlist(): React.JSX.Element {
         'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
       )}
     >
-      <div className="flex border-b border-[var(--color-border)]">
-        <NavLink
-          to="/finance"
-          end
-          className={({ isActive }) =>
-            cn(
-              'flex flex-1 items-center justify-center gap-1 py-1.5 text-[10px]',
-              isActive
-                ? 'border-b-2 border-[var(--color-info)] text-[var(--color-fg)]'
-                : 'text-[var(--color-fg-muted)]'
-            )
-          }
-        >
-          <Home className="h-3 w-3" /> Home
-        </NavLink>
-        <NavLink
-          to="/finance/portfolio"
-          className={({ isActive }) =>
-            cn(
-              'flex flex-1 items-center justify-center gap-1 py-1.5 text-[10px]',
-              isActive
-                ? 'border-b-2 border-[var(--color-info)] text-[var(--color-fg)]'
-                : 'text-[var(--color-fg-muted)]'
-            )
-          }
-        >
-          <Briefcase className="h-3 w-3" /> Portfolio
-        </NavLink>
+      <div className="flex flex-wrap border-b border-[var(--color-border)]">
+        {[
+          { to: '/finance', label: 'Home', icon: <Home className="h-3 w-3" /> },
+          { to: '/finance/portfolio', label: 'Portfolio', icon: <Briefcase className="h-3 w-3" /> },
+          { to: '/finance/strategies', label: 'Strategies', icon: <Flag className="h-3 w-3" /> },
+          { to: '/finance/journal', label: 'Journal', icon: <BookOpen className="h-3 w-3" /> },
+          { to: '/finance/compare', label: 'Compare', icon: <Swords className="h-3 w-3" /> }
+        ].map((t) => (
+          <NavLink
+            key={t.to}
+            to={t.to}
+            end={t.to === '/finance'}
+            className={({ isActive }) =>
+              cn(
+                'flex flex-1 items-center justify-center gap-1 py-1.5 text-[9px]',
+                isActive
+                  ? 'border-b-2 border-[var(--color-info)] text-[var(--color-fg)]'
+                  : 'text-[var(--color-fg-muted)]'
+              )
+            }
+            title={t.label}
+          >
+            {t.icon}
+          </NavLink>
+        ))}
       </div>
       <div className="border-b border-[var(--color-border)] p-2">
         <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-fg-muted)]">

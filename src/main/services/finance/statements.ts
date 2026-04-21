@@ -112,6 +112,44 @@ function mapCashflow(rows: Obj[]): CashflowRow[] {
 }
 
 export async function fetchStatements(symbol: string): Promise<Statements> {
+  // Primary: fundamentals-timeseries (richer + reliable for Cost/Gross/OpExp)
+  const {
+    fetchIncomeTs,
+    fetchBalanceTs,
+    fetchCashflowTs
+  } = await import('./statementsTimeseries')
+  const [
+    incomeAnnualTs,
+    incomeQuarterlyTs,
+    balanceAnnualTs,
+    balanceQuarterlyTs,
+    cashAnnualTs,
+    cashQuarterlyTs
+  ] = await Promise.all([
+    fetchIncomeTs(symbol, 'annual').catch(() => []),
+    fetchIncomeTs(symbol, 'quarterly').catch(() => []),
+    fetchBalanceTs(symbol, 'annual').catch(() => []),
+    fetchBalanceTs(symbol, 'quarterly').catch(() => []),
+    fetchCashflowTs(symbol, 'annual').catch(() => []),
+    fetchCashflowTs(symbol, 'quarterly').catch(() => [])
+  ])
+
+  const hasData =
+    incomeAnnualTs.length + incomeQuarterlyTs.length + balanceAnnualTs.length > 0
+
+  if (hasData) {
+    return {
+      symbol,
+      incomeAnnual: incomeAnnualTs,
+      incomeQuarterly: incomeQuarterlyTs,
+      balanceAnnual: balanceAnnualTs,
+      balanceQuarterly: balanceQuarterlyTs,
+      cashAnnual: cashAnnualTs,
+      cashQuarterly: cashQuarterlyTs
+    }
+  }
+
+  // Fallback: legacy quoteSummary modules
   const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(
     symbol
   )}?modules=${STATEMENT_MODULES}`
@@ -123,32 +161,26 @@ export async function fetchStatements(symbol: string): Promise<Statements> {
   }
   const r = json.quoteSummary?.result?.[0]
   if (!r) throw new Error(json.quoteSummary?.error?.description ?? 'No statements')
-  const incomeAnnual = mapIncome(
-    ((r.incomeStatementHistory as Obj)?.incomeStatementHistory as Obj[]) ?? []
-  )
-  const incomeQuarterly = mapIncome(
-    ((r.incomeStatementHistoryQuarterly as Obj)?.incomeStatementHistory as Obj[]) ?? []
-  )
-  const balanceAnnual = mapBalance(
-    ((r.balanceSheetHistory as Obj)?.balanceSheetStatements as Obj[]) ?? []
-  )
-  const balanceQuarterly = mapBalance(
-    ((r.balanceSheetHistoryQuarterly as Obj)?.balanceSheetStatements as Obj[]) ?? []
-  )
-  const cashAnnual = mapCashflow(
-    ((r.cashflowStatementHistory as Obj)?.cashflowStatements as Obj[]) ?? []
-  )
-  const cashQuarterly = mapCashflow(
-    ((r.cashflowStatementHistoryQuarterly as Obj)?.cashflowStatements as Obj[]) ?? []
-  )
   return {
     symbol,
-    incomeAnnual,
-    incomeQuarterly,
-    balanceAnnual,
-    balanceQuarterly,
-    cashAnnual,
-    cashQuarterly
+    incomeAnnual: mapIncome(
+      ((r.incomeStatementHistory as Obj)?.incomeStatementHistory as Obj[]) ?? []
+    ),
+    incomeQuarterly: mapIncome(
+      ((r.incomeStatementHistoryQuarterly as Obj)?.incomeStatementHistory as Obj[]) ?? []
+    ),
+    balanceAnnual: mapBalance(
+      ((r.balanceSheetHistory as Obj)?.balanceSheetStatements as Obj[]) ?? []
+    ),
+    balanceQuarterly: mapBalance(
+      ((r.balanceSheetHistoryQuarterly as Obj)?.balanceSheetStatements as Obj[]) ?? []
+    ),
+    cashAnnual: mapCashflow(
+      ((r.cashflowStatementHistory as Obj)?.cashflowStatements as Obj[]) ?? []
+    ),
+    cashQuarterly: mapCashflow(
+      ((r.cashflowStatementHistoryQuarterly as Obj)?.cashflowStatements as Obj[]) ?? []
+    )
   }
 }
 

@@ -4,21 +4,40 @@ interface UIState {
   paletteOpen: boolean
   researchRailOpen: boolean
   theme: 'dark' | 'light'
+  alwaysOnTop: boolean
   togglePalette: () => void
   setPalette: (open: boolean) => void
   toggleResearchRail: () => void
   setTheme: (theme: 'dark' | 'light') => void
+  toggleAlwaysOnTop: () => void
+}
+
+function applyTheme(theme: 'dark' | 'light'): void {
+  if (typeof document === 'undefined') return
+  document.documentElement.classList.toggle('dark', theme === 'dark')
+  document.documentElement.style.colorScheme = theme
 }
 
 export const useUIStore = create<UIState>((set) => ({
   paletteOpen: false,
   researchRailOpen: true,
   theme: 'dark',
+  alwaysOnTop: false,
   togglePalette: () => set((s) => ({ paletteOpen: !s.paletteOpen })),
   setPalette: (open) => set({ paletteOpen: open }),
   toggleResearchRail: () => set((s) => ({ researchRailOpen: !s.researchRailOpen })),
   setTheme: (theme) => {
-    document.documentElement.classList.toggle('dark', theme === 'dark')
+    applyTheme(theme)
     set({ theme })
+  },
+  toggleAlwaysOnTop: (): void => {
+    set((s) => {
+      const next = !s.alwaysOnTop
+      window.nexus.window?.setAlwaysOnTop?.(next)
+      return { alwaysOnTop: next }
+    })
   }
 }))
+
+// Apply initial theme on module load
+applyTheme('dark')

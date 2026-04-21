@@ -95,7 +95,10 @@ export function MiniBarCharts({ data }: { data: Fundamentals }): React.JSX.Eleme
       <Mini
         series={{
           title: 'Earnings Surprise %',
-          annual: [],
+          annual: data.earningsHistory.map((h) => ({
+            date: h.quarter,
+            value: h.surprisePercent != null ? h.surprisePercent * 100 : null
+          })),
           quarterly: data.earningsHistory.map((h) => ({
             date: h.quarter,
             value: h.surprisePercent != null ? h.surprisePercent * 100 : null
