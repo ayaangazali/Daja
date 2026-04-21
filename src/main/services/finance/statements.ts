@@ -115,9 +115,8 @@ export async function fetchStatements(symbol: string): Promise<Statements> {
   const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(
     symbol
   )}?modules=${STATEMENT_MODULES}`
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (NexusHub)', Accept: 'application/json' }
-  })
+  const { yahooFetch } = await import('./yahooAuth')
+  const res = await yahooFetch(url)
   if (!res.ok) throw new Error(`Yahoo statements ${res.status}`)
   const json = (await res.json()) as {
     quoteSummary?: { result?: Obj[]; error?: { description?: string } | null }
@@ -202,9 +201,8 @@ export async function fetchOwnership(symbol: string): Promise<Ownership> {
   const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(
     symbol
   )}?modules=${OWNERSHIP_MODULES}`
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (NexusHub)', Accept: 'application/json' }
-  })
+  const { yahooFetch } = await import('./yahooAuth')
+  const res = await yahooFetch(url)
   if (!res.ok) throw new Error(`Yahoo ownership ${res.status}`)
   const json = (await res.json()) as {
     quoteSummary?: { result?: Obj[]; error?: { description?: string } | null }
@@ -281,9 +279,8 @@ export interface OptionsChain {
 export async function fetchOptions(symbol: string, expiration?: number): Promise<OptionsChain> {
   const suffix = expiration ? `?date=${expiration}` : ''
   const url = `https://query1.finance.yahoo.com/v7/finance/options/${encodeURIComponent(symbol)}${suffix}`
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (NexusHub)', Accept: 'application/json' }
-  })
+  const { yahooFetch } = await import('./yahooAuth')
+  const res = await yahooFetch(url)
   if (!res.ok) throw new Error(`Yahoo options ${res.status}`)
   const json = (await res.json()) as {
     optionChain?: { result?: Obj[]; error?: { description?: string } | null }

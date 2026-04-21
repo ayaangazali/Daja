@@ -101,15 +101,11 @@ const MODULES = [
 ].join(',')
 
 export async function fetchFundamentals(symbol: string): Promise<Fundamentals> {
+  const { yahooFetch } = await import('./yahooAuth')
   const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(
     symbol
   )}?modules=${MODULES}`
-  const res = await fetch(url, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (NexusHub)',
-      Accept: 'application/json'
-    }
-  })
+  const res = await yahooFetch(url)
   if (!res.ok) {
     throw new Error(`Yahoo quoteSummary ${res.status}`)
   }

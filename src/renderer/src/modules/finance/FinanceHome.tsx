@@ -1,8 +1,6 @@
 import { useState, useMemo, useCallback } from 'react'
 import { Save, RotateCcw } from 'lucide-react'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore -- @types/react-grid-layout is deprecated and diverges from runtime
-import RGL from 'react-grid-layout'
+import { Responsive, WidthProvider } from 'react-grid-layout'
 import { EarningsBanner } from './home/EarningsBanner'
 import { MarketTabs } from './home/MarketTabs'
 import { MarketIndexCards, REGION_KEYS } from './home/MarketIndexCards'
@@ -13,12 +11,7 @@ import { cn } from '../../lib/cn'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 
-interface RGLMod {
-  WidthProvider: (r: unknown) => React.ComponentType<Record<string, unknown>>
-  Responsive: unknown
-}
-const mod = RGL as unknown as RGLMod
-const ResponsiveGrid = mod.WidthProvider(mod.Responsive)
+const ResponsiveGrid = WidthProvider(Responsive)
 
 const DEFAULT_LAYOUT: Layout[] = [
   { i: 'indices', x: 0, y: 0, w: 12, h: 6, minW: 6, minH: 4 },
