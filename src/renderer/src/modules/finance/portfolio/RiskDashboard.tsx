@@ -49,36 +49,45 @@ export function RiskDashboard({ trades }: { trades: Trade[] }): React.JSX.Elemen
     assetReturns: Map<string, number[]>
   }>({ benchReturns: [], assetReturns: new Map() })
 
+  const tickerKey = [...tickers].sort().join(',')
   useEffect(() => {
-    if (tickers.length === 0) return
+    if (tickers.length === 0) {
+      setHist({ benchReturns: [], assetReturns: new Map() })
+      return
+    }
     let cancelled = false
     ;(async (): Promise<void> => {
       try {
-        const bench = await fetchHist('SPY', '1y')
+        const results = await Promise.all([
+          fetchHist('SPY', '1y'),
+          ...tickers.map((t) => fetchHist(t, '1y'))
+        ])
+        if (cancelled) return
+        const [bench, ...assetBars] = results
         const benchClose = bench
           .filter((b) => b.close != null)
           .map((b) => ({ time: b.time, value: b.close as number }))
+        // Derive SPY returns from raw closes (not per-asset aligned) to avoid misalignment
+        const benchReturns = logReturns(benchClose.map((b) => b.value))
         const assetReturns = new Map<string, number[]>()
-        let benchAlignedReturns: number[] = []
-        for (const tk of tickers) {
-          const bars = await fetchHist(tk, '1y')
+        tickers.forEach((tk, i) => {
+          const bars = assetBars[i]
           const closes = bars
             .filter((b) => b.close != null)
             .map((b) => ({ time: b.time, value: b.close as number }))
           const aligned = alignSeries(closes, benchClose)
           assetReturns.set(tk, logReturns(aligned.a))
-          if (benchAlignedReturns.length === 0) benchAlignedReturns = logReturns(aligned.b)
-        }
-        if (!cancelled) setHist({ benchReturns: benchAlignedReturns, assetReturns })
+        })
+        if (!cancelled) setHist({ benchReturns, assetReturns })
       } catch {
-        // ignore fetch errors
+        if (!cancelled) setHist({ benchReturns: [], assetReturns: new Map() })
       }
     })()
     return () => {
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(tickers)])
+  }, [tickerKey])
 
   const risk = useMemo<PortfolioRisk>(() => {
     if (positions.length === 0) {

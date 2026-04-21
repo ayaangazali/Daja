@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import type { Quote } from './useFinance'
 import type { WatchlistItem } from './useWatchlist'
 
+// Keyed by ticker+threshold so changing the threshold re-enables firing.
 const FIRED = new Set<string>()
 
 export function usePriceAlerts(watchlist: WatchlistItem[], quotes: { data?: Quote }[]): void {
@@ -12,6 +13,14 @@ export function usePriceAlerts(watchlist: WatchlistItem[], quotes: { data?: Quot
       inited.current = true
       return
     }
+    // Prune stale FIRED entries so raising/lowering a threshold re-enables notification
+    const active = new Set<string>()
+    for (const item of watchlist) {
+      if (item.alert_above != null) active.add(`${item.ticker}-above-${item.alert_above}`)
+      if (item.alert_below != null) active.add(`${item.ticker}-below-${item.alert_below}`)
+    }
+    for (const k of FIRED) if (!active.has(k)) FIRED.delete(k)
+
     for (let i = 0; i < watchlist.length; i++) {
       const item = watchlist[i]
       const q = quotes[i]?.data
