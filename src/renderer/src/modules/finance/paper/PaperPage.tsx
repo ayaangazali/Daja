@@ -226,25 +226,15 @@ export function PaperPage(): React.JSX.Element {
                     <td className="px-2 py-1 text-right font-mono tabular">
                       ${fmtPrice(p.avgCost)}
                     </td>
-                    <td className="px-2 py-1 text-right font-mono tabular">
-                      ${fmtPrice(mkt)}
-                    </td>
+                    <td className="px-2 py-1 text-right font-mono tabular">${fmtPrice(mkt)}</td>
                     <td className="px-2 py-1 text-right font-mono tabular">
                       ${fmtLargeNum(value)}
                     </td>
-                    <td
-                      className={cn(
-                        'px-2 py-1 text-right font-mono tabular',
-                        signColor(unreal)
-                      )}
-                    >
+                    <td className={cn('px-2 py-1 text-right font-mono tabular', signColor(unreal))}>
                       {unreal >= 0 ? '+' : ''}${unreal.toFixed(0)}
                     </td>
                     <td
-                      className={cn(
-                        'px-2 py-1 text-right font-mono tabular',
-                        signColor(unrealPct)
-                      )}
+                      className={cn('px-2 py-1 text-right font-mono tabular', signColor(unrealPct))}
                     >
                       {fmtPct(unrealPct)}
                     </td>

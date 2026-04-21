@@ -33,10 +33,7 @@ export function AlertsModal({
   const save = (): void => {
     const a = above.trim() ? Number(above) : null
     const b = below.trim() ? Number(below) : null
-    onSave(
-      a != null && Number.isFinite(a) ? a : null,
-      b != null && Number.isFinite(b) ? b : null
-    )
+    onSave(a != null && Number.isFinite(a) ? a : null, b != null && Number.isFinite(b) ? b : null)
     onClose()
   }
 
@@ -79,9 +76,7 @@ export function AlertsModal({
         )}
         <div className="space-y-3">
           <div>
-            <label className="text-[10px] text-[var(--color-fg-muted)]">
-              Alert when price ≥
-            </label>
+            <label className="text-[10px] text-[var(--color-fg-muted)]">Alert when price ≥</label>
             <div className="mt-1 flex items-center gap-1">
               <span className="font-mono">$</span>
               <input
@@ -111,9 +106,7 @@ export function AlertsModal({
             </div>
           </div>
           <div>
-            <label className="text-[10px] text-[var(--color-fg-muted)]">
-              Alert when price ≤
-            </label>
+            <label className="text-[10px] text-[var(--color-fg-muted)]">Alert when price ≤</label>
             <div className="mt-1 flex items-center gap-1">
               <span className="font-mono">$</span>
               <input

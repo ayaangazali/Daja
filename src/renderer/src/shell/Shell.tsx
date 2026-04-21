@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { TopBar } from './TopBar'
 import { ModuleSwitcher } from './ModuleSwitcher'
 import { CommandPalette } from './CommandPalette'
+import { KeyboardCheatsheet } from './KeyboardCheatsheet'
 import { useKeyboardNav } from '../hooks/useKeyboardNav'
 import { useUIStore } from '../stores/uiStore'
 import { cn } from '../lib/cn'
@@ -9,6 +11,22 @@ import { cn } from '../lib/cn'
 export function Shell(): React.JSX.Element {
   useKeyboardNav()
   const focusMode = useUIStore((s) => s.focusMode)
+  const [cheatsheetOpen, setCheatsheetOpen] = useState(false)
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent): void => {
+      const el = document.activeElement as HTMLElement | null
+      const tag = el?.tagName.toLowerCase()
+      if (tag === 'input' || tag === 'textarea' || el?.isContentEditable) return
+      if (e.key === '?' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault()
+        setCheatsheetOpen((v) => !v)
+      }
+    }
+    window.addEventListener('keydown', h)
+    return () => window.removeEventListener('keydown', h)
+  }, [])
+
   return (
     <div className="flex h-full flex-col">
       {!focusMode && <TopBar />}
@@ -21,6 +39,7 @@ export function Shell(): React.JSX.Element {
         </main>
       </div>
       <CommandPalette />
+      <KeyboardCheatsheet open={cheatsheetOpen} onClose={() => setCheatsheetOpen(false)} />
     </div>
   )
 }

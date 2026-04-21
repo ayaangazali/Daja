@@ -14,17 +14,21 @@ export interface PaperTrade {
 
 export const paperTradesRepo = {
   list(): PaperTrade[] {
-    return getDb().prepare('SELECT * FROM paper_trades ORDER BY date DESC, id DESC').all() as PaperTrade[]
+    return getDb()
+      .prepare('SELECT * FROM paper_trades ORDER BY date DESC, id DESC')
+      .all() as PaperTrade[]
   },
   byTicker(ticker: string): PaperTrade[] {
     return getDb()
       .prepare('SELECT * FROM paper_trades WHERE ticker = ? ORDER BY date ASC, id ASC')
       .all(ticker.toUpperCase()) as PaperTrade[]
   },
-  add(t: Omit<PaperTrade, 'id' | 'created_at' | 'fees' | 'notes'> & {
-    fees?: number
-    notes?: string | null
-  }): PaperTrade {
+  add(
+    t: Omit<PaperTrade, 'id' | 'created_at' | 'fees' | 'notes'> & {
+      fees?: number
+      notes?: string | null
+    }
+  ): PaperTrade {
     const info = getDb()
       .prepare(
         `INSERT INTO paper_trades (ticker, side, quantity, price, fees, date, notes)

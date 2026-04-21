@@ -175,9 +175,7 @@ export function Watchlist(): React.JSX.Element {
               currentAbove={item.alert_above}
               currentBelow={item.alert_below}
               onClose={() => setAlertTicker(null)}
-              onSave={(above, below) =>
-                alertsMut.mutate({ ticker: alertTicker, above, below })
-              }
+              onSave={(above, below) => alertsMut.mutate({ ticker: alertTicker, above, below })}
             />
           )
         })()}
