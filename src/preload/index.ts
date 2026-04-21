@@ -78,7 +78,9 @@ const nexus = {
     earningsCalendar: (daysAhead = 14): Promise<unknown> =>
       ipcRenderer.invoke(IPC_CHANNELS.financeEarningsCal, { daysAhead }),
     screener: (id: string, count = 25): Promise<unknown> =>
-      ipcRenderer.invoke(IPC_CHANNELS.financeScreener, { id, count })
+      ipcRenderer.invoke(IPC_CHANNELS.financeScreener, { id, count }),
+    dividends: (ticker: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financeDividends, { ticker })
   },
   pdf: {
     merge: (paths: string[], outPath: string): Promise<{ ok: boolean; path: string }> =>
