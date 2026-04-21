@@ -7,6 +7,7 @@ import { fetchOptions, fetchOwnership, fetchStatements } from '../services/finan
 import { fetchNews, fetchRedditMentions, fetchSecFilings } from '../services/finance/news'
 import { fetchEarningsCalendar } from '../services/finance/earnings'
 import { fetchScreener } from '../services/finance/screener'
+import { fetchDividends } from '../services/finance/dividends'
 
 const QuotePayload = z.object({ ticker: z.string().min(1) })
 const HistoricalPayload = z.object({ ticker: z.string().min(1), range: z.string().min(1) })
@@ -63,5 +64,9 @@ export function registerFinanceIpc(): void {
     const parsed = z.object({ id: z.string().min(1), count: z.number().optional() }).parse(raw)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return fetchScreener(parsed.id as any, parsed.count ?? 25)
+  })
+  ipcMain.handle(IPC_CHANNELS.financeDividends, async (_e, raw) => {
+    const { ticker } = QuotePayload.parse(raw)
+    return fetchDividends(ticker)
   })
 }
