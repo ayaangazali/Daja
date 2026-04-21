@@ -16,9 +16,7 @@ export interface WatchlistItem {
 export const watchlistRepo = {
   list(listName = 'default'): WatchlistItem[] {
     return getDb()
-      .prepare(
-        'SELECT * FROM watchlist WHERE list_name = ? ORDER BY sort_order ASC, added_at ASC'
-      )
+      .prepare('SELECT * FROM watchlist WHERE list_name = ? ORDER BY sort_order ASC, added_at ASC')
       .all(listName) as WatchlistItem[]
   },
   listAllNames(): string[] {
@@ -29,16 +27,16 @@ export const watchlistRepo = {
   },
   add(ticker: string, listName = 'default', assetClass = 'stock'): WatchlistItem {
     const info = getDb()
-      .prepare(
-        'INSERT OR IGNORE INTO watchlist (ticker, list_name, asset_class) VALUES (?, ?, ?)'
-      )
+      .prepare('INSERT OR IGNORE INTO watchlist (ticker, list_name, asset_class) VALUES (?, ?, ?)')
       .run(ticker.toUpperCase(), listName, assetClass)
     if (info.changes === 0) {
       return getDb()
         .prepare('SELECT * FROM watchlist WHERE ticker = ? AND list_name = ?')
         .get(ticker.toUpperCase(), listName) as WatchlistItem
     }
-    return getDb().prepare('SELECT * FROM watchlist WHERE id = ?').get(info.lastInsertRowid) as WatchlistItem
+    return getDb()
+      .prepare('SELECT * FROM watchlist WHERE id = ?')
+      .get(info.lastInsertRowid) as WatchlistItem
   },
   remove(ticker: string, listName = 'default'): void {
     getDb()

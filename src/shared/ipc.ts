@@ -68,5 +68,18 @@ export const IPC_CHANNELS = {
   financeQuote: 'finance:quote',
   financeHistorical: 'finance:historical',
   financeSearch: 'finance:search',
-  financeFundamentals: 'finance:fundamentals'
+  financeFundamentals: 'finance:fundamentals',
+  financeStatements: 'finance:statements',
+  financeOwnership: 'finance:ownership',
+  financeOptions: 'finance:options',
+  financeNews: 'finance:news',
+  financeFilings: 'finance:filings',
+  financeReddit: 'finance:reddit',
+  pdfMerge: 'pdf:merge',
+  pdfSplit: 'pdf:split',
+  pdfInfo: 'pdf:info',
+  pdfOpen: 'pdf:open',
+  sportsScoreboard: 'sports:scoreboard',
+  sportsStandings: 'sports:standings',
+  sportsSchedule: 'sports:schedule'
 } as const

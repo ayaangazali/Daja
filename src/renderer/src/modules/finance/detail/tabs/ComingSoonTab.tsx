@@ -1,12 +1,6 @@
 import { cn } from '../../../../lib/cn'
 
-export function ComingSoonTab({
-  name,
-  note
-}: {
-  name: string
-  note?: string
-}): React.JSX.Element {
+export function ComingSoonTab({ name, note }: { name: string; note?: string }): React.JSX.Element {
   return (
     <div className="p-6">
       <div

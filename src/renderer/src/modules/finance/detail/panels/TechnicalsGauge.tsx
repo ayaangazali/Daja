@@ -32,9 +32,7 @@ export function TechnicalsGauge({ ticker }: { ticker: string }): React.JSX.Eleme
   const { data: bars = [] } = useHistorical(ticker, '1y')
 
   const signals = useMemo((): { items: Signal[]; score: number } => {
-    const closes = bars
-      .map((b) => b.close)
-      .filter((c): c is number => c != null)
+    const closes = bars.map((b) => b.close).filter((c): c is number => c != null)
     if (closes.length === 0) return { items: [], score: 0 }
     const price = closes[closes.length - 1]
     const s20 = sma(closes, 20)
@@ -73,18 +71,18 @@ export function TechnicalsGauge({ ticker }: { ticker: string }): React.JSX.Eleme
     signals.score >= 40
       ? 'BUY'
       : signals.score >= 10
-      ? 'LEAN BUY'
-      : signals.score <= -40
-      ? 'SELL'
-      : signals.score <= -10
-      ? 'LEAN SELL'
-      : 'NEUTRAL'
+        ? 'LEAN BUY'
+        : signals.score <= -40
+          ? 'SELL'
+          : signals.score <= -10
+            ? 'LEAN SELL'
+            : 'NEUTRAL'
   const color =
     signals.score >= 10
       ? 'text-[var(--color-pos)]'
       : signals.score <= -10
-      ? 'text-[var(--color-neg)]'
-      : 'text-[var(--color-warn)]'
+        ? 'text-[var(--color-neg)]'
+        : 'text-[var(--color-warn)]'
 
   const norm = Math.max(-100, Math.min(100, signals.score))
   const angle = ((norm + 100) / 200) * 180 - 90
@@ -144,7 +142,8 @@ export function TechnicalsGauge({ ticker }: { ticker: string }): React.JSX.Eleme
                   'rounded px-1 py-0.5 text-[9px] font-semibold uppercase',
                   s.signal === 'buy' && 'bg-[var(--color-pos)]/20 text-[var(--color-pos)]',
                   s.signal === 'sell' && 'bg-[var(--color-neg)]/20 text-[var(--color-neg)]',
-                  s.signal === 'neutral' && 'bg-[var(--color-fg-muted)]/10 text-[var(--color-fg-muted)]'
+                  s.signal === 'neutral' &&
+                    'bg-[var(--color-fg-muted)]/10 text-[var(--color-fg-muted)]'
                 )}
               >
                 {s.signal}

@@ -43,9 +43,7 @@ function hydrate(r: Row): Strategy {
 
 export const strategiesRepo = {
   list(): Strategy[] {
-    const rows = getDb()
-      .prepare('SELECT * FROM strategies ORDER BY updated_at DESC')
-      .all() as Row[]
+    const rows = getDb().prepare('SELECT * FROM strategies ORDER BY updated_at DESC').all() as Row[]
     return rows.map(hydrate)
   },
   listActive(): Strategy[] {
@@ -78,7 +76,10 @@ export const strategiesRepo = {
       )
     return this.get(info.lastInsertRowid as number) as Strategy
   },
-  update(id: number, patch: Partial<Omit<Strategy, 'id' | 'created_at' | 'updated_at'>>): Strategy | null {
+  update(
+    id: number,
+    patch: Partial<Omit<Strategy, 'id' | 'created_at' | 'updated_at'>>
+  ): Strategy | null {
     const cur = this.get(id)
     if (!cur) return null
     const merged: Strategy = {

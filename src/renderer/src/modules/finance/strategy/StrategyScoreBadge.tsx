@@ -84,8 +84,7 @@ export function StrategyScoreBadge({
   const scores = useStrategyScores(fundamentals)
   if (scores.length === 0) return null
   const best = scores.reduce((a, b) => (b.score > a.score ? b : a))
-  const tone =
-    best.score >= 70 ? 'pos' : best.score <= 40 ? 'neg' : 'warn'
+  const tone = best.score >= 70 ? 'pos' : best.score <= 40 ? 'neg' : 'warn'
   return (
     <div
       className={cn(

@@ -35,9 +35,7 @@ export interface SearchResult {
   typeDisp: string
 }
 
-export function useQuote(
-  ticker: string | undefined
-): ReturnType<typeof useQuery<Quote, Error>> {
+export function useQuote(ticker: string | undefined): ReturnType<typeof useQuery<Quote, Error>> {
   return useQuery<Quote, Error>({
     queryKey: ['quote', ticker],
     queryFn: () => window.nexus.finance.quote(ticker as string) as Promise<Quote>,

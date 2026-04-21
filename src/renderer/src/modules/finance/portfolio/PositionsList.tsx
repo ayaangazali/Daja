@@ -16,8 +16,7 @@ export function PositionsList(): React.JSX.Element {
     const q = quotes[i]?.data
     const marketPrice = q?.price ?? null
     const marketValue = marketPrice != null ? marketPrice * p.qty : null
-    const unrealized =
-      marketPrice != null && p.qty > 0 ? (marketPrice - p.avgCost) * p.qty : 0
+    const unrealized = marketPrice != null && p.qty > 0 ? (marketPrice - p.avgCost) * p.qty : 0
     const unrealizedPct =
       p.avgCost > 0 && marketPrice != null ? ((marketPrice - p.avgCost) / p.avgCost) * 100 : 0
     return { ...p, marketPrice, marketValue, unrealized, unrealizedPct }
@@ -83,10 +82,7 @@ export function PositionsList(): React.JSX.Element {
                   className="border-b border-[var(--color-border)] hover:bg-[var(--color-bg)]"
                 >
                   <td className="px-2 py-1 font-mono font-semibold">
-                    <NavLink
-                      to={`/finance/${p.ticker}`}
-                      className="hover:text-[var(--color-info)]"
-                    >
+                    <NavLink to={`/finance/${p.ticker}`} className="hover:text-[var(--color-info)]">
                       {p.ticker}
                     </NavLink>
                   </td>
@@ -122,9 +118,7 @@ export function PositionsList(): React.JSX.Element {
                   >
                     {p.realizedPnL >= 0 ? '+' : ''}${p.realizedPnL.toFixed(0)}
                   </td>
-                  <td className="px-2 py-1 text-right font-mono tabular">
-                    {weight.toFixed(1)}%
-                  </td>
+                  <td className="px-2 py-1 text-right font-mono tabular">{weight.toFixed(1)}%</td>
                 </tr>
               )
             })}

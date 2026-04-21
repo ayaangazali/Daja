@@ -4,15 +4,7 @@ import { useQuotes } from '../../../hooks/useFinance'
 import { computePositions } from './positions'
 import { cn } from '../../../lib/cn'
 
-const PALETTE = [
-  '#185FA5',
-  '#1D9E75',
-  '#BA7517',
-  '#9D3B9D',
-  '#A43F5B',
-  '#2E7E8E',
-  '#7A5FC2'
-]
+const PALETTE = ['#185FA5', '#1D9E75', '#BA7517', '#9D3B9D', '#A43F5B', '#2E7E8E', '#7A5FC2']
 
 export function AllocationBar(): React.JSX.Element | null {
   const { data: trades = [] } = useTrades()
@@ -46,7 +38,10 @@ export function AllocationBar(): React.JSX.Element | null {
           <div
             key={s.ticker}
             title={`${s.ticker}: ${((s.value / total) * 100).toFixed(1)}%`}
-            style={{ width: `${(s.value / total) * 100}%`, background: PALETTE[i % PALETTE.length] }}
+            style={{
+              width: `${(s.value / total) * 100}%`,
+              background: PALETTE[i % PALETTE.length]
+            }}
           />
         ))}
       </div>

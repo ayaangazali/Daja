@@ -49,7 +49,13 @@ export interface Fundamentals {
   targetLow: number | null
   targetMean: number | null
   recommendationMean: number | null
-  recommendations: { strongBuy: number; buy: number; hold: number; sell: number; strongSell: number } | null
+  recommendations: {
+    strongBuy: number
+    buy: number
+    hold: number
+    sell: number
+    strongSell: number
+  } | null
   // earnings surprises
   earningsHistory: {
     quarter: string
@@ -121,8 +127,7 @@ export async function fetchFundamentals(symbol: string): Promise<Fundamentals> {
   const qt = (r.quoteType as Obj) ?? {}
   const eh = ((r.earningsHistory as Obj)?.history as Obj[]) ?? []
   const ish = ((r.incomeStatementHistory as Obj)?.incomeStatementHistory as Obj[]) ?? []
-  const ishq =
-    ((r.incomeStatementHistoryQuarterly as Obj)?.incomeStatementHistory as Obj[]) ?? []
+  const ishq = ((r.incomeStatementHistoryQuarterly as Obj)?.incomeStatementHistory as Obj[]) ?? []
   const rt = ((r.recommendationTrend as Obj)?.trend as Obj[]) ?? []
   const latestRec = rt[0] ?? {}
   const earnings = (r.earnings as Obj) ?? {}

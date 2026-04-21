@@ -19,9 +19,7 @@ export function useSetKey(): ReturnType<
   })
 }
 
-export function useDeleteKey(): ReturnType<
-  typeof useMutation<{ ok: boolean }, Error, ProviderId>
-> {
+export function useDeleteKey(): ReturnType<typeof useMutation<{ ok: boolean }, Error, ProviderId>> {
   const qc = useQueryClient()
   return useMutation<{ ok: boolean }, Error, ProviderId>({
     mutationFn: (provider) => window.nexus.keys.delete(provider),
@@ -29,9 +27,7 @@ export function useDeleteKey(): ReturnType<
   })
 }
 
-export function useTestKey(): ReturnType<
-  typeof useMutation<TestResult, Error, ProviderId>
-> {
+export function useTestKey(): ReturnType<typeof useMutation<TestResult, Error, ProviderId>> {
   const qc = useQueryClient()
   return useMutation<TestResult, Error, ProviderId>({
     mutationFn: (provider) => window.nexus.keys.test(provider),

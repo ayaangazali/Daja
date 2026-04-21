@@ -75,9 +75,7 @@ function Mini({ series }: { series: MiniSeries }): React.JSX.Element {
       {data.length > 0 ? (
         <Bars data={data} fmt={fmt} />
       ) : (
-        <div className="py-4 text-center text-[10px] text-[var(--color-fg-muted)]">
-          No data
-        </div>
+        <div className="py-4 text-center text-[10px] text-[var(--color-fg-muted)]">No data</div>
       )}
     </div>
   )
@@ -86,9 +84,7 @@ function Mini({ series }: { series: MiniSeries }): React.JSX.Element {
 export function MiniBarCharts({ data }: { data: Fundamentals }): React.JSX.Element {
   return (
     <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-      <Mini
-        series={{ title: 'EPS', annual: data.epsAnnual, quarterly: data.epsQuarterly }}
-      />
+      <Mini series={{ title: 'EPS', annual: data.epsAnnual, quarterly: data.epsQuarterly }} />
       <Mini
         series={{
           title: 'Revenue',

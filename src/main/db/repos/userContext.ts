@@ -17,9 +17,7 @@ export const userContextRepo = {
   },
   add(ctx: { context_type: string; content: string; module?: string }): UserContext {
     const info = getDb()
-      .prepare(
-        'INSERT INTO user_context (context_type, content, module) VALUES (?,?,?)'
-      )
+      .prepare('INSERT INTO user_context (context_type, content, module) VALUES (?,?,?)')
       .run(ctx.context_type, ctx.content, ctx.module ?? 'finance')
     return getDb()
       .prepare('SELECT * FROM user_context WHERE id = ?')

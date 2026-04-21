@@ -10,7 +10,9 @@ export function ProviderSelector(): React.JSX.Element {
   return (
     <select
       value={current}
-      onChange={(e) => setAi.mutate({ module: 'finance', provider: e.target.value as AIProviderId })}
+      onChange={(e) =>
+        setAi.mutate({ module: 'finance', provider: e.target.value as AIProviderId })
+      }
       className={cn(
         'h-6 rounded border px-1 text-[10px] outline-none',
         'border-[var(--color-border)] bg-[var(--color-bg)]'

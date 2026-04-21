@@ -55,9 +55,7 @@ export function StockHeader({
         )}
       </div>
       <div className="mt-1 flex items-baseline gap-3">
-        <div className="font-mono text-3xl font-semibold tabular">
-          ${fmtPrice(quote?.price)}
-        </div>
+        <div className="font-mono text-3xl font-semibold tabular">${fmtPrice(quote?.price)}</div>
         <div className={cn('font-mono text-sm tabular', signColor(quote?.change))}>
           {quote ? fmtSignedPrice(quote.change) : ''}
         </div>

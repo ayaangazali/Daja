@@ -1,7 +1,11 @@
 import { Briefcase, Home, Plus, X } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { useWatchlist, useAddToWatchlist, useRemoveFromWatchlist } from '../../../hooks/useWatchlist'
+import {
+  useWatchlist,
+  useAddToWatchlist,
+  useRemoveFromWatchlist
+} from '../../../hooks/useWatchlist'
 import { useQuotes } from '../../../hooks/useFinance'
 import { PercentBadge } from '../../../shared/PercentBadge'
 import { fmtPrice } from '../../../lib/format'
@@ -89,9 +93,7 @@ export function Watchlist(): React.JSX.Element {
           </div>
         )}
         {items.map((item, i) => {
-          const q = quotes[i]?.data as
-            | { price: number; changePercent: number }
-            | undefined
+          const q = quotes[i]?.data as { price: number; changePercent: number } | undefined
           return (
             <NavLink
               key={item.id}

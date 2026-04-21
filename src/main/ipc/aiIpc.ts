@@ -36,8 +36,7 @@ export function registerAiIpc(): void {
       throw new Error(`No API key for ${providerId}. Configure in Settings.`)
     }
 
-    const basePrompt =
-      (promptKey && PROMPTS[promptKey as PromptKey]) ?? PROMPTS.assistant_default
+    const basePrompt = (promptKey && PROMPTS[promptKey as PromptKey]) ?? PROMPTS.assistant_default
     const userBlock = buildUserContextBlock({ module, ticker })
     const system = userBlock
       ? `${basePrompt}\n\n--- USER CONTEXT ---\n${userBlock}\n--- END USER CONTEXT ---`

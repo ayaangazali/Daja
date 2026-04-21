@@ -4,9 +4,7 @@ import { cn } from '../../../../lib/cn'
 
 export function AnalystRatings({ data }: { data: Fundamentals }): React.JSX.Element {
   const r = data.recommendations
-  const total = r
-    ? r.strongBuy + r.buy + r.hold + r.sell + r.strongSell
-    : 0
+  const total = r ? r.strongBuy + r.buy + r.hold + r.sell + r.strongSell : 0
   const seg = (n: number): number => (total === 0 ? 0 : (n / total) * 100)
   return (
     <div

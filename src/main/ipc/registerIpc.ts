@@ -1,6 +1,11 @@
 import { ipcMain } from 'electron'
 import { z } from 'zod'
-import { IPC_CHANNELS, ProviderIdSchema, AIProviderIdSchema, ModuleIdSchema } from '../../shared/ipc'
+import {
+  IPC_CHANNELS,
+  ProviderIdSchema,
+  AIProviderIdSchema,
+  ModuleIdSchema
+} from '../../shared/ipc'
 import {
   listKeys,
   setKey,

@@ -5,7 +5,14 @@ import { useFundamentals } from '../../hooks/useFundamentals'
 import { StockHeader } from './detail/StockHeader'
 import { DetailTabs, type DetailTab } from './detail/DetailTabs'
 import { OverviewTab } from './detail/tabs/OverviewTab'
-import { ComingSoonTab } from './detail/tabs/ComingSoonTab'
+import { FinancialsTab } from './detail/tabs/FinancialsTab'
+import { TechnicalsTab } from './detail/tabs/TechnicalsTab'
+import { EarningsTab } from './detail/tabs/EarningsTab'
+import { OwnershipTab } from './detail/tabs/OwnershipTab'
+import { OptionsTab } from './detail/tabs/OptionsTab'
+import { NewsTab } from './detail/tabs/NewsTab'
+import { SentimentTab } from './detail/tabs/SentimentTab'
+import { SimulationTab } from './detail/tabs/SimulationTab'
 
 export function StockDetail(): React.JSX.Element {
   const { ticker = '' } = useParams<{ ticker: string }>()
@@ -20,33 +27,14 @@ export function StockDetail(): React.JSX.Element {
       <DetailTabs tab={tab} onChange={setTab} />
       <div className="flex-1 overflow-y-auto">
         {tab === 'Overview' && <OverviewTab ticker={upper} fundamentals={fundamentals} />}
-        {tab === 'Financials' && (
-          <ComingSoonTab name="Financials" note="Income / balance / cashflow statements tab." />
-        )}
-        {tab === 'Technicals' && (
-          <ComingSoonTab
-            name="Technicals"
-            note="Detailed oscillators, MA crosses, pivot points."
-          />
-        )}
-        {tab === 'Earnings' && (
-          <ComingSoonTab name="Earnings" note="EPS est vs actual, revenue est, call summaries." />
-        )}
-        {tab === 'Options' && (
-          <ComingSoonTab name="Options" note="Chain, Greeks, unusual flow, IV rank." />
-        )}
-        {tab === 'Ownership' && (
-          <ComingSoonTab name="Ownership" note="13F holders, insider Form 4, ETF holders." />
-        )}
-        {tab === 'News' && (
-          <ComingSoonTab name="News" note="Filtered news + SEC filings (10-K/Q/8-K)." />
-        )}
-        {tab === 'Sentiment' && (
-          <ComingSoonTab name="Sentiment" note="Reddit mentions, Grok X/Twitter scan, analyst changes." />
-        )}
-        {tab === 'Simulation' && (
-          <ComingSoonTab name="Simulation" note="Backtest, Monte Carlo, portfolio correlation." />
-        )}
+        {tab === 'Financials' && <FinancialsTab ticker={upper} />}
+        {tab === 'Technicals' && <TechnicalsTab ticker={upper} />}
+        {tab === 'Earnings' && <EarningsTab ticker={upper} />}
+        {tab === 'Options' && <OptionsTab ticker={upper} />}
+        {tab === 'Ownership' && <OwnershipTab ticker={upper} />}
+        {tab === 'News' && <NewsTab ticker={upper} />}
+        {tab === 'Sentiment' && <SentimentTab ticker={upper} />}
+        {tab === 'Simulation' && <SimulationTab ticker={upper} />}
       </div>
       {fundError && (
         <div className="border-t border-[var(--color-border)] bg-[var(--color-neg)]/10 p-2 text-[10px] text-[var(--color-neg)]">

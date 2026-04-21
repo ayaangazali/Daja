@@ -112,10 +112,7 @@ async function testNewsAPI(key: string): Promise<TestResult> {
     : { ok: false, message: `NewsAPI ${res.status}` }
 }
 
-export async function testProviderKey(
-  provider: ProviderId,
-  key: string
-): Promise<TestResult> {
+export async function testProviderKey(provider: ProviderId, key: string): Promise<TestResult> {
   try {
     switch (provider) {
       case 'openai':

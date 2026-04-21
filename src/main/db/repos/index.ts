@@ -14,10 +14,4 @@ export const repos = {
 
 export type RepoName = keyof typeof repos
 
-export {
-  watchlistRepo,
-  tradesRepo,
-  strategiesRepo,
-  journalRepo,
-  userContextRepo
-}
+export { watchlistRepo, tradesRepo, strategiesRepo, journalRepo, userContextRepo }

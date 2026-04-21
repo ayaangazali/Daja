@@ -77,11 +77,7 @@ export function getKeyPlaintext(provider: ProviderId): string | null {
   return safeStorage.decryptString(Buffer.from(entry.cipher, 'base64'))
 }
 
-export function recordTestResult(
-  provider: ProviderId,
-  ok: boolean,
-  message: string
-): void {
+export function recordTestResult(provider: ProviderId, ok: boolean, message: string): void {
   const all = readAll()
   const entry = all[provider]
   if (!entry) return

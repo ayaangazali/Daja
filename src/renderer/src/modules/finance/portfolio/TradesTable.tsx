@@ -41,8 +41,7 @@ export function TradesTable(): React.JSX.Element {
             </tr>
           )}
           {trades.map((t) => {
-            const total =
-              t.quantity * t.price + (t.side === 'buy' ? t.fees : -t.fees)
+            const total = t.quantity * t.price + (t.side === 'buy' ? t.fees : -t.fees)
             return (
               <tr
                 key={t.id}

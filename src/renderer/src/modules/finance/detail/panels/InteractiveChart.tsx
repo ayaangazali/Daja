@@ -128,8 +128,7 @@ export function InteractiveChart({ ticker }: { ticker: string }): React.JSX.Elem
       .map((b) => ({
         time: b.time as Time,
         value: b.volume as number,
-        color:
-          b.close != null && b.open != null && b.close >= b.open ? '#1d9e7555' : '#e24b4a55'
+        color: b.close != null && b.open != null && b.close >= b.open ? '#1d9e7555' : '#e24b4a55'
       }))
     volumeSeries.setData(volData)
     chartRef.current?.timeScale().fitContent()

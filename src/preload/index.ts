@@ -1,14 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IPC_CHANNELS } from '../shared/ipc'
-import type {
-  AIProviderId,
-  KeyMeta,
-  ModuleId,
-  Prefs,
-  ProviderId,
-  TestResult
-} from '../shared/ipc'
+import type { AIProviderId, KeyMeta, ModuleId, Prefs, ProviderId, TestResult } from '../shared/ipc'
 
 type Unsubscribe = () => void
 
@@ -67,10 +60,42 @@ const nexus = {
       ipcRenderer.invoke(IPC_CHANNELS.financeQuote, { ticker }),
     historical: (ticker: string, range: string): Promise<unknown> =>
       ipcRenderer.invoke(IPC_CHANNELS.financeHistorical, { ticker, range }),
-    search: (q: string): Promise<unknown> =>
-      ipcRenderer.invoke(IPC_CHANNELS.financeSearch, { q }),
+    search: (q: string): Promise<unknown> => ipcRenderer.invoke(IPC_CHANNELS.financeSearch, { q }),
     fundamentals: (ticker: string): Promise<unknown> =>
-      ipcRenderer.invoke(IPC_CHANNELS.financeFundamentals, { ticker })
+      ipcRenderer.invoke(IPC_CHANNELS.financeFundamentals, { ticker }),
+    statements: (ticker: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financeStatements, { ticker }),
+    ownership: (ticker: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financeOwnership, { ticker }),
+    options: (ticker: string, expiration?: number): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financeOptions, { ticker, expiration }),
+    news: (ticker: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financeNews, { ticker }),
+    filings: (ticker: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financeFilings, { ticker }),
+    reddit: (ticker: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financeReddit, { ticker })
+  },
+  pdf: {
+    merge: (paths: string[], outPath: string): Promise<{ ok: boolean; path: string }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.pdfMerge, { paths, outPath }),
+    split: (
+      path: string,
+      outDir: string,
+      ranges: { name: string; from: number; to: number }[]
+    ): Promise<{ ok: boolean; files: string[] }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.pdfSplit, { path, outDir, ranges }),
+    info: (path: string): Promise<{ pages: number; title: string | null; author: string | null }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.pdfInfo, { path }),
+    open: (): Promise<string[]> => ipcRenderer.invoke(IPC_CHANNELS.pdfOpen)
+  },
+  sports: {
+    scoreboard: (league: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.sportsScoreboard, { league }),
+    standings: (league: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.sportsStandings, { league }),
+    schedule: (league: string, team: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.sportsSchedule, { league, team })
   }
 }
 

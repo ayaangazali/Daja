@@ -3,10 +3,7 @@ import { AIError } from '../types'
 import { readSSE } from '../sse'
 import type { AIProviderId } from '../../../shared/ipc'
 
-export function makeOpenAICompat(
-  id: AIProviderId,
-  baseUrl: string
-): AIProvider {
+export function makeOpenAICompat(id: AIProviderId, baseUrl: string): AIProvider {
   return {
     id,
     async *stream(opts: AIStreamOptions): AsyncGenerator<string, void, unknown> {

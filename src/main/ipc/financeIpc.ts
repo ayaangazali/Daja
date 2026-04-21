@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { IPC_CHANNELS } from '../../shared/ipc'
 import { fetchHistorical, fetchQuote, searchTickers } from '../services/finance/yahoo'
 import { fetchFundamentals } from '../services/finance/fundamentals'
+import { fetchOptions, fetchOwnership, fetchStatements } from '../services/finance/statements'
+import { fetchNews, fetchRedditMentions, fetchSecFilings } from '../services/finance/news'
 
 const QuotePayload = z.object({ ticker: z.string().min(1) })
 const HistoricalPayload = z.object({ ticker: z.string().min(1), range: z.string().min(1) })
@@ -24,5 +26,31 @@ export function registerFinanceIpc(): void {
   ipcMain.handle(IPC_CHANNELS.financeFundamentals, async (_e, raw) => {
     const { ticker } = QuotePayload.parse(raw)
     return fetchFundamentals(ticker)
+  })
+  ipcMain.handle(IPC_CHANNELS.financeStatements, async (_e, raw) => {
+    const { ticker } = QuotePayload.parse(raw)
+    return fetchStatements(ticker)
+  })
+  ipcMain.handle(IPC_CHANNELS.financeOwnership, async (_e, raw) => {
+    const { ticker } = QuotePayload.parse(raw)
+    return fetchOwnership(ticker)
+  })
+  ipcMain.handle(IPC_CHANNELS.financeOptions, async (_e, raw) => {
+    const parsed = z
+      .object({ ticker: z.string().min(1), expiration: z.number().optional() })
+      .parse(raw)
+    return fetchOptions(parsed.ticker, parsed.expiration)
+  })
+  ipcMain.handle(IPC_CHANNELS.financeNews, async (_e, raw) => {
+    const { ticker } = QuotePayload.parse(raw)
+    return fetchNews(ticker)
+  })
+  ipcMain.handle(IPC_CHANNELS.financeFilings, async (_e, raw) => {
+    const { ticker } = QuotePayload.parse(raw)
+    return fetchSecFilings(ticker)
+  })
+  ipcMain.handle(IPC_CHANNELS.financeReddit, async (_e, raw) => {
+    const { ticker } = QuotePayload.parse(raw)
+    return fetchRedditMentions(ticker)
   })
 }
