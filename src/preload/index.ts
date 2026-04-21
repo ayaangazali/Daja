@@ -1,22 +1,93 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { IPC_CHANNELS } from '../shared/ipc'
+import type {
+  AIProviderId,
+  KeyMeta,
+  ModuleId,
+  Prefs,
+  ProviderId,
+  TestResult
+} from '../shared/ipc'
 
-// Custom APIs for renderer
-const api = {}
+type Unsubscribe = () => void
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
+const nexus = {
+  keys: {
+    list: (): Promise<KeyMeta[]> => ipcRenderer.invoke(IPC_CHANNELS.keysList),
+    set: (provider: ProviderId, key: string): Promise<{ ok: boolean }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.keysSet, { provider, key }),
+    delete: (provider: ProviderId): Promise<{ ok: boolean }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.keysDelete, { provider }),
+    test: (provider: ProviderId): Promise<TestResult> =>
+      ipcRenderer.invoke(IPC_CHANNELS.keysTest, { provider })
+  },
+  prefs: {
+    get: (): Promise<Prefs> => ipcRenderer.invoke(IPC_CHANNELS.prefsGet),
+    setAiForModule: (module: ModuleId, provider: AIProviderId): Promise<{ ok: boolean }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.prefsSetAiModule, { module, provider }),
+    setModel: (provider: AIProviderId, model: string): Promise<{ ok: boolean }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.prefsSetModel, { provider, model }),
+    setTheme: (theme: 'dark' | 'light'): Promise<{ ok: boolean }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.prefsSetTheme, { theme })
+  },
+  ai: {
+    start: (payload: unknown): Promise<{ requestId: string }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.aiChatStart, payload),
+    onChunk: (requestId: string, cb: (text: string) => void): Unsubscribe => {
+      const h = (_e: unknown, id: string, text: string): void => {
+        if (id === requestId) cb(text)
+      }
+      ipcRenderer.on(IPC_CHANNELS.aiChatChunk, h)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.aiChatChunk, h)
+    },
+    onDone: (requestId: string, cb: () => void): Unsubscribe => {
+      const h = (_e: unknown, id: string): void => {
+        if (id === requestId) cb()
+      }
+      ipcRenderer.on(IPC_CHANNELS.aiChatDone, h)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.aiChatDone, h)
+    },
+    onError: (requestId: string, cb: (msg: string) => void): Unsubscribe => {
+      const h = (_e: unknown, id: string, msg: string): void => {
+        if (id === requestId) cb(msg)
+      }
+      ipcRenderer.on(IPC_CHANNELS.aiChatError, h)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.aiChatError, h)
+    },
+    cancel: (requestId: string): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.aiChatCancel, { requestId })
+  },
+  db: {
+    exec: (sql: string, params?: unknown[]): Promise<{ changes: number; lastInsertRowid: number }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.dbExec, { sql, params }),
+    query: <T = unknown>(sql: string, params?: unknown[]): Promise<T[]> =>
+      ipcRenderer.invoke(IPC_CHANNELS.dbQuery, { sql, params })
+  },
+  finance: {
+    quote: (ticker: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financeQuote, { ticker }),
+    historical: (ticker: string, range: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financeHistorical, { ticker, range }),
+    search: (q: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financeSearch, { q }),
+    fundamentals: (ticker: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financeFundamentals, { ticker })
+  }
+}
+
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
+    contextBridge.exposeInMainWorld('nexus', nexus)
   } catch (error) {
     console.error(error)
   }
 } else {
-  // @ts-ignore (define in dts)
+  // @ts-ignore legacy fallback
   window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
+  // @ts-ignore legacy fallback
+  window.nexus = nexus
 }
+
+export type NexusBridge = typeof nexus

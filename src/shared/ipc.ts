@@ -1,0 +1,72 @@
+import { z } from 'zod'
+
+export const PROVIDER_IDS = [
+  'anthropic',
+  'openai',
+  'gemini',
+  'grok',
+  'perplexity',
+  'fmp',
+  'alpha_vantage',
+  'polygon',
+  'news_api'
+] as const
+
+export const ProviderIdSchema = z.enum(PROVIDER_IDS)
+export type ProviderId = z.infer<typeof ProviderIdSchema>
+
+export const AI_PROVIDER_IDS = ['anthropic', 'openai', 'gemini', 'grok', 'perplexity'] as const
+export const AIProviderIdSchema = z.enum(AI_PROVIDER_IDS)
+export type AIProviderId = z.infer<typeof AIProviderIdSchema>
+
+export const ModuleIdSchema = z.enum(['finance', 'sports', 'pdf', 'health', 'assistant'])
+export type ModuleId = z.infer<typeof ModuleIdSchema>
+
+export const KeyMetaSchema = z.object({
+  provider: ProviderIdSchema,
+  configured: z.boolean(),
+  updatedAt: z.string().nullable(),
+  lastTested: z.string().nullable(),
+  lastTestResult: z.enum(['success', 'error']).nullable(),
+  lastTestMessage: z.string().nullable()
+})
+export type KeyMeta = z.infer<typeof KeyMetaSchema>
+
+export const TestResultSchema = z.object({
+  ok: z.boolean(),
+  message: z.string()
+})
+export type TestResult = z.infer<typeof TestResultSchema>
+
+export const PrefsSchema = z.object({
+  aiByModule: z.record(z.string(), AIProviderIdSchema).default(() => ({})),
+  modelByProvider: z.record(z.string(), z.string()).default(() => ({})),
+  theme: z.enum(['dark', 'light']).default('dark')
+})
+export type Prefs = {
+  aiByModule: Partial<Record<ModuleId, AIProviderId>>
+  modelByProvider: Partial<Record<AIProviderId, string>>
+  theme: 'dark' | 'light'
+}
+
+export const IPC_CHANNELS = {
+  keysList: 'keys:list',
+  keysSet: 'keys:set',
+  keysDelete: 'keys:delete',
+  keysTest: 'keys:test',
+  prefsGet: 'prefs:get',
+  prefsSetAiModule: 'prefs:set-ai-module',
+  prefsSetModel: 'prefs:set-model',
+  prefsSetTheme: 'prefs:set-theme',
+  dbExec: 'db:exec',
+  dbQuery: 'db:query',
+  aiChatStart: 'ai:chat:start',
+  aiChatChunk: 'ai:chat:chunk',
+  aiChatDone: 'ai:chat:done',
+  aiChatError: 'ai:chat:error',
+  aiChatCancel: 'ai:chat:cancel',
+  financeQuote: 'finance:quote',
+  financeHistorical: 'finance:historical',
+  financeSearch: 'finance:search',
+  financeFundamentals: 'finance:fundamentals'
+} as const
