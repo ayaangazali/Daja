@@ -106,6 +106,19 @@ CREATE TABLE IF NOT EXISTS user_settings (
     updated_at TEXT DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS paper_trades (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ticker TEXT NOT NULL,
+    side TEXT NOT NULL CHECK(side IN ('buy','sell')),
+    quantity REAL NOT NULL,
+    price REAL NOT NULL,
+    fees REAL DEFAULT 0,
+    date TEXT NOT NULL,
+    notes TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_paper_ticker ON paper_trades(ticker);
+
 CREATE TABLE IF NOT EXISTS dashboard_layouts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     module TEXT NOT NULL,
