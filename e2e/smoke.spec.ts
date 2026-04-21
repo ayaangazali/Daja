@@ -67,10 +67,22 @@ test.describe('NexusHub end-to-end', () => {
     await snap(page, '05-detail-overview')
 
     // 4. Detail tabs — click each
-    const tabs = ['Financials', 'Technicals', 'Earnings', 'Options', 'Ownership', 'News', 'Sentiment', 'Simulation']
+    const tabs = [
+      'Financials',
+      'Technicals',
+      'Earnings',
+      'Options',
+      'Ownership',
+      'News',
+      'Sentiment',
+      'Simulation'
+    ]
     for (const tab of tabs) {
       const btn = page.getByRole('button', { name: tab, exact: true })
-      await btn.first().click({ timeout: 5000 }).catch(() => null)
+      await btn
+        .first()
+        .click({ timeout: 5000 })
+        .catch(() => null)
       await page.waitForTimeout(2200)
       await snap(page, `06-tab-${tab.toLowerCase()}`)
     }

@@ -44,9 +44,7 @@ export function JournalPage(): React.JSX.Element {
         risk_reward_ratio: null,
         lessons: null,
         emotions: form.emotions || null,
-        tags: form.tags
-          ? JSON.stringify(form.tags.split(',').map((t) => t.trim()))
-          : null,
+        tags: form.tags ? JSON.stringify(form.tags.split(',').map((t) => t.trim())) : null,
         screenshots: null
       },
       {
@@ -211,7 +209,9 @@ export function JournalPage(): React.JSX.Element {
             {entries.map((e) => (
               <div
                 key={e.id}
-                className={cn('group border-b border-[var(--color-border)] px-3 py-2 text-[11px] last:border-0')}
+                className={cn(
+                  'group border-b border-[var(--color-border)] px-3 py-2 text-[11px] last:border-0'
+                )}
               >
                 <div className="flex items-start justify-between">
                   <div className="min-w-0 flex-1">
@@ -220,10 +220,14 @@ export function JournalPage(): React.JSX.Element {
                       <span
                         className={cn(
                           'rounded px-1.5 py-0.5 text-[9px] uppercase',
-                          e.entry_type === 'entry' && 'bg-[var(--color-pos)]/15 text-[var(--color-pos)]',
-                          e.entry_type === 'exit' && 'bg-[var(--color-neg)]/15 text-[var(--color-neg)]',
-                          e.entry_type === 'update' && 'bg-[var(--color-warn)]/15 text-[var(--color-warn)]',
-                          e.entry_type === 'note' && 'bg-[var(--color-fg-muted)]/10 text-[var(--color-fg-muted)]'
+                          e.entry_type === 'entry' &&
+                            'bg-[var(--color-pos)]/15 text-[var(--color-pos)]',
+                          e.entry_type === 'exit' &&
+                            'bg-[var(--color-neg)]/15 text-[var(--color-neg)]',
+                          e.entry_type === 'update' &&
+                            'bg-[var(--color-warn)]/15 text-[var(--color-warn)]',
+                          e.entry_type === 'note' &&
+                            'bg-[var(--color-fg-muted)]/10 text-[var(--color-fg-muted)]'
                         )}
                       >
                         {e.entry_type}

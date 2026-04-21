@@ -52,26 +52,54 @@ test.describe('NexusHub extended interactions', () => {
         console.log(`[CHART] Canvas zero-size: ${isEmpty}`)
       }
     } else {
-      console.log('[BUG] No canvas found on Overview tab — InteractiveChart may have failed to mount')
+      console.log(
+        '[BUG] No canvas found on Overview tab — InteractiveChart may have failed to mount'
+      )
     }
 
     // Check that overview does not show pure loading state
-    const overviewLoading = await page.getByText('Loading chart…').isVisible().catch(() => false)
+    const overviewLoading = await page
+      .getByText('Loading chart…')
+      .isVisible()
+      .catch(() => false)
     console.log(`[STATE] Overview still showing "Loading chart…": ${overviewLoading}`)
 
     // ── 2. Cycle all 9 detail tabs and record data vs empty state ─────────────
-    const TABS = ['Financials', 'Technicals', 'Earnings', 'Options', 'Ownership', 'News', 'Sentiment', 'Simulation'] as const
+    const TABS = [
+      'Financials',
+      'Technicals',
+      'Earnings',
+      'Options',
+      'Ownership',
+      'News',
+      'Sentiment',
+      'Simulation'
+    ] as const
 
     for (const tab of TABS) {
       const btn = page.getByRole('button', { name: tab, exact: true }).first()
-      await btn.click({ timeout: 5000 }).catch(() =>
-        console.log(`[WARN] Could not click tab: ${tab}`)
-      )
+      await btn
+        .click({ timeout: 5000 })
+        .catch(() => console.log(`[WARN] Could not click tab: ${tab}`))
       await page.waitForTimeout(3500)
 
-      const stillLoading = await page.getByText(/^Loading/).first().isVisible().catch(() => false)
-      const noData = await page.getByText(/No data|No recent|No options|No earnings|No transactions|coming soon|Wires in Phase/i).first().isVisible().catch(() => false)
-      const hasError = await page.getByText(/load failed|error/i).first().isVisible().catch(() => false)
+      const stillLoading = await page
+        .getByText(/^Loading/)
+        .first()
+        .isVisible()
+        .catch(() => false)
+      const noData = await page
+        .getByText(
+          /No data|No recent|No options|No earnings|No transactions|coming soon|Wires in Phase/i
+        )
+        .first()
+        .isVisible()
+        .catch(() => false)
+      const hasError = await page
+        .getByText(/load failed|error/i)
+        .first()
+        .isVisible()
+        .catch(() => false)
 
       console.log(`[TAB:${tab}] loading=${stillLoading} noData=${noData} error=${hasError}`)
       await snap(page, `02-tab-${tab.toLowerCase()}`)
@@ -102,7 +130,10 @@ test.describe('NexusHub extended interactions', () => {
     await snap(page, '04-portfolio-before-trade')
 
     // Check if "No positions yet" placeholder is showing
-    const noPositions = await page.getByText('No positions yet').isVisible().catch(() => false)
+    const noPositions = await page
+      .getByText('No positions yet')
+      .isVisible()
+      .catch(() => false)
     console.log(`[PORTFOLIO] Empty state before trade: ${noPositions}`)
 
     // Fill in the trade form
@@ -131,7 +162,9 @@ test.describe('NexusHub extended interactions', () => {
       await saveBtn.click()
     } else {
       // Button is disabled — log the bug and click anyway with force to proceed
-      console.log('[BUG] Save button still disabled despite form fields filled — clicking with force to proceed')
+      console.log(
+        '[BUG] Save button still disabled despite form fields filled — clicking with force to proceed'
+      )
       await saveBtn.click({ force: true })
     }
     await page.waitForTimeout(3000)
@@ -146,10 +179,13 @@ test.describe('NexusHub extended interactions', () => {
     // Check unrealized P&L column is not "—"
     if (aaplVisible) {
       // Find the row and get all cells
-      const row = page.locator('tr').filter({ has: page.locator('td', { hasText: /^AAPL$/ }) }).first()
+      const row = page
+        .locator('tr')
+        .filter({ has: page.locator('td', { hasText: /^AAPL$/ }) })
+        .first()
       const cellTexts = await row.locator('td').allTextContents()
       console.log(`[PORTFOLIO] AAPL row cells: ${JSON.stringify(cellTexts)}`)
-      const hasUnrealPnL = cellTexts.some(c => c.match(/[+-]\$\d+/) || c.match(/[+-]\d+\.\d+%/))
+      const hasUnrealPnL = cellTexts.some((c) => c.match(/[+-]\$\d+/) || c.match(/[+-]\d+\.\d+%/))
       console.log(`[PORTFOLIO] Unrealized P&L value populated: ${hasUnrealPnL}`)
     }
 
@@ -159,9 +195,21 @@ test.describe('NexusHub extended interactions', () => {
     await snap(page, '07-settings')
 
     // Count API key provider rows — expect 9 (5 AI + 4 data)
-    const keyRows = await page.locator('div').filter({ hasText: /Paste .* API key|••••••••/ }).count()
-    const providerNameEls = ['Anthropic Claude', 'OpenAI', 'Google Gemini', 'xAI Grok', 'Perplexity',
-      'Financial Modeling Prep', 'Alpha Vantage', 'Polygon.io', 'NewsAPI']
+    const keyRows = await page
+      .locator('div')
+      .filter({ hasText: /Paste .* API key|••••••••/ })
+      .count()
+    const providerNameEls = [
+      'Anthropic Claude',
+      'OpenAI',
+      'Google Gemini',
+      'xAI Grok',
+      'Perplexity',
+      'Financial Modeling Prep',
+      'Alpha Vantage',
+      'Polygon.io',
+      'NewsAPI'
+    ]
     let visibleProviders = 0
     for (const name of providerNameEls) {
       const el = page.getByText(name, { exact: true }).first()
@@ -172,7 +220,12 @@ test.describe('NexusHub extended interactions', () => {
     console.log(`[SETTINGS] Visible provider rows: ${visibleProviders}/9`)
 
     // Theme toggle — check current theme and flip it
-    const themeDisplay = await page.locator('span.font-mono').filter({ hasText: /dark|light/ }).first().textContent().catch(() => null)
+    const themeDisplay = await page
+      .locator('span.font-mono')
+      .filter({ hasText: /dark|light/ })
+      .first()
+      .textContent()
+      .catch(() => null)
     console.log(`[SETTINGS] Current theme: ${themeDisplay}`)
 
     const toggleBtn = page.getByRole('button', { name: 'Toggle', exact: true })
@@ -182,8 +235,15 @@ test.describe('NexusHub extended interactions', () => {
     const htmlClass = await page.evaluate(() => document.documentElement.className)
     console.log(`[SETTINGS] html classes after toggle: "${htmlClass}"`)
     const isDark = htmlClass.includes('dark')
-    const themeAfter = await page.locator('span.font-mono').filter({ hasText: /dark|light/ }).first().textContent().catch(() => null)
-    console.log(`[SETTINGS] Theme display after toggle: ${themeAfter}, html.dark class present: ${isDark}`)
+    const themeAfter = await page
+      .locator('span.font-mono')
+      .filter({ hasText: /dark|light/ })
+      .first()
+      .textContent()
+      .catch(() => null)
+    console.log(
+      `[SETTINGS] Theme display after toggle: ${themeAfter}, html.dark class present: ${isDark}`
+    )
 
     await snap(page, '08-settings-after-theme-toggle')
 
@@ -195,7 +255,10 @@ test.describe('NexusHub extended interactions', () => {
     await page.keyboard.press(process.platform === 'darwin' ? 'Meta+k' : 'Control+k')
     await page.waitForTimeout(500)
 
-    const paletteVisible = await page.locator('[placeholder="Type a command or search…"]').isVisible().catch(() => false)
+    const paletteVisible = await page
+      .locator('[placeholder="Type a command or search…"]')
+      .isVisible()
+      .catch(() => false)
     console.log(`[CMDK] Palette opened: ${paletteVisible}`)
     await snap(page, '09-cmdk-open')
 
@@ -229,30 +292,51 @@ test.describe('NexusHub extended interactions', () => {
 
     for (const league of ['NFL', 'NBA', 'EPL']) {
       const leagueBtn = page.getByRole('button', { name: league, exact: true }).first()
-      await leagueBtn.click({ timeout: 5000 }).catch(() =>
-        console.log(`[SPORTS] Could not find league button: ${league}`)
-      )
+      await leagueBtn
+        .click({ timeout: 5000 })
+        .catch(() => console.log(`[SPORTS] Could not find league button: ${league}`))
       await page.waitForTimeout(2500)
 
       // Check for data vs empty state vs error
-      const hasGames = await page.locator('[class*="GameCard"], div').filter({ hasText: /HOME|AWAY/ }).first().isVisible().catch(() => false)
-      const noGames = await page.getByText('No games scheduled').isVisible().catch(() => false)
-      const loadingState = await page.getByText('Loading…').isVisible().catch(() => false)
-      const errorState = await page.getByText(/Scoreboard failed/).isVisible().catch(() => false)
-      console.log(`[SPORTS:${league}] games=${hasGames} noGames=${noGames} loading=${loadingState} error=${errorState}`)
+      const hasGames = await page
+        .locator('[class*="GameCard"], div')
+        .filter({ hasText: /HOME|AWAY/ })
+        .first()
+        .isVisible()
+        .catch(() => false)
+      const noGames = await page
+        .getByText('No games scheduled')
+        .isVisible()
+        .catch(() => false)
+      const loadingState = await page
+        .getByText('Loading…')
+        .isVisible()
+        .catch(() => false)
+      const errorState = await page
+        .getByText(/Scoreboard failed/)
+        .isVisible()
+        .catch(() => false)
+      console.log(
+        `[SPORTS:${league}] games=${hasGames} noGames=${noGames} loading=${loadingState} error=${errorState}`
+      )
 
       // Team logos: check naturalWidth > 0 for visible img elements
       const logoImgs = await page.locator('img').all()
       let loadedLogos = 0
       let brokenLogos = 0
       for (const img of logoImgs.slice(0, 20)) {
-        const nat = await img.evaluate((el: HTMLImageElement) => ({
-          naturalWidth: el.naturalWidth,
-          src: el.src
-        })).catch(() => null)
+        const nat = await img
+          .evaluate((el: HTMLImageElement) => ({
+            naturalWidth: el.naturalWidth,
+            src: el.src
+          }))
+          .catch(() => null)
         if (nat) {
           if (nat.naturalWidth > 0) loadedLogos++
-          else { brokenLogos++; console.log(`[SPORTS:${league}] Broken logo: ${nat.src}`) }
+          else {
+            brokenLogos++
+            console.log(`[SPORTS:${league}] Broken logo: ${nat.src}`)
+          }
         }
       }
       console.log(`[SPORTS:${league}] Logos loaded: ${loadedLogos}, broken: ${brokenLogos}`)
@@ -296,11 +380,12 @@ test.describe('NexusHub extended interactions', () => {
 
     // Fail on crash-level errors only
     const crashErrors = consoleErrors.filter(
-      (e) => !e.includes('Failed to load resource') &&
-             !e.includes('404') &&
-             !e.includes('Yahoo') &&
-             !e.includes('net::ERR') &&
-             !e.includes('favicon')
+      (e) =>
+        !e.includes('Failed to load resource') &&
+        !e.includes('404') &&
+        !e.includes('Yahoo') &&
+        !e.includes('net::ERR') &&
+        !e.includes('favicon')
     )
     expect(crashErrors, crashErrors.join('\n')).toHaveLength(0)
   })

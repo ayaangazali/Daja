@@ -1,4 +1,4 @@
-import { Command, Moon, Pin, Search, Settings2, Sun } from 'lucide-react'
+import { Command, Maximize2, Moon, Pin, Search, Settings2, Sun } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useUIStore } from '../stores/uiStore'
 import { useSetTheme } from '../hooks/usePrefs'
@@ -10,6 +10,7 @@ export function TopBar(): React.JSX.Element {
   const setLocalTheme = useUIStore((s) => s.setTheme)
   const alwaysOnTop = useUIStore((s) => s.alwaysOnTop)
   const toggleAOT = useUIStore((s) => s.toggleAlwaysOnTop)
+  const toggleFocus = useUIStore((s) => s.toggleFocusMode)
   const setThemePref = useSetTheme()
   const navigate = useNavigate()
 
@@ -47,6 +48,13 @@ export function TopBar(): React.JSX.Element {
         </kbd>
       </button>
       <div className="flex items-center gap-1">
+        <button
+          onClick={toggleFocus}
+          title="Focus mode (hide shell chrome)"
+          className="rounded-md p-1.5 text-[var(--color-fg-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-fg)]"
+        >
+          <Maximize2 className="h-4 w-4" />
+        </button>
         <button
           onClick={toggleAOT}
           title={alwaysOnTop ? 'Unpin window' : 'Always on top'}

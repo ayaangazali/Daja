@@ -1,7 +1,4 @@
-export function toCsv<T extends Record<string, unknown>>(
-  rows: T[],
-  columns?: (keyof T)[]
-): string {
+export function toCsv<T extends Record<string, unknown>>(rows: T[], columns?: (keyof T)[]): string {
   if (rows.length === 0) return ''
   const keys = (columns ?? (Object.keys(rows[0]) as (keyof T)[])) as (keyof T)[]
   const esc = (v: unknown): string => {
@@ -11,9 +8,7 @@ export function toCsv<T extends Record<string, unknown>>(
     return s
   }
   const header = keys.map(String).join(',')
-  const body = rows
-    .map((r) => keys.map((k) => esc(r[k])).join(','))
-    .join('\n')
+  const body = rows.map((r) => keys.map((k) => esc(r[k])).join(',')).join('\n')
   return `${header}\n${body}`
 }
 

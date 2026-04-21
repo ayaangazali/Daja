@@ -16,7 +16,10 @@ export function MeetingNotes(): React.JSX.Element {
   const [savedMsg, setSavedMsg] = useState<string | null>(null)
 
   useEffect(() => {
-    const w = window as unknown as { webkitSpeechRecognition?: new () => unknown; SpeechRecognition?: new () => unknown }
+    const w = window as unknown as {
+      webkitSpeechRecognition?: new () => unknown
+      SpeechRecognition?: new () => unknown
+    }
     const Rec = w.SpeechRecognition ?? w.webkitSpeechRecognition
     if (!Rec) {
       setSupported(false)
@@ -25,7 +28,10 @@ export function MeetingNotes(): React.JSX.Element {
   }, [])
 
   const toggle = (): void => {
-    const w = window as unknown as { webkitSpeechRecognition?: new () => unknown; SpeechRecognition?: new () => unknown }
+    const w = window as unknown as {
+      webkitSpeechRecognition?: new () => unknown
+      SpeechRecognition?: new () => unknown
+    }
     const RecCtor = w.SpeechRecognition ?? w.webkitSpeechRecognition
     if (!RecCtor) {
       setSupported(false)
@@ -41,7 +47,10 @@ export function MeetingNotes(): React.JSX.Element {
       continuous: boolean
       interimResults: boolean
       lang: string
-      onresult: (ev: { resultIndex: number; results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }> }) => void
+      onresult: (ev: {
+        resultIndex: number
+        results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }>
+      }) => void
       onend: () => void
       onerror: (e: { error: string }) => void
       start: () => void
@@ -174,9 +183,7 @@ export function MeetingNotes(): React.JSX.Element {
         >
           Save note
         </button>
-        {savedMsg && (
-          <span className="text-[10px] text-[var(--color-pos)]">{savedMsg}</span>
-        )}
+        {savedMsg && <span className="text-[10px] text-[var(--color-pos)]">{savedMsg}</span>}
       </div>
 
       {state.text && (

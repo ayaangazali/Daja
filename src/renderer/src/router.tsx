@@ -20,6 +20,15 @@ const JournalPage = lazy(() =>
 const ComparePage = lazy(() =>
   import('./modules/finance/compare/ComparePage').then((m) => ({ default: m.ComparePage }))
 )
+const ScreenerPage = lazy(() =>
+  import('./modules/finance/screener/ScreenerPage').then((m) => ({ default: m.ScreenerPage }))
+)
+const DailyBriefing = lazy(() =>
+  import('./modules/finance/briefing/DailyBriefing').then((m) => ({ default: m.DailyBriefing }))
+)
+const PaperPage = lazy(() =>
+  import('./modules/finance/paper/PaperPage').then((m) => ({ default: m.PaperPage }))
+)
 const SettingsPage = lazy(() =>
   import('./modules/settings/SettingsPage').then((m) => ({ default: m.SettingsPage }))
 )
@@ -65,6 +74,9 @@ const router = createHashRouter([
           { path: 'strategies', element: L('Strategies', <StrategyBuilder />) },
           { path: 'journal', element: L('Journal', <JournalPage />) },
           { path: 'compare', element: L('Compare', <ComparePage />) },
+          { path: 'screener', element: L('Screener', <ScreenerPage />) },
+          { path: 'briefing', element: L('Briefing', <DailyBriefing />) },
+          { path: 'paper', element: L('Paper Trading', <PaperPage />) },
           { path: ':ticker', element: L('StockDetail', <StockDetail />) }
         ]
       },

@@ -4,10 +4,7 @@ import type { WatchlistItem } from './useWatchlist'
 
 const FIRED = new Set<string>()
 
-export function usePriceAlerts(
-  watchlist: WatchlistItem[],
-  quotes: { data?: Quote }[]
-): void {
+export function usePriceAlerts(watchlist: WatchlistItem[], quotes: { data?: Quote }[]): void {
   const inited = useRef(false)
   useEffect(() => {
     // avoid firing on first render (might be stale data)

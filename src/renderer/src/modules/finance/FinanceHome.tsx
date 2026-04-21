@@ -27,10 +27,7 @@ export function FinanceHome(): React.JSX.Element {
   )
   const [dirty, setDirty] = useState(false)
 
-  const layouts = useMemo(
-    () => ({ lg: layout, md: layout, sm: layout, xs: layout }),
-    [layout]
-  )
+  const layouts = useMemo(() => ({ lg: layout, md: layout, sm: layout, xs: layout }), [layout])
 
   const onChange = useCallback(
     (newLayout: Layout[]): void => {

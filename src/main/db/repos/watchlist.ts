@@ -43,6 +43,18 @@ export const watchlistRepo = {
       .prepare('DELETE FROM watchlist WHERE ticker = ? AND list_name = ?')
       .run(ticker.toUpperCase(), listName)
   },
+  setAlerts(
+    ticker: string,
+    alert_above: number | null,
+    alert_below: number | null,
+    listName = 'default'
+  ): void {
+    getDb()
+      .prepare(
+        'UPDATE watchlist SET alert_above = ?, alert_below = ? WHERE ticker = ? AND list_name = ?'
+      )
+      .run(alert_above, alert_below, ticker.toUpperCase(), listName)
+  },
   reorder(ids: number[]): void {
     const stmt = getDb().prepare('UPDATE watchlist SET sort_order = ? WHERE id = ?')
     const tx = getDb().transaction((arr: number[]) => {

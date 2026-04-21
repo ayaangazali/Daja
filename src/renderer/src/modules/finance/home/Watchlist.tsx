@@ -1,11 +1,25 @@
-import { BookOpen, Briefcase, Compass, Flag, Home, Plus, Radio, Swords, X } from 'lucide-react'
+import {
+  Beaker,
+  Bell,
+  BookOpen,
+  Briefcase,
+  Compass,
+  Flag,
+  Home,
+  Plus,
+  Radio,
+  Swords,
+  X
+} from 'lucide-react'
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   useWatchlist,
   useAddToWatchlist,
-  useRemoveFromWatchlist
+  useRemoveFromWatchlist,
+  useSetWatchlistAlerts
 } from '../../../hooks/useWatchlist'
+import { AlertsModal } from '../alerts/AlertsModal'
 import { useQuotes } from '../../../hooks/useFinance'
 import { PercentBadge } from '../../../shared/PercentBadge'
 import { fmtPrice } from '../../../lib/format'
@@ -15,7 +29,9 @@ export function Watchlist(): React.JSX.Element {
   const { data: items = [] } = useWatchlist()
   const addMut = useAddToWatchlist()
   const remMut = useRemoveFromWatchlist()
+  const alertsMut = useSetWatchlistAlerts()
   const [input, setInput] = useState('')
+  const [alertTicker, setAlertTicker] = useState<string | null>(null)
 
   const tickers = items.map((i) => i.ticker)
   const quotes = useQuotes(tickers)
@@ -41,7 +57,8 @@ export function Watchlist(): React.JSX.Element {
           { to: '/finance/journal', label: 'Journal', icon: <BookOpen className="h-3 w-3" /> },
           { to: '/finance/compare', label: 'Compare', icon: <Swords className="h-3 w-3" /> },
           { to: '/finance/screener', label: 'Screener', icon: <Compass className="h-3 w-3" /> },
-          { to: '/finance/briefing', label: 'Briefing', icon: <Radio className="h-3 w-3" /> }
+          { to: '/finance/briefing', label: 'Briefing', icon: <Radio className="h-3 w-3" /> },
+          { to: '/finance/paper', label: 'Paper', icon: <Beaker className="h-3 w-3" /> }
         ].map((t) => (
           <NavLink
             key={t.to}
@@ -113,6 +130,22 @@ export function Watchlist(): React.JSX.Element {
               </div>
               <div className="flex items-center gap-1">
                 <PercentBadge value={q?.changePercent} />
+                {(item.alert_above != null || item.alert_below != null) && (
+                  <span title="Has price alert">
+                    <Bell className="h-2.5 w-2.5 text-[var(--color-warn)]" />
+                  </span>
+                )}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setAlertTicker(item.ticker)
+                  }}
+                  className="opacity-0 transition-opacity group-hover:opacity-100"
+                  title="Set price alerts"
+                >
+                  <Bell className="h-3 w-3 text-[var(--color-fg-muted)] hover:text-[var(--color-warn)]" />
+                </button>
                 <button
                   onClick={(e) => {
                     e.preventDefault()
@@ -129,6 +162,25 @@ export function Watchlist(): React.JSX.Element {
           )
         })}
       </div>
+      {alertTicker &&
+        (() => {
+          const idx = items.findIndex((it) => it.ticker === alertTicker)
+          const item = items[idx]
+          if (!item) return null
+          const q = quotes[idx]?.data
+          return (
+            <AlertsModal
+              ticker={alertTicker}
+              currentPrice={q?.price}
+              currentAbove={item.alert_above}
+              currentBelow={item.alert_below}
+              onClose={() => setAlertTicker(null)}
+              onSave={(above, below) =>
+                alertsMut.mutate({ ticker: alertTicker, above, below })
+              }
+            />
+          )
+        })()}
     </aside>
   )
 }

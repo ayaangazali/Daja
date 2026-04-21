@@ -51,7 +51,8 @@ export function EarningsBanner(): React.JSX.Element {
           >
             <span className="font-mono font-semibold">{e.ticker}</span>
             <span className="text-[var(--color-fg-muted)]">
-              {e.startDateFormatted} {e.startDateType === 'BMO' ? '· pre' : e.startDateType === 'AMC' ? '· post' : ''}
+              {e.startDateFormatted}{' '}
+              {e.startDateType === 'BMO' ? '· pre' : e.startDateType === 'AMC' ? '· post' : ''}
             </span>
             {e.epsEstimate != null && (
               <span className="text-[10px] text-[var(--color-fg-muted)]">
@@ -68,7 +69,8 @@ export function EarningsBanner(): React.JSX.Element {
                 )}
               >
                 act {e.epsActual.toFixed(2)}
-                {e.epsSurprisePercent != null && ` (${e.epsSurprisePercent > 0 ? '+' : ''}${e.epsSurprisePercent.toFixed(1)}%)`}
+                {e.epsSurprisePercent != null &&
+                  ` (${e.epsSurprisePercent > 0 ? '+' : ''}${e.epsSurprisePercent.toFixed(1)}%)`}
               </span>
             )}
           </NavLink>

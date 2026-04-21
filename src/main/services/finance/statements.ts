@@ -113,11 +113,7 @@ function mapCashflow(rows: Obj[]): CashflowRow[] {
 
 export async function fetchStatements(symbol: string): Promise<Statements> {
   // Primary: fundamentals-timeseries (richer + reliable for Cost/Gross/OpExp)
-  const {
-    fetchIncomeTs,
-    fetchBalanceTs,
-    fetchCashflowTs
-  } = await import('./statementsTimeseries')
+  const { fetchIncomeTs, fetchBalanceTs, fetchCashflowTs } = await import('./statementsTimeseries')
   const [
     incomeAnnualTs,
     incomeQuarterlyTs,
@@ -134,8 +130,7 @@ export async function fetchStatements(symbol: string): Promise<Statements> {
     fetchCashflowTs(symbol, 'quarterly').catch(() => [])
   ])
 
-  const hasData =
-    incomeAnnualTs.length + incomeQuarterlyTs.length + balanceAnnualTs.length > 0
+  const hasData = incomeAnnualTs.length + incomeQuarterlyTs.length + balanceAnnualTs.length > 0
 
   if (hasData) {
     return {

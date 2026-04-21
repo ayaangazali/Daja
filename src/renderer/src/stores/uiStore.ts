@@ -5,11 +5,13 @@ interface UIState {
   researchRailOpen: boolean
   theme: 'dark' | 'light'
   alwaysOnTop: boolean
+  focusMode: boolean
   togglePalette: () => void
   setPalette: (open: boolean) => void
   toggleResearchRail: () => void
   setTheme: (theme: 'dark' | 'light') => void
   toggleAlwaysOnTop: () => void
+  toggleFocusMode: () => void
 }
 
 function applyTheme(theme: 'dark' | 'light'): void {
@@ -23,6 +25,7 @@ export const useUIStore = create<UIState>((set) => ({
   researchRailOpen: true,
   theme: 'dark',
   alwaysOnTop: false,
+  focusMode: false,
   togglePalette: () => set((s) => ({ paletteOpen: !s.paletteOpen })),
   setPalette: (open) => set({ paletteOpen: open }),
   toggleResearchRail: () => set((s) => ({ researchRailOpen: !s.researchRailOpen })),
@@ -36,7 +39,8 @@ export const useUIStore = create<UIState>((set) => ({
       window.nexus.window?.setAlwaysOnTop?.(next)
       return { alwaysOnTop: next }
     })
-  }
+  },
+  toggleFocusMode: (): void => set((s) => ({ focusMode: !s.focusMode }))
 }))
 
 // Apply initial theme on module load

@@ -16,12 +16,7 @@ export function useKeyboardNav(): void {
       const el = document.activeElement as HTMLElement | null
       if (!el) return false
       const tag = el.tagName.toLowerCase()
-      return (
-        tag === 'input' ||
-        tag === 'textarea' ||
-        tag === 'select' ||
-        el.isContentEditable
-      )
+      return tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable
     }
 
     const h = (e: KeyboardEvent): void => {

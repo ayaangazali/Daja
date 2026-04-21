@@ -34,7 +34,12 @@ interface ScreenerStock {
 
 export function ScreenerPage(): React.JSX.Element {
   const [preset, setPreset] = useState(PRESETS[0].id)
-  const { data = [], isLoading, refetch, isRefetching } = useQuery<ScreenerStock[]>({
+  const {
+    data = [],
+    isLoading,
+    refetch,
+    isRefetching
+  } = useQuery<ScreenerStock[]>({
     queryKey: ['screener', preset],
     queryFn: () => window.nexus.finance.screener(preset, 30) as Promise<ScreenerStock[]>,
     staleTime: 60_000
@@ -105,9 +110,7 @@ export function ScreenerPage(): React.JSX.Element {
         </div>
       )}
       <div className="flex-1 overflow-auto">
-        {isLoading && (
-          <div className="p-4 text-[11px] text-[var(--color-fg-muted)]">Loading…</div>
-        )}
+        {isLoading && <div className="p-4 text-[11px] text-[var(--color-fg-muted)]">Loading…</div>}
         {!isLoading && data.length === 0 && (
           <div className="p-6 text-center text-[11px] text-[var(--color-fg-muted)]">
             No results for this screener right now.
@@ -135,10 +138,7 @@ export function ScreenerPage(): React.JSX.Element {
                 className="border-b border-[var(--color-border)] hover:bg-[var(--color-bg-elev)]"
               >
                 <td className="px-2 py-1 font-mono font-semibold">
-                  <NavLink
-                    to={`/finance/${s.symbol}`}
-                    className="hover:text-[var(--color-info)]"
-                  >
+                  <NavLink to={`/finance/${s.symbol}`} className="hover:text-[var(--color-info)]">
                     {s.symbol}
                   </NavLink>
                 </td>

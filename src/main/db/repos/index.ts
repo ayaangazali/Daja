@@ -7,6 +7,7 @@ import { healthRepo } from './health'
 import { medicationsRepo } from './medications'
 import { layoutsRepo } from './layouts'
 import { conversationsRepo } from './conversations'
+import { paperTradesRepo } from './paperTrades'
 
 export const repos = {
   watchlist: watchlistRepo,
@@ -17,7 +18,8 @@ export const repos = {
   health: healthRepo,
   medications: medicationsRepo,
   layouts: layoutsRepo,
-  conversations: conversationsRepo
+  conversations: conversationsRepo,
+  paperTrades: paperTradesRepo
 } as const
 
 export type RepoName = keyof typeof repos

@@ -53,7 +53,10 @@ export async function getYahooAuth(force = false): Promise<YahooAuth> {
   return { crumb, cookie }
 }
 
-export async function yahooFetch(url: string, extraHeaders: Record<string, string> = {}): Promise<Response> {
+export async function yahooFetch(
+  url: string,
+  extraHeaders: Record<string, string> = {}
+): Promise<Response> {
   let auth: YahooAuth | null = null
   try {
     auth = await getYahooAuth()

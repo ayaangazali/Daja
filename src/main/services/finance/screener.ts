@@ -44,10 +44,7 @@ export const SCREENER_PRESETS = [
 
 export type ScreenerId = (typeof SCREENER_PRESETS)[number]['id']
 
-export async function fetchScreener(
-  id: ScreenerId,
-  count = 25
-): Promise<ScreenerStock[]> {
+export async function fetchScreener(id: ScreenerId, count = 25): Promise<ScreenerStock[]> {
   const url = `https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved?count=${count}&scrIds=${encodeURIComponent(
     id
   )}`

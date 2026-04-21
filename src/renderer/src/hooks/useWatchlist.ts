@@ -54,3 +54,23 @@ export function useRemoveFromWatchlist(): ReturnType<
       qc.invalidateQueries({ queryKey: ['watchlist', vars.listName ?? 'default'] })
   })
 }
+
+export function useSetWatchlistAlerts(): ReturnType<
+  typeof useMutation<
+    unknown,
+    Error,
+    { ticker: string; above: number | null; below: number | null; listName?: string }
+  >
+> {
+  const qc = useQueryClient()
+  return useMutation<
+    unknown,
+    Error,
+    { ticker: string; above: number | null; below: number | null; listName?: string }
+  >({
+    mutationFn: ({ ticker, above, below, listName = 'default' }) =>
+      window.nexus.db.call('watchlist', 'setAlerts', [ticker, above, below, listName]),
+    onSuccess: (_d, vars) =>
+      qc.invalidateQueries({ queryKey: ['watchlist', vars.listName ?? 'default'] })
+  })
+}

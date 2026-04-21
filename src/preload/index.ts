@@ -108,11 +108,8 @@ const nexus = {
       ipcRenderer.invoke(IPC_CHANNELS.windowToggleDevtools)
   },
   system: {
-    notify: (args: {
-      title: string
-      body: string
-      openUrl?: string
-    }): Promise<{ ok: boolean }> => ipcRenderer.invoke(IPC_CHANNELS.notify, args),
+    notify: (args: { title: string; body: string; openUrl?: string }): Promise<{ ok: boolean }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.notify, args),
     saveFile: (args: {
       defaultPath?: string
       filters?: { name: string; extensions: string[] }[]

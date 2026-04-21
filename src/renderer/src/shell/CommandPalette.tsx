@@ -71,13 +71,38 @@ export function CommandPalette(): React.JSX.Element {
 
   const navActions: PaletteAction[] = [
     { id: 'nav-home', label: 'Finance home', icon: Home, run: () => go('/finance') },
-    { id: 'nav-portfolio', label: 'Portfolio', icon: Briefcase, run: () => go('/finance/portfolio') },
+    {
+      id: 'nav-portfolio',
+      label: 'Portfolio',
+      icon: Briefcase,
+      run: () => go('/finance/portfolio')
+    },
     { id: 'nav-strategies', label: 'Strategies', icon: Flag, run: () => go('/finance/strategies') },
-    { id: 'nav-journal', label: 'Trade journal', icon: BookOpen, run: () => go('/finance/journal') },
-    { id: 'nav-compare', label: 'Compare tickers', icon: Swords, run: () => go('/finance/compare') },
+    {
+      id: 'nav-journal',
+      label: 'Trade journal',
+      icon: BookOpen,
+      run: () => go('/finance/journal')
+    },
+    {
+      id: 'nav-compare',
+      label: 'Compare tickers',
+      icon: Swords,
+      run: () => go('/finance/compare')
+    },
     { id: 'nav-screener', label: 'Screener', icon: Compass, run: () => go('/finance/screener') },
-    { id: 'nav-briefing', label: 'Daily briefing', icon: Radio, run: () => go('/finance/briefing') },
-    { id: 'nav-news', label: 'Market news (open last ticker)', icon: Newspaper, run: () => go('/finance') },
+    {
+      id: 'nav-briefing',
+      label: 'Daily briefing',
+      icon: Radio,
+      run: () => go('/finance/briefing')
+    },
+    {
+      id: 'nav-news',
+      label: 'Market news (open last ticker)',
+      icon: Newspaper,
+      run: () => go('/finance')
+    },
     ...MODULES.filter((m) => m.enabled && m.id !== 'finance').map((m) => ({
       id: `nav-${m.id}`,
       label: m.name,

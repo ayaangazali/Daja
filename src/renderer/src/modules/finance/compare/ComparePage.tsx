@@ -86,18 +86,58 @@ function Panel({ ticker }: { ticker: string }): React.JSX.Element {
 function CompareTable({ a, b }: { a: string; b: string }): React.JSX.Element {
   const { data: fA } = useFundamentals(a)
   const { data: fB } = useFundamentals(b)
-  const rows: { label: string; pick: (f: Fundamentals) => number | null | undefined; higherBetter: boolean; fmt?: (v: number) => string }[] = [
-    { label: 'Market Cap', pick: (f) => f.marketCap, higherBetter: true, fmt: (v) => `$${fmtLargeNum(v)}` },
+  const rows: {
+    label: string
+    pick: (f: Fundamentals) => number | null | undefined
+    higherBetter: boolean
+    fmt?: (v: number) => string
+  }[] = [
+    {
+      label: 'Market Cap',
+      pick: (f) => f.marketCap,
+      higherBetter: true,
+      fmt: (v) => `$${fmtLargeNum(v)}`
+    },
     { label: 'P/E', pick: (f) => f.trailingPE, higherBetter: false },
     { label: 'Fwd P/E', pick: (f) => f.forwardPE, higherBetter: false },
     { label: 'PEG', pick: (f) => f.pegRatio, higherBetter: false },
-    { label: 'Rev Growth', pick: (f) => (f.revenueGrowth != null ? f.revenueGrowth * 100 : null), higherBetter: true, fmt: (v) => fmtPct(v) },
-    { label: 'EPS Growth', pick: (f) => (f.earningsGrowth != null ? f.earningsGrowth * 100 : null), higherBetter: true, fmt: (v) => fmtPct(v) },
-    { label: 'Gross Margin', pick: (f) => (f.grossMargins != null ? f.grossMargins * 100 : null), higherBetter: true, fmt: (v) => fmtPct(v) },
-    { label: 'Net Margin', pick: (f) => (f.profitMargins != null ? f.profitMargins * 100 : null), higherBetter: true, fmt: (v) => fmtPct(v) },
-    { label: 'ROE', pick: (f) => (f.returnOnEquity != null ? f.returnOnEquity * 100 : null), higherBetter: true, fmt: (v) => fmtPct(v) },
+    {
+      label: 'Rev Growth',
+      pick: (f) => (f.revenueGrowth != null ? f.revenueGrowth * 100 : null),
+      higherBetter: true,
+      fmt: (v) => fmtPct(v)
+    },
+    {
+      label: 'EPS Growth',
+      pick: (f) => (f.earningsGrowth != null ? f.earningsGrowth * 100 : null),
+      higherBetter: true,
+      fmt: (v) => fmtPct(v)
+    },
+    {
+      label: 'Gross Margin',
+      pick: (f) => (f.grossMargins != null ? f.grossMargins * 100 : null),
+      higherBetter: true,
+      fmt: (v) => fmtPct(v)
+    },
+    {
+      label: 'Net Margin',
+      pick: (f) => (f.profitMargins != null ? f.profitMargins * 100 : null),
+      higherBetter: true,
+      fmt: (v) => fmtPct(v)
+    },
+    {
+      label: 'ROE',
+      pick: (f) => (f.returnOnEquity != null ? f.returnOnEquity * 100 : null),
+      higherBetter: true,
+      fmt: (v) => fmtPct(v)
+    },
     { label: 'D/E', pick: (f) => f.debtToEquity, higherBetter: false },
-    { label: 'Div Yield', pick: (f) => (f.dividendYield != null ? f.dividendYield * 100 : null), higherBetter: true, fmt: (v) => fmtPct(v) }
+    {
+      label: 'Div Yield',
+      pick: (f) => (f.dividendYield != null ? f.dividendYield * 100 : null),
+      higherBetter: true,
+      fmt: (v) => fmtPct(v)
+    }
   ]
 
   return (

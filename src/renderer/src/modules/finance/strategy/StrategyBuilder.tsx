@@ -48,12 +48,10 @@ export function StrategyBuilder(): React.JSX.Element {
   const [message, setMessage] = useState<string | null>(null)
   const { state, start, cancel } = useAI()
 
-  const addRule = (): void =>
-    setRules((r) => [...r, { metric: 'pe', operator: '<', value: 25 }])
+  const addRule = (): void => setRules((r) => [...r, { metric: 'pe', operator: '<', value: 25 }])
   const updateRule = (i: number, patch: Partial<StrategyRule>): void =>
     setRules((rs) => rs.map((r, idx) => (idx === i ? { ...r, ...patch } : r)))
-  const removeRule = (i: number): void =>
-    setRules((rs) => rs.filter((_, idx) => idx !== i))
+  const removeRule = (i: number): void => setRules((rs) => rs.filter((_, idx) => idx !== i))
 
   const save = (): void => {
     if (!name.trim()) return
@@ -248,9 +246,7 @@ ${naturalLang}`
               >
                 Save strategy
               </button>
-              {message && (
-                <span className="text-[10px] text-[var(--color-pos)]">{message}</span>
-              )}
+              {message && <span className="text-[10px] text-[var(--color-pos)]">{message}</span>}
             </div>
           </div>
 
