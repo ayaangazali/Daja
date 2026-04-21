@@ -1,0 +1,365 @@
+import { useEffect, useMemo, useState } from 'react'
+import { Activity, AlertTriangle, Shield } from 'lucide-react'
+import { type Trade } from '../../../hooks/useTrades'
+import { useQuotes, type HistoricalBar } from '../../../hooks/useFinance'
+import { beta, correlation, logReturns, maxDrawdown, sharpeRatio } from '../../../lib/indicators'
+import { computePositions } from './positions'
+import { fmtLargeNum, fmtPct, signColor } from '../../../lib/format'
+import { cn } from '../../../lib/cn'
+
+async function fetchHist(ticker: string, range = '1y'): Promise<HistoricalBar[]> {
+  return window.nexus.finance.historical(ticker, range) as Promise<HistoricalBar[]>
+}
+
+function alignSeries(
+  a: { time: number; value: number }[],
+  b: { time: number; value: number }[]
+): { a: number[]; b: number[] } {
+  const bMap = new Map(b.map((x) => [x.time, x.value]))
+  const out = { a: [] as number[], b: [] as number[] }
+  for (const p of a) {
+    const bv = bMap.get(p.time)
+    if (bv != null) {
+      out.a.push(p.value)
+      out.b.push(bv)
+    }
+  }
+  return out
+}
+
+interface PortfolioRisk {
+  beta: number | null
+  sharpe: number
+  drawdown: number
+  top: { ticker: string; pct: number }[]
+  concentrationRisk: number
+  totalValue: number
+}
+
+export function RiskDashboard({ trades }: { trades: Trade[] }): React.JSX.Element {
+  const positions = useMemo(
+    () => computePositions(trades).filter((p) => p.qty > 0),
+    [trades]
+  )
+  const tickers = positions.map((p) => p.ticker)
+  const quotes = useQuotes(tickers)
+
+  const [hist, setHist] = useState<{
+    benchReturns: number[]
+    assetReturns: Map<string, number[]>
+  }>({ benchReturns: [], assetReturns: new Map() })
+
+  useEffect(() => {
+    if (tickers.length === 0) return
+    let cancelled = false
+    ;(async (): Promise<void> => {
+      try {
+        const bench = await fetchHist('SPY', '1y')
+        const benchClose = bench
+          .filter((b) => b.close != null)
+          .map((b) => ({ time: b.time, value: b.close as number }))
+        const assetReturns = new Map<string, number[]>()
+        let benchAlignedReturns: number[] = []
+        for (const tk of tickers) {
+          const bars = await fetchHist(tk, '1y')
+          const closes = bars
+            .filter((b) => b.close != null)
+            .map((b) => ({ time: b.time, value: b.close as number }))
+          const aligned = alignSeries(closes, benchClose)
+          assetReturns.set(tk, logReturns(aligned.a))
+          if (benchAlignedReturns.length === 0) benchAlignedReturns = logReturns(aligned.b)
+        }
+        if (!cancelled) setHist({ benchReturns: benchAlignedReturns, assetReturns })
+      } catch {
+        // ignore fetch errors
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(tickers)])
+
+  const risk = useMemo<PortfolioRisk>(() => {
+    if (positions.length === 0) {
+      return {
+        beta: null,
+        sharpe: 0,
+        drawdown: 0,
+        top: [],
+        concentrationRisk: 0,
+        totalValue: 0
+      }
+    }
+    const values = positions.map((p, i) => {
+      const price = quotes[i]?.data?.price ?? p.avgCost
+      return { ticker: p.ticker, value: price * p.qty }
+    })
+    const totalValue = values.reduce((s, v) => s + v.value, 0)
+    const weights = values.map((v) => (totalValue > 0 ? v.value / totalValue : 0))
+    const top = values
+      .map((v) => ({ ticker: v.ticker, pct: totalValue > 0 ? (v.value / totalValue) * 100 : 0 }))
+      .sort((a, b) => b.pct - a.pct)
+    const concentrationRisk = top.slice(0, 3).reduce((s, x) => s + x.pct, 0)
+
+    // Weighted portfolio returns
+    const minLen = Math.min(
+      ...[...hist.assetReturns.values()].map((a) => a.length),
+      hist.benchReturns.length || Infinity
+    )
+    if (!Number.isFinite(minLen) || minLen < 2) {
+      return {
+        beta: null,
+        sharpe: 0,
+        drawdown: 0,
+        top,
+        concentrationRisk,
+        totalValue
+      }
+    }
+    const portfolioReturns: number[] = []
+    for (let i = 0; i < minLen; i++) {
+      let r = 0
+      positions.forEach((p, idx) => {
+        const series = hist.assetReturns.get(p.ticker)
+        if (series && series.length >= minLen) {
+          const offset = series.length - minLen
+          r += series[offset + i] * weights[idx]
+        }
+      })
+      portfolioReturns.push(r)
+    }
+    // Convert log returns to equity curve starting at 100
+    const equity: number[] = [100]
+    for (const r of portfolioReturns) equity.push(equity[equity.length - 1] * Math.exp(r))
+
+    return {
+      beta: beta(portfolioReturns, hist.benchReturns.slice(-minLen)),
+      sharpe: sharpeRatio(portfolioReturns),
+      drawdown: maxDrawdown(equity),
+      top,
+      concentrationRisk,
+      totalValue
+    }
+  }, [positions, quotes, hist])
+
+  if (positions.length === 0) {
+    return (
+      <div
+        className={cn(
+          'rounded-md border p-4 text-center text-[11px] text-[var(--color-fg-muted)]',
+          'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
+        )}
+      >
+        No open positions — log trades to see risk metrics.
+      </div>
+    )
+  }
+
+  // Correlation matrix
+  const tickerPairs: string[] = positions.map((p) => p.ticker)
+  const corrMatrix = tickerPairs.map((tA) =>
+    tickerPairs.map((tB) => {
+      if (tA === tB) return 1
+      const a = hist.assetReturns.get(tA)
+      const b = hist.assetReturns.get(tB)
+      if (!a || !b) return null
+      return correlation(a, b)
+    })
+  )
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Stat
+          icon={<Shield className="h-3 w-3" />}
+          label="Portfolio Beta (vs SPY)"
+          value={risk.beta != null ? risk.beta.toFixed(2) : '—'}
+          tone={
+            risk.beta == null
+              ? null
+              : risk.beta > 1.3
+                ? 'neg'
+                : risk.beta > 1.1
+                  ? 'warn'
+                  : risk.beta < 0.8
+                    ? 'pos'
+                    : null
+          }
+          sub={
+            risk.beta == null
+              ? 'Need more history'
+              : risk.beta > 1
+                ? 'More volatile than SPY'
+                : 'Less volatile than SPY'
+          }
+        />
+        <Stat
+          icon={<Activity className="h-3 w-3" />}
+          label="Sharpe (ann.)"
+          value={risk.sharpe !== 0 ? risk.sharpe.toFixed(2) : '—'}
+          tone={risk.sharpe > 1 ? 'pos' : risk.sharpe > 0 ? 'warn' : 'neg'}
+        />
+        <Stat
+          icon={<AlertTriangle className="h-3 w-3" />}
+          label="Max drawdown"
+          value={risk.drawdown !== 0 ? fmtPct(risk.drawdown) : '—'}
+          tone="neg"
+        />
+        <Stat
+          label="Top-3 concentration"
+          value={fmtPct(risk.concentrationRisk)}
+          tone={
+            risk.concentrationRisk > 80
+              ? 'neg'
+              : risk.concentrationRisk > 60
+                ? 'warn'
+                : null
+          }
+          sub={
+            risk.concentrationRisk > 80
+              ? 'Highly concentrated'
+              : risk.concentrationRisk > 60
+                ? 'Concentrated'
+                : 'Diversified'
+          }
+        />
+      </div>
+
+      {positions.length >= 2 && (
+        <div
+          className={cn(
+            'rounded-md border p-3',
+            'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
+          )}
+        >
+          <div className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-fg-muted)]">
+            Correlation matrix (1y log returns)
+          </div>
+          <div className="overflow-x-auto">
+            <table className="text-[10px]">
+              <thead>
+                <tr>
+                  <th className="px-1 py-0.5"></th>
+                  {tickerPairs.map((t) => (
+                    <th key={t} className="px-1 py-0.5 font-mono">
+                      {t}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {tickerPairs.map((row, i) => (
+                  <tr key={row}>
+                    <td className="px-1 py-0.5 font-mono font-semibold">{row}</td>
+                    {tickerPairs.map((_col, j) => {
+                      const v = corrMatrix[i][j]
+                      const bg =
+                        v == null
+                          ? 'bg-[var(--color-bg)]'
+                          : v >= 0.7
+                            ? 'bg-[var(--color-neg)]/30'
+                            : v >= 0.4
+                              ? 'bg-[var(--color-warn)]/25'
+                              : v >= 0
+                                ? 'bg-[var(--color-bg)]'
+                                : 'bg-[var(--color-pos)]/25'
+                      return (
+                        <td
+                          key={`${i}-${j}`}
+                          className={cn('px-1 py-0.5 text-center font-mono tabular', bg)}
+                        >
+                          {v != null ? v.toFixed(2) : '—'}
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-2 text-[9px] text-[var(--color-fg-muted)]">
+            High correlation (&gt;0.7) = positions move together — diversification fail.
+          </div>
+        </div>
+      )}
+
+      <div
+        className={cn(
+          'rounded-md border p-3',
+          'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
+        )}
+      >
+        <div className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-fg-muted)]">
+          Position weights · Total ${fmtLargeNum(risk.totalValue)}
+        </div>
+        <div className="space-y-1">
+          {risk.top.map((p) => (
+            <div key={p.ticker} className="flex items-center gap-2 text-[11px]">
+              <span className="w-14 font-mono font-semibold">{p.ticker}</span>
+              <div className="flex-1">
+                <div
+                  className={cn(
+                    'h-3 rounded',
+                    p.pct > 40
+                      ? 'bg-[var(--color-neg)]'
+                      : p.pct > 20
+                        ? 'bg-[var(--color-warn)]'
+                        : 'bg-[var(--color-info)]'
+                  )}
+                  style={{ width: `${p.pct}%` }}
+                />
+              </div>
+              <span className="w-14 text-right font-mono tabular">{p.pct.toFixed(1)}%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Stat({
+  icon,
+  label,
+  value,
+  tone,
+  sub
+}: {
+  icon?: React.ReactNode
+  label: string
+  value: string
+  tone?: 'pos' | 'neg' | 'warn' | null
+  sub?: string
+}): React.JSX.Element {
+  return (
+    <div
+      className={cn(
+        'rounded-md border p-3',
+        'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
+      )}
+    >
+      <div className="flex items-center gap-1 text-[10px] text-[var(--color-fg-muted)]">
+        {icon}
+        <span>{label}</span>
+      </div>
+      <div
+        className={cn(
+          'mt-1 font-mono text-lg font-semibold tabular',
+          tone === 'pos' && 'text-[var(--color-pos)]',
+          tone === 'neg' && 'text-[var(--color-neg)]',
+          tone === 'warn' && 'text-[var(--color-warn)]'
+        )}
+      >
+        {value}
+      </div>
+      {sub && <div className="text-[9px] text-[var(--color-fg-muted)]">{sub}</div>}
+    </div>
+  )
+}
+
+// Empty placeholder to suppress unused warnings when imports shift
+export function _typeGuard(_trades: Trade[]): void {
+  void _trades
+  void signColor
+}

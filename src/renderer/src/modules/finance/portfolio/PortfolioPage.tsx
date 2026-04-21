@@ -5,6 +5,7 @@ import { TradeForm } from './TradeForm'
 import { TradesTable } from './TradesTable'
 import { EquityCurve } from './EquityCurve'
 import { WatchlistImport } from './WatchlistImport'
+import { RiskDashboard } from './RiskDashboard'
 import { useTrades } from '../../../hooks/useTrades'
 import { downloadCsv, toCsv } from '../../../lib/csv'
 
@@ -45,6 +46,7 @@ export function PortfolioPage(): React.JSX.Element {
           </div>
         </div>
         <EquityCurve />
+        <RiskDashboard trades={trades} />
         <AllocationBar />
         <PositionsList />
         <TradeForm />
