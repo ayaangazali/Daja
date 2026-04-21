@@ -29,6 +29,11 @@ const DailyBriefing = lazy(() =>
 const PaperPage = lazy(() =>
   import('./modules/finance/paper/PaperPage').then((m) => ({ default: m.PaperPage }))
 )
+const PositionSizeCalculator = lazy(() =>
+  import('./modules/finance/risk/PositionSizeCalculator').then((m) => ({
+    default: m.PositionSizeCalculator
+  }))
+)
 const SettingsPage = lazy(() =>
   import('./modules/settings/SettingsPage').then((m) => ({ default: m.SettingsPage }))
 )
@@ -77,6 +82,7 @@ const router = createHashRouter([
           { path: 'screener', element: L('Screener', <ScreenerPage />) },
           { path: 'briefing', element: L('Briefing', <DailyBriefing />) },
           { path: 'paper', element: L('Paper Trading', <PaperPage />) },
+          { path: 'risk', element: L('Risk', <PositionSizeCalculator />) },
           { path: ':ticker', element: L('StockDetail', <StockDetail />) }
         ]
       },
