@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { registerKeyVaultIpc } from './ipc/registerIpc'
 import { registerDbIpc } from './ipc/dbIpc'
 import { registerAiIpc } from './ipc/aiIpc'
+import { registerFinanceIpc } from './ipc/financeIpc'
 import { openDatabase, closeDatabase } from './db/client'
 
 function createWindow(): void {
@@ -51,6 +52,7 @@ app.whenReady().then(() => {
   registerKeyVaultIpc()
   registerDbIpc()
   registerAiIpc()
+  registerFinanceIpc()
 
   createWindow()
 
