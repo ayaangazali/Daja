@@ -1,4 +1,4 @@
-import { Plus, X } from 'lucide-react'
+import { Briefcase, Home, Plus, X } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useWatchlist, useAddToWatchlist, useRemoveFromWatchlist } from '../../../hooks/useWatchlist'
@@ -29,6 +29,35 @@ export function Watchlist(): React.JSX.Element {
         'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
       )}
     >
+      <div className="flex border-b border-[var(--color-border)]">
+        <NavLink
+          to="/finance"
+          end
+          className={({ isActive }) =>
+            cn(
+              'flex flex-1 items-center justify-center gap-1 py-1.5 text-[10px]',
+              isActive
+                ? 'border-b-2 border-[var(--color-info)] text-[var(--color-fg)]'
+                : 'text-[var(--color-fg-muted)]'
+            )
+          }
+        >
+          <Home className="h-3 w-3" /> Home
+        </NavLink>
+        <NavLink
+          to="/finance/portfolio"
+          className={({ isActive }) =>
+            cn(
+              'flex flex-1 items-center justify-center gap-1 py-1.5 text-[10px]',
+              isActive
+                ? 'border-b-2 border-[var(--color-info)] text-[var(--color-fg)]'
+                : 'text-[var(--color-fg-muted)]'
+            )
+          }
+        >
+          <Briefcase className="h-3 w-3" /> Portfolio
+        </NavLink>
+      </div>
       <div className="border-b border-[var(--color-border)] p-2">
         <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-fg-muted)]">
           Watchlist

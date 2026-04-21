@@ -3,6 +3,7 @@ import { Shell } from './shell/Shell'
 import { FinanceModule } from './modules/finance/FinanceModule'
 import { FinanceHome } from './modules/finance/FinanceHome'
 import { StockDetail } from './modules/finance/StockDetail'
+import { PortfolioPage } from './modules/finance/portfolio/PortfolioPage'
 import { ComingSoon } from './modules/_placeholders/ComingSoon'
 import { SettingsPage } from './modules/settings/SettingsPage'
 
@@ -17,6 +18,7 @@ const router = createHashRouter([
         element: <FinanceModule />,
         children: [
           { index: true, element: <FinanceHome /> },
+          { path: 'portfolio', element: <PortfolioPage /> },
           { path: ':ticker', element: <StockDetail /> }
         ]
       },
