@@ -20,7 +20,7 @@ describe('moveInList', () => {
   })
   it('does not mutate input', () => {
     const input = ['x', 'y', 'z']
-    const _ = moveInList(input, 0, 2)
+    moveInList(input, 0, 2)
     expect(input).toEqual(['x', 'y', 'z'])
   })
   it('handles single-element array', () => {
