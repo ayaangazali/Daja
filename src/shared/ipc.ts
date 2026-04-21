@@ -58,8 +58,6 @@ export const IPC_CHANNELS = {
   prefsSetAiModule: 'prefs:set-ai-module',
   prefsSetModel: 'prefs:set-model',
   prefsSetTheme: 'prefs:set-theme',
-  dbExec: 'db:exec',
-  dbQuery: 'db:query',
   aiChatStart: 'ai:chat:start',
   aiChatChunk: 'ai:chat:chunk',
   aiChatDone: 'ai:chat:done',

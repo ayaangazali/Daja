@@ -20,6 +20,7 @@ import {
   useSetWatchlistAlerts
 } from '../../../hooks/useWatchlist'
 import { AlertsModal } from '../alerts/AlertsModal'
+import { TickerHoverCard } from './TickerHoverCard'
 import { useQuotes } from '../../../hooks/useFinance'
 import { PercentBadge } from '../../../shared/PercentBadge'
 import { fmtPrice } from '../../../lib/format'
@@ -32,6 +33,7 @@ export function Watchlist(): React.JSX.Element {
   const alertsMut = useSetWatchlistAlerts()
   const [input, setInput] = useState('')
   const [alertTicker, setAlertTicker] = useState<string | null>(null)
+  const [hover, setHover] = useState<{ ticker: string; x: number; y: number } | null>(null)
 
   const tickers = items.map((i) => i.ticker)
   const quotes = useQuotes(tickers)
@@ -114,6 +116,13 @@ export function Watchlist(): React.JSX.Element {
             <NavLink
               key={item.id}
               to={`/finance/${item.ticker}`}
+              onMouseEnter={(e) =>
+                setHover({ ticker: item.ticker, x: e.clientX, y: e.clientY })
+              }
+              onMouseMove={(e) =>
+                setHover({ ticker: item.ticker, x: e.clientX, y: e.clientY })
+              }
+              onMouseLeave={() => setHover(null)}
               className={({ isActive }) =>
                 cn(
                   'group flex items-center justify-between border-b border-[var(--color-border)] px-2 py-1.5',
@@ -162,6 +171,7 @@ export function Watchlist(): React.JSX.Element {
           )
         })}
       </div>
+      {hover && <TickerHoverCard ticker={hover.ticker} x={hover.x} y={hover.y} />}
       {alertTicker &&
         (() => {
           const idx = items.findIndex((it) => it.ticker === alertTicker)

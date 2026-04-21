@@ -8,34 +8,46 @@ interface Props {
 }
 
 const SHORTCUTS = [
-  { category: 'Global', items: [
-    ['Cmd/Ctrl + K', 'Open command palette'],
-    ['?', 'Show this cheatsheet'],
-    ['Esc', 'Close palette / cheatsheet / modals']
-  ]},
-  { category: 'Navigate', items: [
-    ['g then f', 'Finance home'],
-    ['g then p', 'Portfolio'],
-    ['g then r', 'Strategies'],
-    ['g then j', 'Journal'],
-    ['g then c', 'Compare'],
-    ['g then n', 'Screener'],
-    ['g then b', 'Briefing'],
-    ['g then s', 'Settings'],
-    ['g then a', 'AI Assistant'],
-    ['g then h', 'Health tracker'],
-    ['g then o', 'Sports'],
-    ['g then d', 'PDF toolkit']
-  ]},
-  { category: 'Watchlist', items: [
-    ['j', 'Next ticker in watchlist'],
-    ['k', 'Previous ticker in watchlist']
-  ]},
-  { category: 'Window', items: [
-    ['Topbar pin', 'Always on top'],
-    ['Topbar maximize', 'Focus mode (hide chrome)'],
-    ['Topbar sun/moon', 'Toggle dark/light']
-  ]}
+  {
+    category: 'Global',
+    items: [
+      ['Cmd/Ctrl + K', 'Open command palette'],
+      ['?', 'Show this cheatsheet'],
+      ['Esc', 'Close palette / cheatsheet / modals']
+    ]
+  },
+  {
+    category: 'Navigate',
+    items: [
+      ['g then f', 'Finance home'],
+      ['g then p', 'Portfolio'],
+      ['g then r', 'Strategies'],
+      ['g then j', 'Journal'],
+      ['g then c', 'Compare'],
+      ['g then n', 'Screener'],
+      ['g then b', 'Briefing'],
+      ['g then s', 'Settings'],
+      ['g then a', 'AI Assistant'],
+      ['g then h', 'Health tracker'],
+      ['g then o', 'Sports'],
+      ['g then d', 'PDF toolkit']
+    ]
+  },
+  {
+    category: 'Watchlist',
+    items: [
+      ['j', 'Next ticker in watchlist'],
+      ['k', 'Previous ticker in watchlist']
+    ]
+  },
+  {
+    category: 'Window',
+    items: [
+      ['Topbar pin', 'Always on top'],
+      ['Topbar maximize', 'Focus mode (hide chrome)'],
+      ['Topbar sun/moon', 'Toggle dark/light']
+    ]
+  }
 ]
 
 export function KeyboardCheatsheet({ open, onClose }: Props): React.JSX.Element | null {
@@ -99,7 +111,8 @@ export function KeyboardCheatsheet({ open, onClose }: Props): React.JSX.Element 
           ))}
         </div>
         <div className="border-t border-[var(--color-border)] px-4 py-2 text-[10px] text-[var(--color-fg-muted)]">
-          Press <kbd className="rounded border border-[var(--color-border)] px-1 py-0.5">?</kbd> anywhere to toggle this.
+          Press <kbd className="rounded border border-[var(--color-border)] px-1 py-0.5">?</kbd>{' '}
+          anywhere to toggle this.
         </div>
       </div>
     </div>

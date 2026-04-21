@@ -4,6 +4,7 @@ import { TopBar } from './TopBar'
 import { ModuleSwitcher } from './ModuleSwitcher'
 import { CommandPalette } from './CommandPalette'
 import { KeyboardCheatsheet } from './KeyboardCheatsheet'
+import { StatusBar } from './StatusBar'
 import { useKeyboardNav } from '../hooks/useKeyboardNav'
 import { useUIStore } from '../stores/uiStore'
 import { cn } from '../lib/cn'
@@ -38,6 +39,7 @@ export function Shell(): React.JSX.Element {
           <Outlet />
         </main>
       </div>
+      {!focusMode && <StatusBar />}
       <CommandPalette />
       <KeyboardCheatsheet open={cheatsheetOpen} onClose={() => setCheatsheetOpen(false)} />
     </div>

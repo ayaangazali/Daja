@@ -64,7 +64,8 @@ export function WatchlistImport({ onClose }: { onClose?: () => void }): React.JS
         <div className="text-[10px] text-[var(--color-fg-muted)]">
           {tickers.length > 0 ? (
             <>
-              Detected {tickers.length}: <span className="font-mono">{tickers.slice(0, 10).join(', ')}</span>
+              Detected {tickers.length}:{' '}
+              <span className="font-mono">{tickers.slice(0, 10).join(', ')}</span>
               {tickers.length > 10 && `, +${tickers.length - 10} more`}
             </>
           ) : (

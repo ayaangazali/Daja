@@ -41,8 +41,7 @@ export const STRATEGY_TEMPLATES: StrategyTemplate[] = [
     key: 'dividend_income',
     name: 'Dividend income',
     description: 'Sustainable yield + balance sheet',
-    natural_language:
-      'Dividend yield above 2.5%, reasonable payout ratio, stable leverage.',
+    natural_language: 'Dividend yield above 2.5%, reasonable payout ratio, stable leverage.',
     rules: [
       { metric: 'div_yield', operator: '>', value: 2.5 },
       { metric: 'd_e', operator: '<', value: 1.5 },
@@ -76,8 +75,7 @@ export const STRATEGY_TEMPLATES: StrategyTemplate[] = [
     key: 'deep_value',
     name: 'Deep value / contrarian',
     description: 'Cheap on multiple axes',
-    natural_language:
-      'Very cheap on P/S, P/B, P/E simultaneously with positive current ratio.',
+    natural_language: 'Very cheap on P/S, P/B, P/E simultaneously with positive current ratio.',
     rules: [
       { metric: 'p_s', operator: '<', value: 2 },
       { metric: 'p_b', operator: '<', value: 1.5 },

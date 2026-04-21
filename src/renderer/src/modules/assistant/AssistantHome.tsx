@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+// useRef already imported; wasStreamingRef added in effect
 import { MessageSquarePlus, Send, Square, Trash2 } from 'lucide-react'
 import { useAI, type AIMessage } from '../../hooks/useAI'
 import {
@@ -35,8 +36,21 @@ export function AssistantHome(): React.JSX.Element {
   useEffect(() => {
     if (active) {
       try {
-        const msgs = JSON.parse(active.messages) as AIMessage[]
-        setMessages(msgs)
+        const parsed = JSON.parse(active.messages) as unknown
+        if (
+          Array.isArray(parsed) &&
+          parsed.every(
+            (m): m is AIMessage =>
+              m != null &&
+              typeof m === 'object' &&
+              (m as AIMessage).role != null &&
+              typeof (m as AIMessage).content === 'string'
+          )
+        ) {
+          setMessages(parsed)
+        } else {
+          setMessages([])
+        }
       } catch {
         setMessages([])
       }
@@ -68,9 +82,12 @@ export function AssistantHome(): React.JSX.Element {
     })
   }
 
-  // Persist when stream completes
+  // Persist when stream transitions streaming → not-streaming
+  const wasStreamingRef = useRef(false)
   useEffect(() => {
-    if (state.streaming) return
+    const transitioned = wasStreamingRef.current && !state.streaming
+    wasStreamingRef.current = state.streaming
+    if (!transitioned) return
     if (!state.text) return
     const finalMessages = [...messages, { role: 'assistant' as const, content: state.text }]
     setMessages(finalMessages)
@@ -88,8 +105,7 @@ export function AssistantHome(): React.JSX.Element {
     } else {
       updateMut.mutate({ id: activeId, patch: { messages: finalMessages } })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.streaming])
+  }, [state.streaming, state.text, messages, activeId, addMut, updateMut, state.provider, state.model])
 
   const currentProvider = prefs?.aiByModule?.assistant ?? 'anthropic'
 

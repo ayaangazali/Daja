@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { FileAudio, Mic, MicOff, Sparkles, Square } from 'lucide-react'
 import { useAI } from '../../hooks/useAI'
 import { useAddConversation } from '../../hooks/useConversations'
@@ -6,7 +6,14 @@ import { cn } from '../../lib/cn'
 
 export function MeetingNotes(): React.JSX.Element {
   const [listening, setListening] = useState(false)
-  const [supported, setSupported] = useState(true)
+  const [supported] = useState(() => {
+    if (typeof window === 'undefined') return false
+    const w = window as unknown as {
+      webkitSpeechRecognition?: unknown
+      SpeechRecognition?: unknown
+    }
+    return !!(w.SpeechRecognition ?? w.webkitSpeechRecognition)
+  })
   const [transcript, setTranscript] = useState('')
   const [interim, setInterim] = useState('')
   const [title, setTitle] = useState('')
@@ -15,28 +22,13 @@ export function MeetingNotes(): React.JSX.Element {
   const savedNote = useAddConversation()
   const [savedMsg, setSavedMsg] = useState<string | null>(null)
 
-  useEffect(() => {
-    const w = window as unknown as {
-      webkitSpeechRecognition?: new () => unknown
-      SpeechRecognition?: new () => unknown
-    }
-    const Rec = w.SpeechRecognition ?? w.webkitSpeechRecognition
-    if (!Rec) {
-      setSupported(false)
-      return
-    }
-  }, [])
-
   const toggle = (): void => {
     const w = window as unknown as {
       webkitSpeechRecognition?: new () => unknown
       SpeechRecognition?: new () => unknown
     }
     const RecCtor = w.SpeechRecognition ?? w.webkitSpeechRecognition
-    if (!RecCtor) {
-      setSupported(false)
-      return
-    }
+    if (!RecCtor) return
     if (listening) {
       type Rec = { stop: () => void }
       ;(recRef.current as Rec | null)?.stop()
