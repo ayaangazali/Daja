@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { registerKeyVaultIpc } from './ipc/registerIpc'
 import { registerDbIpc } from './ipc/dbIpc'
+import { registerAiIpc } from './ipc/aiIpc'
 import { openDatabase, closeDatabase } from './db/client'
 
 function createWindow(): void {
@@ -49,6 +50,7 @@ app.whenReady().then(() => {
   openDatabase()
   registerKeyVaultIpc()
   registerDbIpc()
+  registerAiIpc()
 
   createWindow()
 
