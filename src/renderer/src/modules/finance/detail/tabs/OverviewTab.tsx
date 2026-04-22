@@ -5,6 +5,7 @@ import { MiniBarCharts } from '../panels/MiniBarCharts'
 import { AnalystRatings } from '../panels/AnalystRatings'
 import { NewsPanel } from '../panels/NewsPanel'
 import { BreakEvenCalc } from '../panels/BreakEvenCalc'
+import { DividendPanel } from '../panels/DividendPanel'
 import type { Fundamentals } from '../../../../hooks/useFundamentals'
 
 export function OverviewTab({
@@ -28,6 +29,7 @@ export function OverviewTab({
         {fundamentals && <AnalystRatings data={fundamentals} />}
         <BreakEvenCalc ticker={ticker} />
       </div>
+      <DividendPanel ticker={ticker} />
       <NewsPanel ticker={ticker} />
       {fundamentals?.description && (
         <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)] p-3 text-[11px] leading-relaxed text-[var(--color-fg-muted)]">
