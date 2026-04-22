@@ -111,7 +111,7 @@ export function impliedVolatility(
   input: Omit<BsInput, 'sigma'>,
   opts: { maxIter?: number; tol?: number; initialGuess?: number } = {}
 ): number | null {
-  const { S, K, T, r } = input
+  const { S, K, T } = input
   if (T <= 0 || S <= 0 || K <= 0 || marketPrice <= 0) return null
   const maxIter = opts.maxIter ?? 50
   const tol = opts.tol ?? 1e-5
