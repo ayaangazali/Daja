@@ -10,8 +10,61 @@ export function EarningsTab({ ticker }: { ticker: string }): React.JSX.Element {
   if (!data) return <></>
 
   const hist = data.earningsHistory
+  const withSurprise = hist.filter(
+    (h): h is typeof h & { surprisePercent: number } =>
+      h.surprisePercent != null && Number.isFinite(h.surprisePercent)
+  )
+  const beats = withSurprise.filter((h) => h.surprisePercent > 0).length
+  const beatRate = withSurprise.length > 0 ? (beats / withSurprise.length) * 100 : null
+  const avgSurprise =
+    withSurprise.length > 0
+      ? withSurprise.reduce((s, h) => s + h.surprisePercent * 100, 0) / withSurprise.length
+      : null
+  const maxAbs = Math.max(
+    1,
+    ...withSurprise.map((h) => Math.abs(h.surprisePercent * 100))
+  )
+
   return (
     <div className="space-y-3 p-3">
+      {withSurprise.length > 0 && (
+        <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)] p-3">
+          <div className="mb-2 flex items-center justify-between text-[10px] font-semibold uppercase tracking-wide text-[var(--color-fg-muted)]">
+            <span>Earnings Surprise (last {withSurprise.length}Q)</span>
+            <span className="font-mono normal-case tabular">
+              Beat rate {beatRate != null ? beatRate.toFixed(0) : '—'}% · avg{' '}
+              {avgSurprise != null ? fmtPct(avgSurprise) : '—'}
+            </span>
+          </div>
+          <div className="flex items-end gap-1">
+            {withSurprise
+              .slice()
+              .reverse()
+              .map((h) => {
+                const pct = h.surprisePercent * 100
+                const h50 = 50
+                const scale = (Math.abs(pct) / maxAbs) * h50
+                const pos = pct >= 0
+                return (
+                  <div key={h.quarter} className="flex-1 text-center" title={`${h.quarter}: ${fmtPct(pct)}`}>
+                    <div className="relative flex h-[50px] flex-col justify-end">
+                      <div
+                        className={cn(
+                          'w-full rounded-t',
+                          pos ? 'bg-[var(--color-pos)]' : 'bg-[var(--color-neg)]'
+                        )}
+                        style={{ height: `${scale}px` }}
+                      />
+                    </div>
+                    <div className="mt-1 font-mono text-[9px] tabular text-[var(--color-fg-muted)]">
+                      {h.quarter.slice(2, 7)}
+                    </div>
+                  </div>
+                )
+              })}
+          </div>
+        </div>
+      )}
       <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)]">
         <div className="border-b border-[var(--color-border)] px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-fg-muted)]">
           EPS Estimates vs Actuals
