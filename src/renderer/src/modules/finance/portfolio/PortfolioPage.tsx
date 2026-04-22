@@ -9,6 +9,7 @@ import { WatchlistImport } from './WatchlistImport'
 import { RiskDashboard } from './RiskDashboard'
 import { DividendTracker } from './DividendTracker'
 import { TaxLotView } from './TaxLotView'
+import { TaxHarvestPanel } from './TaxHarvestPanel'
 import { useTrades } from '../../../hooks/useTrades'
 import { downloadCsv, toCsv } from '../../../lib/csv'
 
@@ -62,6 +63,7 @@ export function PortfolioPage(): React.JSX.Element {
         <AllocationBar />
         <PositionsList />
         <TaxLotView />
+        <TaxHarvestPanel />
         <TradeForm />
         <TradesTable />
         <WatchlistImport />
