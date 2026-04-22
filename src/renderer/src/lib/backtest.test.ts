@@ -22,9 +22,7 @@ describe('runBacktest', () => {
   })
   it('monthly DCA buys more shares', () => {
     const closes = Array.from({ length: 60 }, (_, i) => 100 + i * 0.1)
-    const times = Array.from({ length: 60 }, (_, i) =>
-      dateToSec('2023-01-01') + i * 30 * 86400
-    )
+    const times = Array.from({ length: 60 }, (_, i) => dateToSec('2023-01-01') + i * 30 * 86400)
     const noDCA = runBacktest({ closes, times, startIndex: 0, initialAmount: 1000 })
     const withDCA = runBacktest({
       closes,
@@ -46,11 +44,7 @@ describe('runBacktest', () => {
 
 describe('findIndexForDate', () => {
   it('returns closest index', () => {
-    const times = [
-      dateToSec('2024-01-01'),
-      dateToSec('2024-06-01'),
-      dateToSec('2024-12-01')
-    ]
+    const times = [dateToSec('2024-01-01'), dateToSec('2024-06-01'), dateToSec('2024-12-01')]
     expect(findIndexForDate(times, dateToSec('2024-06-15'))).toBe(1)
   })
 })

@@ -58,8 +58,7 @@ export function WatchlistHeatmap(): React.JSX.Element | null {
       </div>
       <div className="flex flex-wrap gap-1">
         {cells.map((c) => {
-          const sizePct =
-            c.cap != null && c.cap > 0 ? Math.sqrt(c.cap) / maxSize : 0.2
+          const sizePct = c.cap != null && c.cap > 0 ? Math.sqrt(c.cap) / maxSize : 0.2
           const dim = Math.max(60, Math.min(180, sizePct * 180))
           return (
             <button
@@ -74,9 +73,7 @@ export function WatchlistHeatmap(): React.JSX.Element | null {
               title={`${c.ticker}: ${c.pct != null ? fmtPct(c.pct) : '—'} · ${c.price != null ? `$${c.price.toFixed(2)}` : ''}`}
             >
               <span className="text-[11px] font-bold">{c.ticker}</span>
-              <span className="text-[10px] tabular">
-                {c.pct != null ? fmtPct(c.pct) : '—'}
-              </span>
+              <span className="text-[10px] tabular">{c.pct != null ? fmtPct(c.pct) : '—'}</span>
               {c.price != null && (
                 <span className="text-[9px] tabular text-[var(--color-fg-muted)]">
                   ${c.price.toFixed(2)}

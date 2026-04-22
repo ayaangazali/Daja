@@ -83,9 +83,7 @@ export function TrendScorePanel({ ticker }: { ticker: string }): React.JSX.Eleme
           ) : score.score < 0 ? (
             <TrendingDown className="h-4 w-4 text-[var(--color-neg)]" />
           ) : null}
-          <span
-            className={cn('rounded px-2 py-0.5 font-mono text-[11px] uppercase', toneClass)}
-          >
+          <span className={cn('rounded px-2 py-0.5 font-mono text-[11px] uppercase', toneClass)}>
             {score.strength.replace('_', ' ')}
           </span>
           <span className="font-mono text-[14px] font-bold tabular">
@@ -101,9 +99,7 @@ export function TrendScorePanel({ ticker }: { ticker: string }): React.JSX.Eleme
         <div
           className={cn(
             'absolute top-0 h-full',
-            score.score > 0
-              ? 'left-1/2 bg-[var(--color-pos)]'
-              : 'bg-[var(--color-neg)]'
+            score.score > 0 ? 'left-1/2 bg-[var(--color-pos)]' : 'bg-[var(--color-neg)]'
           )}
           style={{
             left: score.score > 0 ? '50%' : `${50 + score.score / 2}%`,

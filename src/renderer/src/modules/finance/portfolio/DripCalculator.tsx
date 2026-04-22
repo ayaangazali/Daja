@@ -1,10 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Repeat } from 'lucide-react'
 import { dripCAGR, projectDrip } from '../../../lib/drip'
-import {
-  BarChart,
-  MultiLineChart
-} from '../../../components/charts/ChartPrimitives'
+import { BarChart, MultiLineChart } from '../../../components/charts/ChartPrimitives'
 import { fmtLargeNum, fmtPct } from '../../../lib/format'
 
 export function DripCalculator(): React.JSX.Element {
@@ -29,16 +26,7 @@ export function DripCalculator(): React.JSX.Element {
         monthlyContribution: Number(monthlyContrib) || 0,
         taxDragPct: Number(taxDrag) || 0
       }),
-    [
-      startAmount,
-      sharePrice,
-      dividendYield,
-      priceGrowth,
-      divGrowth,
-      years,
-      monthlyContrib,
-      taxDrag
-    ]
+    [startAmount, sharePrice, dividendYield, priceGrowth, divGrowth, years, monthlyContrib, taxDrag]
   )
   const finalRow = rows[rows.length - 1]
   const totalValue = rows.map((r) => r.totalValue as number | null)
@@ -67,10 +55,7 @@ export function DripCalculator(): React.JSX.Element {
       {finalRow && (
         <div className="mb-3 grid grid-cols-2 gap-2 md:grid-cols-4">
           <Stat label="Final value" value={`$${fmtLargeNum(finalRow.totalValue)}`} tone="pos" />
-          <Stat
-            label="Contributed"
-            value={`$${fmtLargeNum(finalRow.totalContributed)}`}
-          />
+          <Stat label="Contributed" value={`$${fmtLargeNum(finalRow.totalContributed)}`} />
           <Stat
             label="Dividends (cum)"
             value={`$${fmtLargeNum(finalRow.totalDividends)}`}
@@ -140,7 +125,11 @@ function Stat({
       <div className="text-[9px] uppercase text-[var(--color-fg-muted)]">{label}</div>
       <div
         className={`font-mono text-[12px] font-semibold tabular ${
-          tone === 'pos' ? 'text-[var(--color-pos)]' : tone === 'neg' ? 'text-[var(--color-neg)]' : ''
+          tone === 'pos'
+            ? 'text-[var(--color-pos)]'
+            : tone === 'neg'
+              ? 'text-[var(--color-neg)]'
+              : ''
         }`}
       >
         {value}

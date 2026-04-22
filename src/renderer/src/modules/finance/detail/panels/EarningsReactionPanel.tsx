@@ -6,19 +6,13 @@ import { analyzeEarningsReactions } from '../../../../lib/earningsReaction'
 import { fmtPct } from '../../../../lib/format'
 import { cn } from '../../../../lib/cn'
 
-export function EarningsReactionPanel({
-  ticker
-}: {
-  ticker: string
-}): React.JSX.Element | null {
+export function EarningsReactionPanel({ ticker }: { ticker: string }): React.JSX.Element | null {
   const { data: fund } = useFundamentals(ticker)
   const { data: bars = [] } = useHistorical(ticker, '5y')
 
   const summary = useMemo(() => {
     if (!fund || bars.length === 0) return null
-    const dates = fund.earningsHistory
-      .map((h) => h.quarter)
-      .filter((q): q is string => !!q)
+    const dates = fund.earningsHistory.map((h) => h.quarter).filter((q): q is string => !!q)
     const barsClean = bars
       .filter((b) => b.close != null)
       .map((b) => ({ time: b.time, close: b.close as number }))
@@ -34,14 +28,31 @@ export function EarningsReactionPanel({
     <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)] p-3">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-fg-muted)]">
-          <Activity className="h-3 w-3" /> Post-earnings drift (last {summary.events.length} reports)
+          <Activity className="h-3 w-3" /> Post-earnings drift (last {summary.events.length}{' '}
+          reports)
         </div>
       </div>
       <div className="mb-3 grid grid-cols-2 gap-2 md:grid-cols-4">
-        <Stat label="Avg 1d" value={summary.avg1d != null ? fmtPct(summary.avg1d) : '—'} tone={toneBy(summary.avg1d)} />
-        <Stat label="Avg 3d" value={summary.avg3d != null ? fmtPct(summary.avg3d) : '—'} tone={toneBy(summary.avg3d)} />
-        <Stat label="Avg 5d" value={summary.avg5d != null ? fmtPct(summary.avg5d) : '—'} tone={toneBy(summary.avg5d)} />
-        <Stat label="Avg 10d" value={summary.avg10d != null ? fmtPct(summary.avg10d) : '—'} tone={toneBy(summary.avg10d)} />
+        <Stat
+          label="Avg 1d"
+          value={summary.avg1d != null ? fmtPct(summary.avg1d) : '—'}
+          tone={toneBy(summary.avg1d)}
+        />
+        <Stat
+          label="Avg 3d"
+          value={summary.avg3d != null ? fmtPct(summary.avg3d) : '—'}
+          tone={toneBy(summary.avg3d)}
+        />
+        <Stat
+          label="Avg 5d"
+          value={summary.avg5d != null ? fmtPct(summary.avg5d) : '—'}
+          tone={toneBy(summary.avg5d)}
+        />
+        <Stat
+          label="Avg 10d"
+          value={summary.avg10d != null ? fmtPct(summary.avg10d) : '—'}
+          tone={toneBy(summary.avg10d)}
+        />
         <Stat
           label="1d hit rate"
           value={`${summary.hitRate1d.toFixed(0)}%`}
@@ -66,23 +77,29 @@ export function EarningsReactionPanel({
             </tr>
           </thead>
           <tbody>
-            {summary.events.slice(-12).reverse().map((e) => (
-              <tr key={e.date} className="border-t border-[var(--color-border)] font-mono tabular">
-                <td className="px-2 py-0.5">{e.date}</td>
-                <td className={cn('px-2 py-0.5 text-right', toneBy(e.r1d))}>
-                  {e.r1d != null ? fmtPct(e.r1d) : '—'}
-                </td>
-                <td className={cn('px-2 py-0.5 text-right', toneBy(e.r3d))}>
-                  {e.r3d != null ? fmtPct(e.r3d) : '—'}
-                </td>
-                <td className={cn('px-2 py-0.5 text-right', toneBy(e.r5d))}>
-                  {e.r5d != null ? fmtPct(e.r5d) : '—'}
-                </td>
-                <td className={cn('px-2 py-0.5 text-right', toneBy(e.r10d))}>
-                  {e.r10d != null ? fmtPct(e.r10d) : '—'}
-                </td>
-              </tr>
-            ))}
+            {summary.events
+              .slice(-12)
+              .reverse()
+              .map((e) => (
+                <tr
+                  key={e.date}
+                  className="border-t border-[var(--color-border)] font-mono tabular"
+                >
+                  <td className="px-2 py-0.5">{e.date}</td>
+                  <td className={cn('px-2 py-0.5 text-right', toneBy(e.r1d))}>
+                    {e.r1d != null ? fmtPct(e.r1d) : '—'}
+                  </td>
+                  <td className={cn('px-2 py-0.5 text-right', toneBy(e.r3d))}>
+                    {e.r3d != null ? fmtPct(e.r3d) : '—'}
+                  </td>
+                  <td className={cn('px-2 py-0.5 text-right', toneBy(e.r5d))}>
+                    {e.r5d != null ? fmtPct(e.r5d) : '—'}
+                  </td>
+                  <td className={cn('px-2 py-0.5 text-right', toneBy(e.r10d))}>
+                    {e.r10d != null ? fmtPct(e.r10d) : '—'}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

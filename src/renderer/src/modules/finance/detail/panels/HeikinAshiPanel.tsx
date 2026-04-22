@@ -1,12 +1,7 @@
 import { useMemo, useState } from 'react'
 import { TrendingUp, TrendingDown } from 'lucide-react'
 import { useHistorical } from '../../../../hooks/useFinance'
-import {
-  anchoredVWAP,
-  haTrendRun,
-  toHeikinAshi,
-  type OHLCBar
-} from '../../../../lib/heikinAshi'
+import { anchoredVWAP, haTrendRun, toHeikinAshi, type OHLCBar } from '../../../../lib/heikinAshi'
 import { MultiLineChart } from '../../../../components/charts/ChartPrimitives'
 import { fmtPrice } from '../../../../lib/format'
 import { cn } from '../../../../lib/cn'
@@ -104,13 +99,14 @@ export function HeikinAshiPanel({ ticker }: { ticker: string }): React.JSX.Eleme
           tone={haSummary.direction === 'up' ? 'pos' : 'neg'}
         />
         <Stat label="Close" value={`$${fmtPrice(lastClose)}`} />
-        <Stat
-          label="Anchored VWAP"
-          value={lastVwap != null ? `$${fmtPrice(lastVwap)}` : '—'}
-        />
+        <Stat label="Anchored VWAP" value={lastVwap != null ? `$${fmtPrice(lastVwap)}` : '—'} />
         <Stat
           label="Δ vs VWAP"
-          value={vwapDeviation != null ? `${vwapDeviation > 0 ? '+' : ''}${vwapDeviation.toFixed(2)}%` : '—'}
+          value={
+            vwapDeviation != null
+              ? `${vwapDeviation > 0 ? '+' : ''}${vwapDeviation.toFixed(2)}%`
+              : '—'
+          }
           tone={vwapDeviation != null && vwapDeviation > 0 ? 'pos' : 'neg'}
         />
       </div>

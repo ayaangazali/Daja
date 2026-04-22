@@ -93,11 +93,19 @@ export function MonteCarloPanel({ ticker }: { ticker: string }): React.JSX.Eleme
 
       <MultiLineChart
         series={[
-          { values: sim.result.p05 as (number | null)[], color: 'rgba(239,68,68,0.5)', dashed: true },
+          {
+            values: sim.result.p05 as (number | null)[],
+            color: 'rgba(239,68,68,0.5)',
+            dashed: true
+          },
           { values: sim.result.p25 as (number | null)[], color: 'rgba(239,68,68,0.3)' },
           { values: sim.result.p50 as (number | null)[], color: '#60a5fa', strokeWidth: 1.4 },
           { values: sim.result.p75 as (number | null)[], color: 'rgba(34,197,94,0.3)' },
-          { values: sim.result.p95 as (number | null)[], color: 'rgba(34,197,94,0.5)', dashed: true },
+          {
+            values: sim.result.p95 as (number | null)[],
+            color: 'rgba(34,197,94,0.5)',
+            dashed: true
+          },
           { values: sim.result.mean as (number | null)[], color: '#fbbf24', strokeWidth: 1 }
         ]}
         height={160}
@@ -119,16 +127,8 @@ export function MonteCarloPanel({ ticker }: { ticker: string }): React.JSX.Eleme
         />
         <Stat label="P5 ret" value={fmtPct(sim.final.p05)} tone="text-[var(--color-neg)]" />
         <Stat label="P95 ret" value={fmtPct(sim.final.p95)} tone="text-[var(--color-pos)]" />
-        <Stat
-          label="Prob > +20%"
-          value={fmtPct(sim.above20pct)}
-          tone="text-[var(--color-pos)]"
-        />
-        <Stat
-          label="Prob < -20%"
-          value={fmtPct(sim.below20pct)}
-          tone="text-[var(--color-neg)]"
-        />
+        <Stat label="Prob > +20%" value={fmtPct(sim.above20pct)} tone="text-[var(--color-pos)]" />
+        <Stat label="Prob < -20%" value={fmtPct(sim.below20pct)} tone="text-[var(--color-neg)]" />
       </div>
       <div className="mt-1 text-[9px] text-[var(--color-fg-muted)]">
         GBM simulation with drift/vol estimated from 2y daily log returns. Not a forecast —

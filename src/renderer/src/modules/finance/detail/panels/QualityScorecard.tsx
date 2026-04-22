@@ -2,17 +2,8 @@ import { useMemo } from 'react'
 import { Award } from 'lucide-react'
 import { useStatements } from '../../../../hooks/useStatements'
 import { useFundamentals } from '../../../../hooks/useFundamentals'
-import {
-  altmanZ,
-  cagr,
-  fcfConversion,
-  piotroskiScore,
-  roic
-} from '../../../../lib/valuation'
-import {
-  coefficientOfVariation,
-  qualityScore
-} from '../../../../lib/qualityScore'
+import { altmanZ, cagr, fcfConversion, piotroskiScore, roic } from '../../../../lib/valuation'
+import { coefficientOfVariation, qualityScore } from '../../../../lib/qualityScore'
 import { cn } from '../../../../lib/cn'
 
 export function QualityScorecard({ ticker }: { ticker: string }): React.JSX.Element {
@@ -64,9 +55,7 @@ export function QualityScorecard({ ticker }: { ticker: string }): React.JSX.Elem
             ? (prevInc.grossProfit / prevInc.revenue) * 100
             : null,
         assetTurnover:
-          prevInc?.revenue && prevBal?.totalAssets
-            ? prevInc.revenue / prevBal.totalAssets
-            : null
+          prevInc?.revenue && prevBal?.totalAssets ? prevInc.revenue / prevBal.totalAssets : null
       }
     })
 
@@ -89,8 +78,7 @@ export function QualityScorecard({ ticker }: { ticker: string }): React.JSX.Elem
     const roicPct = roic({
       operatingIncome: latestInc.operatingIncome,
       taxRate: 0.21,
-      totalDebt:
-        (latestBal.longTermDebt ?? 0) + (latestBal.shortTermDebt ?? 0),
+      totalDebt: (latestBal.longTermDebt ?? 0) + (latestBal.shortTermDebt ?? 0),
       totalEquity: latestBal.totalEquity,
       cash: latestBal.cash
     })
@@ -158,9 +146,7 @@ export function QualityScorecard({ ticker }: { ticker: string }): React.JSX.Elem
           >
             {result.grade}
           </span>
-          <span className="font-mono text-2xl font-bold tabular">
-            {result.score}/100
-          </span>
+          <span className="font-mono text-2xl font-bold tabular">{result.score}/100</span>
         </div>
       </div>
       <div className="grid grid-cols-1 gap-1 md:grid-cols-2">

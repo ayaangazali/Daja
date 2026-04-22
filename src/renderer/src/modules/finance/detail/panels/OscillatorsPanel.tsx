@@ -112,10 +112,7 @@ export function OscillatorsPanel({ ticker }: { ticker: string }): React.JSX.Elem
           <div className="mb-1 text-[9px] uppercase text-[var(--color-fg-muted)]">
             ATR (14) — volatility
           </div>
-          <MultiLineChart
-            series={[{ values: atr, color: '#f87171' }]}
-            height={70}
-          />
+          <MultiLineChart series={[{ values: atr, color: '#f87171' }]} height={70} />
         </div>
       </div>
     </div>

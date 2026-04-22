@@ -176,22 +176,14 @@ export function RiskVsSpy({ ticker }: { ticker: string }): React.JSX.Element {
         />
         <Stat label="Info Ratio" value={metrics.ir.toFixed(2)} />
         <Stat label="Treynor" value={metrics.treynor.toFixed(2)} />
-        <Stat
-          label="VaR 5%"
-          value={fmtPct(metrics.var5)}
-          tone="text-[var(--color-neg)]"
-        />
-        <Stat
-          label="CVaR 5%"
-          value={fmtPct(metrics.cvar5)}
-          tone="text-[var(--color-neg)]"
-        />
+        <Stat label="VaR 5%" value={fmtPct(metrics.var5)} tone="text-[var(--color-neg)]" />
+        <Stat label="CVaR 5%" value={fmtPct(metrics.cvar5)} tone="text-[var(--color-neg)]" />
         <Stat label="Skew" value={metrics.skew.toFixed(2)} />
         <Stat label="Ulcer" value={metrics.ulcer.toFixed(2)} />
       </div>
       <div className="mt-1 text-[9px] text-[var(--color-fg-muted)]">
-        Sortino = downside-only Sharpe · Calmar = return ÷ |max DD| · VaR = daily 5% loss
-        threshold · CVaR = avg of worst 5% · Ulcer = √mean(DD²) drawdown pain score.
+        Sortino = downside-only Sharpe · Calmar = return ÷ |max DD| · VaR = daily 5% loss threshold
+        · CVaR = avg of worst 5% · Ulcer = √mean(DD²) drawdown pain score.
       </div>
     </div>
   )

@@ -3,10 +3,16 @@ import { dripCAGR, projectDrip } from './drip'
 
 describe('projectDrip', () => {
   it('returns empty on invalid input', () => {
-    expect(projectDrip({
-      startAmount: 0, sharePrice: 100, dividendYieldPct: 3,
-      priceGrowthPct: 7, dividendGrowthPct: 5, years: 10
-    })).toEqual([])
+    expect(
+      projectDrip({
+        startAmount: 0,
+        sharePrice: 100,
+        dividendYieldPct: 3,
+        priceGrowthPct: 7,
+        dividendGrowthPct: 5,
+        years: 10
+      })
+    ).toEqual([])
   })
   it('produces N year rows', () => {
     const r = projectDrip({

@@ -63,8 +63,7 @@ export function detectSRLevels(
         clusters.push({ members: [p] })
         continue
       }
-      const lastAvg =
-        last.members.reduce((a, m) => a + m.price, 0) / last.members.length
+      const lastAvg = last.members.reduce((a, m) => a + m.price, 0) / last.members.length
       if (Math.abs((p.price - lastAvg) / lastAvg) * 100 <= tolerancePct) {
         last.members.push(p)
       } else {
@@ -74,8 +73,7 @@ export function detectSRLevels(
     return clusters
       .filter((c) => c.members.length >= minTouches)
       .map((c) => {
-        const avg =
-          c.members.reduce((a, m) => a + m.price, 0) / c.members.length
+        const avg = c.members.reduce((a, m) => a + m.price, 0) / c.members.length
         const idxs = c.members.map((m) => m.idx)
         const firstIdx = Math.min(...idxs)
         const lastIdx = Math.max(...idxs)
@@ -92,9 +90,6 @@ export function detectSRLevels(
       })
   }
 
-  const levels = [
-    ...cluster(peaks, 'resistance'),
-    ...cluster(troughs, 'support')
-  ]
+  const levels = [...cluster(peaks, 'resistance'), ...cluster(troughs, 'support')]
   return levels.sort((a, b) => b.strength - a.strength).slice(0, topN)
 }

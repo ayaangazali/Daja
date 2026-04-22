@@ -59,24 +59,18 @@ describe('portfolioPayoff — common strategies', () => {
 
 describe('payoffCurve + breakEvens + max', () => {
   it('long call break-even at strike + premium', () => {
-    const legs: OptionLeg[] = [
-      { type: 'call', side: 'long', strike: 100, premium: 5, quantity: 1 }
-    ]
+    const legs: OptionLeg[] = [{ type: 'call', side: 'long', strike: 100, premium: 5, quantity: 1 }]
     const curve = payoffCurve(legs, 80, 130, 200)
     const bes = breakEvens(curve)
     expect(bes[0]).toBeCloseTo(105, 0)
   })
   it('max profit of long call rises with price', () => {
-    const legs: OptionLeg[] = [
-      { type: 'call', side: 'long', strike: 100, premium: 5, quantity: 1 }
-    ]
+    const legs: OptionLeg[] = [{ type: 'call', side: 'long', strike: 100, premium: 5, quantity: 1 }]
     const curve = payoffCurve(legs, 80, 150, 50)
     expect(maxProfit(curve).price).toBeGreaterThan(100)
   })
   it('max loss of long call = -premium × mult', () => {
-    const legs: OptionLeg[] = [
-      { type: 'call', side: 'long', strike: 100, premium: 5, quantity: 1 }
-    ]
+    const legs: OptionLeg[] = [{ type: 'call', side: 'long', strike: 100, premium: 5, quantity: 1 }]
     const curve = payoffCurve(legs, 80, 150, 50)
     expect(maxLoss(curve).pnl).toBeCloseTo(-500, 0)
   })

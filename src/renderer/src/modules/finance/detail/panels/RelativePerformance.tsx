@@ -131,9 +131,7 @@ export function RelativePerformance({ ticker }: { ticker: string }): React.JSX.E
               className="font-mono text-[10px] font-semibold"
               style={{
                 color:
-                  f.symbol === ticker
-                    ? '#fbbf24'
-                    : (BENCH_COLORS[f.symbol] ?? 'var(--color-fg)')
+                  f.symbol === ticker ? '#fbbf24' : (BENCH_COLORS[f.symbol] ?? 'var(--color-fg)')
               }}
             >
               {f.symbol}

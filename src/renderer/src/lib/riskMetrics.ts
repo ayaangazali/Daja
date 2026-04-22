@@ -7,9 +7,7 @@ export function sortinoRatio(returns: number[], rfDaily = 0, target = 0): number
   const mean = excess.reduce((a, b) => a + b, 0) / excess.length
   const downside = excess.filter((r) => r < target)
   if (downside.length === 0) return mean > 0 ? Infinity : 0
-  const downDev = Math.sqrt(
-    downside.reduce((a, r) => a + (r - target) ** 2, 0) / excess.length
-  )
+  const downDev = Math.sqrt(downside.reduce((a, r) => a + (r - target) ** 2, 0) / excess.length)
   if (downDev === 0) return 0
   return (mean / downDev) * Math.sqrt(252)
 }
@@ -21,10 +19,7 @@ export function calmarRatio(annualReturnPct: number, maxDrawdownPct: number): nu
 }
 
 /** Information ratio — excess return vs benchmark, scaled by tracking error. */
-export function informationRatio(
-  assetReturns: number[],
-  benchmarkReturns: number[]
-): number {
+export function informationRatio(assetReturns: number[], benchmarkReturns: number[]): number {
   const n = Math.min(assetReturns.length, benchmarkReturns.length)
   if (n === 0) return 0
   const excess: number[] = []
@@ -102,11 +97,7 @@ export function kurtosis(returns: number[]): number {
  * f* = p - q/b where p = win rate, q = 1-p, b = win/loss payoff ratio.
  * Returns 0 if edge is negative. Halve for conservative "half-Kelly".
  */
-export function kellyCriterion(
-  winRate: number,
-  avgWin: number,
-  avgLoss: number
-): number {
+export function kellyCriterion(winRate: number, avgWin: number, avgLoss: number): number {
   if (winRate <= 0 || winRate >= 1) return 0
   if (avgLoss === 0) return 0
   const b = avgWin / Math.abs(avgLoss)

@@ -1,11 +1,7 @@
 import { useMemo, useState } from 'react'
 import { History } from 'lucide-react'
 import { useHistorical } from '../../../../hooks/useFinance'
-import {
-  dateToSec,
-  findIndexForDate,
-  runBacktest
-} from '../../../../lib/backtest'
+import { dateToSec, findIndexForDate, runBacktest } from '../../../../lib/backtest'
 import { MultiLineChart } from '../../../../components/charts/ChartPrimitives'
 import { fmtLargeNum, fmtPct } from '../../../../lib/format'
 import { cn } from '../../../../lib/cn'
@@ -103,11 +99,7 @@ export function BacktestPanel({ ticker }: { ticker: string }): React.JSX.Element
           value={fmtPct(result.totalReturnPct)}
           tone={result.totalReturnPct > 0 ? 'pos' : 'neg'}
         />
-        <Stat
-          label="CAGR"
-          value={fmtPct(result.cagr)}
-          tone={result.cagr > 0 ? 'pos' : 'neg'}
-        />
+        <Stat label="CAGR" value={fmtPct(result.cagr)} tone={result.cagr > 0 ? 'pos' : 'neg'} />
         <Stat label="Max DD" value={fmtPct(result.maxDrawdownPct)} tone="neg" />
       </div>
     </div>

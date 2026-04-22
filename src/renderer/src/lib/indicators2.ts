@@ -237,7 +237,7 @@ export function cmf(
     const c = closes[i]
     const v = volumes[i] ?? 0
     const range = h - l
-    const mult = range === 0 ? 0 : ((c - l) - (h - c)) / range
+    const mult = range === 0 ? 0 : (c - l - (h - c)) / range
     mfvSum += mult * v
     vSum += v
   }
@@ -246,12 +246,7 @@ export function cmf(
 }
 
 /** Average True Range — Wilder smoothing over p periods. */
-export function atr(
-  highs: number[],
-  lows: number[],
-  closes: number[],
-  p = 14
-): number | null {
+export function atr(highs: number[], lows: number[], closes: number[], p = 14): number | null {
   if (closes.length < p + 1) return null
   const trs: number[] = []
   for (let i = 1; i < closes.length; i++) {
@@ -443,7 +438,9 @@ export function ichimoku(
     const shifted = i + chikouShift
     if (shifted < n) {
       senkouA[shifted] =
-        tenkan[i] != null && kijun[i] != null ? ((tenkan[i] as number) + (kijun[i] as number)) / 2 : null
+        tenkan[i] != null && kijun[i] != null
+          ? ((tenkan[i] as number) + (kijun[i] as number)) / 2
+          : null
       senkouB[shifted] = sbMid
     }
     // chikou = current close shifted backwards

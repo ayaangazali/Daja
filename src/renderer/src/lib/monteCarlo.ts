@@ -38,8 +38,7 @@ export function seedRng(seed: number): () => number {
 export function estimateDriftVol(logReturns: number[]): { mu: number; sigma: number } {
   if (logReturns.length === 0) return { mu: 0, sigma: 0 }
   const mean = logReturns.reduce((a, b) => a + b, 0) / logReturns.length
-  const variance =
-    logReturns.reduce((a, r) => a + (r - mean) ** 2, 0) / logReturns.length
+  const variance = logReturns.reduce((a, r) => a + (r - mean) ** 2, 0) / logReturns.length
   return { mu: mean, sigma: Math.sqrt(variance) }
 }
 

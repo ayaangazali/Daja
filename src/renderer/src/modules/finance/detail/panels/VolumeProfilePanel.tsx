@@ -104,9 +104,7 @@ export function VolumeProfilePanel({ ticker }: { ticker: string }): React.JSX.El
                   style={{ width: `${width}%` }}
                 />
               </div>
-              <span className="w-16 text-right font-mono tabular">
-                {fmtLargeNum(b.volume)}
-              </span>
+              <span className="w-16 text-right font-mono tabular">{fmtLargeNum(b.volume)}</span>
             </div>
           )
         })}

@@ -25,16 +25,12 @@ export interface GapEvent {
   daysToFill: number | null
 }
 
-export function detectGaps(
-  bars: OHLCVBar[],
-  minGapPct = 1
-): GapEvent[] {
+export function detectGaps(bars: OHLCVBar[], minGapPct = 1): GapEvent[] {
   const out: GapEvent[] = []
   for (let i = 1; i < bars.length; i++) {
     const prev = bars[i - 1]
     const curr = bars[i]
-    if (prev.close == null || curr.open == null || curr.high == null || curr.low == null)
-      continue
+    if (prev.close == null || curr.open == null || curr.high == null || curr.low == null) continue
     const pct = ((curr.open - prev.close) / prev.close) * 100
     if (Math.abs(pct) < minGapPct) continue
     const type: 'gap_up' | 'gap_down' = pct > 0 ? 'gap_up' : 'gap_down'
@@ -68,9 +64,7 @@ export function detectGaps(
   return out
 }
 
-export function gapFillStats(
-  gaps: GapEvent[]
-): {
+export function gapFillStats(gaps: GapEvent[]): {
   total: number
   filled: number
   unfilled: number

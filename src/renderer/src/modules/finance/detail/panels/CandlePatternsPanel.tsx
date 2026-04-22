@@ -1,11 +1,7 @@
 import { useMemo } from 'react'
 import { Lightbulb } from 'lucide-react'
 import { useHistorical } from '../../../../hooks/useFinance'
-import {
-  detectPatterns,
-  summarizePatterns,
-  type Candle
-} from '../../../../lib/candlePatterns'
+import { detectPatterns, summarizePatterns, type Candle } from '../../../../lib/candlePatterns'
 import { cn } from '../../../../lib/cn'
 
 export function CandlePatternsPanel({ ticker }: { ticker: string }): React.JSX.Element {

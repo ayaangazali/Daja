@@ -49,10 +49,7 @@ describe('detectGaps', () => {
     expect(r[0].daysToFill).toBeNull()
   })
   it('ignores gaps below threshold', () => {
-    const bars: OHLCVBar[] = [
-      bar(100, 101, 99, 100, 1),
-      bar(100.5, 101, 100, 101, 2)
-    ]
+    const bars: OHLCVBar[] = [bar(100, 101, 99, 100, 1), bar(100.5, 101, 100, 101, 2)]
     expect(detectGaps(bars, 1)).toHaveLength(0)
   })
 })
@@ -65,9 +62,39 @@ describe('gapFillStats', () => {
   })
   it('fillRate and median correct', () => {
     const gaps = [
-      { index: 1, time: 0, type: 'gap_up' as const, prevClose: 100, open: 102, pct: 2, filledIndex: 3, filled: true, daysToFill: 2 },
-      { index: 5, time: 0, type: 'gap_down' as const, prevClose: 100, open: 98, pct: -2, filledIndex: 10, filled: true, daysToFill: 5 },
-      { index: 10, time: 0, type: 'gap_up' as const, prevClose: 100, open: 103, pct: 3, filledIndex: null, filled: false, daysToFill: null }
+      {
+        index: 1,
+        time: 0,
+        type: 'gap_up' as const,
+        prevClose: 100,
+        open: 102,
+        pct: 2,
+        filledIndex: 3,
+        filled: true,
+        daysToFill: 2
+      },
+      {
+        index: 5,
+        time: 0,
+        type: 'gap_down' as const,
+        prevClose: 100,
+        open: 98,
+        pct: -2,
+        filledIndex: 10,
+        filled: true,
+        daysToFill: 5
+      },
+      {
+        index: 10,
+        time: 0,
+        type: 'gap_up' as const,
+        prevClose: 100,
+        open: 103,
+        pct: 3,
+        filledIndex: null,
+        filled: false,
+        daysToFill: null
+      }
     ]
     const s = gapFillStats(gaps)
     expect(s.total).toBe(3)

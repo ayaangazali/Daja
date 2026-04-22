@@ -13,7 +13,11 @@ import {
   smaSeries,
   vwap
 } from '../../../../lib/indicators2'
-import { MultiLineChart, ZeroBarChart, BarChart } from '../../../../components/charts/ChartPrimitives'
+import {
+  MultiLineChart,
+  ZeroBarChart,
+  BarChart
+} from '../../../../components/charts/ChartPrimitives'
 import { cn } from '../../../../lib/cn'
 
 type Overlay =
@@ -44,26 +48,15 @@ const OVERLAYS: { key: Overlay; label: string; color: string }[] = [
 export function IndicatorsPanel({ ticker }: { ticker: string }): React.JSX.Element {
   const [range, setRange] = useState<'3mo' | '6mo' | '1y' | '2y'>('6mo')
   const { data: bars = [], isLoading } = useHistorical(ticker, range)
-  const [active, setActive] = useState<Set<Overlay>>(
-    new Set(['sma20', 'sma50', 'bollinger'])
-  )
+  const [active, setActive] = useState<Set<Overlay>>(new Set(['sma20', 'sma50', 'bollinger']))
 
   const closes = useMemo(
     () => bars.map((b) => b.close).filter((v): v is number => v != null && Number.isFinite(v)),
     [bars]
   )
-  const highs = useMemo(
-    () => bars.map((b) => b.high ?? b.close ?? 0),
-    [bars]
-  )
-  const lows = useMemo(
-    () => bars.map((b) => b.low ?? b.close ?? 0),
-    [bars]
-  )
-  const vols = useMemo(
-    () => bars.map((b) => b.volume ?? 0),
-    [bars]
-  )
+  const highs = useMemo(() => bars.map((b) => b.high ?? b.close ?? 0), [bars])
+  const lows = useMemo(() => bars.map((b) => b.low ?? b.close ?? 0), [bars])
+  const vols = useMemo(() => bars.map((b) => b.volume ?? 0), [bars])
 
   const overlaySeries = useMemo(() => {
     const out: { key: Overlay; values: (number | null)[]; color: string; label: string }[] = []

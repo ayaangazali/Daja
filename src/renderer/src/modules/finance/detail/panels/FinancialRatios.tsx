@@ -1,10 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Percent } from 'lucide-react'
 import { useStatements } from '../../../../hooks/useStatements'
-import {
-  MultiLineChart,
-  ZeroBarChart
-} from '../../../../components/charts/ChartPrimitives'
+import { MultiLineChart, ZeroBarChart } from '../../../../components/charts/ChartPrimitives'
 import { cn } from '../../../../lib/cn'
 
 type Period = 'annual' | 'quarterly'
@@ -160,10 +157,7 @@ export function FinancialRatios({ ticker }: { ticker: string }): React.JSX.Eleme
     {
       title: 'Asset turnover (Revenue / Assets)',
       chart: (
-        <MultiLineChart
-          series={[{ values: series.assetTurnover, color: '#34d399' }]}
-          height={70}
-        />
+        <MultiLineChart series={[{ values: series.assetTurnover, color: '#34d399' }]} height={70} />
       )
     },
     {
@@ -206,9 +200,7 @@ export function FinancialRatios({ ticker }: { ticker: string }): React.JSX.Eleme
             key={s.title}
             className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] p-2"
           >
-            <div className="mb-1 text-[9px] uppercase text-[var(--color-fg-muted)]">
-              {s.title}
-            </div>
+            <div className="mb-1 text-[9px] uppercase text-[var(--color-fg-muted)]">{s.title}</div>
             {s.chart}
           </div>
         ))}

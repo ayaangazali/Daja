@@ -19,9 +19,7 @@ export function GapAndLevelsPanel({ ticker }: { ticker: string }): React.JSX.Ele
       close: b.close,
       volume: b.volume
     }))
-    const datesByIndex = bars.map((b) =>
-      new Date(b.time * 1000).toISOString().slice(0, 10)
-    )
+    const datesByIndex = bars.map((b) => new Date(b.time * 1000).toISOString().slice(0, 10))
     const gaps = detectGaps(ohlc, 1.5)
     const gapStats = gapFillStats(gaps)
     const highs = bars.map((b) => b.high ?? b.close ?? 0)
@@ -65,9 +63,7 @@ export function GapAndLevelsPanel({ ticker }: { ticker: string }): React.JSX.Ele
               <tbody>
                 {levels.map((l, i) => {
                   const delta =
-                    currentPrice != null
-                      ? ((l.price - currentPrice) / currentPrice) * 100
-                      : null
+                    currentPrice != null ? ((l.price - currentPrice) / currentPrice) * 100 : null
                   return (
                     <tr
                       key={`lv-${i}`}
@@ -130,9 +126,7 @@ export function GapAndLevelsPanel({ ticker }: { ticker: string }): React.JSX.Ele
                       key={`g-${i}`}
                       className="border-t border-[var(--color-border)] font-mono tabular"
                     >
-                      <td className="px-1 py-0.5">
-                        {datesByIndex[g.index] ?? ''}
-                      </td>
+                      <td className="px-1 py-0.5">{datesByIndex[g.index] ?? ''}</td>
                       <td
                         className={cn(
                           'px-1 py-0.5 font-semibold uppercase',
@@ -155,9 +149,11 @@ export function GapAndLevelsPanel({ ticker }: { ticker: string }): React.JSX.Ele
                         {g.pct.toFixed(1)}%
                       </td>
                       <td className="px-1 py-0.5 text-right">
-                        {g.filled
-                          ? `${g.daysToFill}d`
-                          : <span className="text-[var(--color-warn)]">open</span>}
+                        {g.filled ? (
+                          `${g.daysToFill}d`
+                        ) : (
+                          <span className="text-[var(--color-warn)]">open</span>
+                        )}
                       </td>
                     </tr>
                   ))}

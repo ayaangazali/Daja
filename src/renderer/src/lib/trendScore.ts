@@ -51,19 +51,25 @@ export function trendScore(i: TrendInputs): TrendScoreResult {
 
   // RSI (up to 10 points)
   if (i.rsi != null) {
-    if (i.rsi > 70) comps.push({ name: 'RSI', points: -5, reason: `overbought ${i.rsi.toFixed(0)}` })
-    else if (i.rsi > 55) comps.push({ name: 'RSI', points: 8, reason: `bullish ${i.rsi.toFixed(0)}` })
-    else if (i.rsi > 45) comps.push({ name: 'RSI', points: 0, reason: `neutral ${i.rsi.toFixed(0)}` })
-    else if (i.rsi > 30) comps.push({ name: 'RSI', points: -8, reason: `bearish ${i.rsi.toFixed(0)}` })
+    if (i.rsi > 70)
+      comps.push({ name: 'RSI', points: -5, reason: `overbought ${i.rsi.toFixed(0)}` })
+    else if (i.rsi > 55)
+      comps.push({ name: 'RSI', points: 8, reason: `bullish ${i.rsi.toFixed(0)}` })
+    else if (i.rsi > 45)
+      comps.push({ name: 'RSI', points: 0, reason: `neutral ${i.rsi.toFixed(0)}` })
+    else if (i.rsi > 30)
+      comps.push({ name: 'RSI', points: -8, reason: `bearish ${i.rsi.toFixed(0)}` })
     else comps.push({ name: 'RSI', points: 5, reason: `oversold ${i.rsi.toFixed(0)}` })
   }
 
   // MACD cross state (up to 15 points)
   if (i.macd != null && i.macdSignal != null) {
     const diff = i.macd - i.macdSignal
-    if (diff > 0 && i.macd > 0) comps.push({ name: 'MACD', points: 15, reason: 'above signal + above zero' })
+    if (diff > 0 && i.macd > 0)
+      comps.push({ name: 'MACD', points: 15, reason: 'above signal + above zero' })
     else if (diff > 0) comps.push({ name: 'MACD', points: 7, reason: 'above signal' })
-    else if (diff < 0 && i.macd < 0) comps.push({ name: 'MACD', points: -15, reason: 'below signal + below zero' })
+    else if (diff < 0 && i.macd < 0)
+      comps.push({ name: 'MACD', points: -15, reason: 'below signal + below zero' })
     else comps.push({ name: 'MACD', points: -7, reason: 'below signal' })
   }
 

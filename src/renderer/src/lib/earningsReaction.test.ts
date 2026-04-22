@@ -13,8 +13,9 @@ describe('analyzeEarningsReactions', () => {
   })
   it('computes 1d/5d returns relative to earnings-day close', () => {
     const dayStart = new Date('2024-06-10T00:00:00Z').getTime() / 1000
-    const bars = Array.from({ length: 20 }, (_, i) =>
-      bar(dayStart + i * 86400, 100 + i) // rising series
+    const bars = Array.from(
+      { length: 20 },
+      (_, i) => bar(dayStart + i * 86400, 100 + i) // rising series
     )
     const r = analyzeEarningsReactions({
       earningsDates: ['2024-06-10'],

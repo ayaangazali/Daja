@@ -67,9 +67,7 @@ export function MultiLineChart({
   }
   for (const hl of horizontalLines) flat.push(hl.y)
   if (flat.length === 0) {
-    return (
-      <div className="p-2 text-[10px] text-[var(--color-fg-muted)]">No data.</div>
-    )
+    return <div className="p-2 text-[10px] text-[var(--color-fg-muted)]">No data.</div>
   }
   const yMin = Math.min(...flat) - yPad
   const yMax = Math.max(...flat) + yPad
@@ -79,9 +77,7 @@ export function MultiLineChart({
   const x = (i: number): number => padL + (i / Math.max(1, maxLen - 1)) * plotW
   const y = (v: number): number => padT + plotH - ((v - yMin) / yRange) * plotH
 
-  const yTicks = Array.from({ length: yLabels }, (_, i) =>
-    yMin + (i * yRange) / (yLabels - 1)
-  )
+  const yTicks = Array.from({ length: yLabels }, (_, i) => yMin + (i * yRange) / (yLabels - 1))
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`} className="w-full">
