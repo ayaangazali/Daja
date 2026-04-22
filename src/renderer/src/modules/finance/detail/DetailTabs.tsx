@@ -2,6 +2,7 @@ import { cn } from '../../../lib/cn'
 
 export const DETAIL_TABS = [
   'Overview',
+  'Analyst',
   'Financials',
   'Technicals',
   'Earnings',

@@ -5,6 +5,7 @@ import { useFundamentals } from '../../hooks/useFundamentals'
 import { StockHeader } from './detail/StockHeader'
 import { DetailTabs, DETAIL_TABS, type DetailTab } from './detail/DetailTabs'
 import { OverviewTab } from './detail/tabs/OverviewTab'
+import { AnalystPanel } from './detail/panels/AnalystPanel'
 import { FinancialsTab } from './detail/tabs/FinancialsTab'
 import { TechnicalsTab } from './detail/tabs/TechnicalsTab'
 import { EarningsTab } from './detail/tabs/EarningsTab'
@@ -45,6 +46,7 @@ export function StockDetail(): React.JSX.Element {
       <DetailTabs tab={tab} onChange={setTab} />
       <div className="flex-1 overflow-y-auto">
         {tab === 'Overview' && <OverviewTab ticker={upper} fundamentals={fundamentals} />}
+        {tab === 'Analyst' && <AnalystPanel ticker={upper} />}
         {tab === 'Financials' && <FinancialsTab ticker={upper} />}
         {tab === 'Technicals' && <TechnicalsTab ticker={upper} />}
         {tab === 'Earnings' && <EarningsTab ticker={upper} />}
