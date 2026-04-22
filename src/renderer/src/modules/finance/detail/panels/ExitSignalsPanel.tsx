@@ -4,11 +4,7 @@ import { useHistorical, useQuote } from '../../../../hooks/useFinance'
 import { useFundamentals } from '../../../../hooks/useFundamentals'
 import { useOwnership } from '../../../../hooks/useStatements'
 import { useTradesByTicker } from '../../../../hooks/useTrades'
-import {
-  computeExitSignals,
-  type ExitSignal,
-  type Severity
-} from '../../../../lib/exitSignals'
+import { computeExitSignals, type ExitSignal, type Severity } from '../../../../lib/exitSignals'
 import { analyzeInsiderActivity } from '../../../../lib/insiderSignal'
 import { cn } from '../../../../lib/cn'
 

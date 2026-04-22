@@ -205,9 +205,7 @@ function sigRsiOverboughtFade(closes: number[]): ExitSignal | null {
 function sigBearishDivergence(closes: number[]): ExitSignal | null {
   const rsiArr = rsiSeries(closes, 14)
   const divs = detectDivergences(closes, rsiArr, 60, 3)
-  const recent = divs.filter(
-    (d) => d.type === 'bearish' && d.secondIdx >= closes.length - 20
-  )
+  const recent = divs.filter((d) => d.type === 'bearish' && d.secondIdx >= closes.length - 20)
   if (recent.length === 0) return null
   return {
     id: 'bearish_divergence',
@@ -221,10 +219,7 @@ function sigBearishDivergence(closes: number[]): ExitSignal | null {
   }
 }
 
-function sigBelowSupport(
-  bars: TechnicalInputs['bars'],
-  price: number
-): ExitSignal | null {
+function sigBelowSupport(bars: TechnicalInputs['bars'], price: number): ExitSignal | null {
   if (bars.length < 30) return null
   const highs = bars.map((b) => b.high)
   const lows = bars.map((b) => b.low)
@@ -279,8 +274,7 @@ function sigVolumeClimax(bars: TechnicalInputs['bars']): ExitSignal | null {
   const last = bars[bars.length - 1]
   const prev = bars[bars.length - 2]
   if (!last || !prev) return null
-  const avgVol =
-    bars.slice(-21, -1).reduce((a, b) => a + (b.volume ?? 0), 0) / 20
+  const avgVol = bars.slice(-21, -1).reduce((a, b) => a + (b.volume ?? 0), 0) / 20
   if (avgVol <= 0) return null
   const volRatio = (last.volume ?? 0) / avgVol
   if (volRatio > 2 && last.close < last.open) {
@@ -591,13 +585,13 @@ export function computeExitSignals(inputs: EngineInputs): ExitVerdict {
   }
 
   signals.push(
-    ...([
+    ...[
       sigStopLoss(inputs.position, inputs.options?.stopLossPct),
       closes.length >= 10
         ? sigTrailingStop(inputs.position, closes, inputs.options?.trailingStopPct)
         : null,
       sigProfitTake(inputs.position, inputs.options?.profitTakePct)
-    ].filter((s): s is ExitSignal => !!s))
+    ].filter((s): s is ExitSignal => !!s)
   )
 
   if (inputs.fundamental) {

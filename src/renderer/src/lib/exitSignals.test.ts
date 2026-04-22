@@ -59,9 +59,9 @@ describe('technical signals', () => {
       position: { ticker: 'A', shares: 10, avgCost: 100, currentPrice: 110 },
       technical: { bars: prefix }
     })
-    expect(
-      r.signals.some((s) => s.id === 'below_200sma' || s.id === 'below_200sma_deep')
-    ).toBe(true)
+    expect(r.signals.some((s) => s.id === 'below_200sma' || s.id === 'below_200sma_deep')).toBe(
+      true
+    )
   })
   it('detects volume climax on big-volume down bar', () => {
     const bars = risingBars(40, 100, 0.3)
@@ -153,7 +153,12 @@ describe('verdict aggregation', () => {
   it('score bounded 0..100', () => {
     const bars = fallingBars(260, 200, 1)
     const r = computeExitSignals({
-      position: { ticker: 'A', shares: 10, avgCost: 200, currentPrice: bars[bars.length - 1].close },
+      position: {
+        ticker: 'A',
+        shares: 10,
+        avgCost: 200,
+        currentPrice: bars[bars.length - 1].close
+      },
       technical: { bars },
       fundamental: {
         revenueGrowth: -0.2,
@@ -170,7 +175,12 @@ describe('verdict aggregation', () => {
   it('sorts signals by points descending', () => {
     const bars = fallingBars(260, 200, 1)
     const r = computeExitSignals({
-      position: { ticker: 'A', shares: 10, avgCost: 200, currentPrice: bars[bars.length - 1].close },
+      position: {
+        ticker: 'A',
+        shares: 10,
+        avgCost: 200,
+        currentPrice: bars[bars.length - 1].close
+      },
       technical: { bars }
     })
     for (let i = 1; i < r.signals.length; i++) {
@@ -189,7 +199,12 @@ describe('verdict aggregation', () => {
   it('includes rationale strings for every signal', () => {
     const bars = fallingBars(260, 200, 1)
     const r = computeExitSignals({
-      position: { ticker: 'A', shares: 10, avgCost: 200, currentPrice: bars[bars.length - 1].close },
+      position: {
+        ticker: 'A',
+        shares: 10,
+        avgCost: 200,
+        currentPrice: bars[bars.length - 1].close
+      },
       technical: { bars }
     })
     for (const s of r.signals) {

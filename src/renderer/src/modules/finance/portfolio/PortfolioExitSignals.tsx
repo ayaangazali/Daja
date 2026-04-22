@@ -72,9 +72,7 @@ export function PortfolioExitSignals(): React.JSX.Element | null {
       const fund = fundamentalQueries[i]?.data
       const own = ownershipQueries[i]?.data
       const loading =
-        quotes[i]?.isLoading ||
-        historicalQueries[i]?.isLoading ||
-        fundamentalQueries[i]?.isLoading
+        quotes[i]?.isLoading || historicalQueries[i]?.isLoading || fundamentalQueries[i]?.isLoading
       if (!quote || !bars || bars.length < 30) {
         return {
           ticker: pos.ticker,
@@ -208,9 +206,9 @@ export function PortfolioExitSignals(): React.JSX.Element | null {
 
       {exitCount > 0 && (
         <div className="mb-3 rounded border border-[var(--color-neg)]/40 bg-[var(--color-neg)]/10 px-3 py-2 text-[11px] text-[var(--color-neg)]">
-          <strong>Action required:</strong> {exitCount} position{exitCount === 1 ? ' has' : 's have'}{' '}
-          triggered an EXIT verdict. Review the rationales below and decide whether to close or
-          override.
+          <strong>Action required:</strong> {exitCount} position
+          {exitCount === 1 ? ' has' : 's have'} triggered an EXIT verdict. Review the rationales
+          below and decide whether to close or override.
         </div>
       )}
 
