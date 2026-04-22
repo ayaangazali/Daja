@@ -22,28 +22,37 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
   const { data: stmts } = useStatements(ticker)
   const { data: fund } = useFundamentals(ticker)
 
-  // DCF controls
+  // DCF + period controls
   const [growthRate, setGrowthRate] = useState('8')
   const [terminalGrowth, setTerminalGrowth] = useState('2.5')
   const [discountRate, setDiscountRate] = useState('9')
   const [years, setYears] = useState('5')
+  const [period, setPeriod] = useState<'annual' | 'quarterly'>('annual')
 
   const analysis = useMemo(() => {
     if (!stmts || !fund) return null
 
-    // Find latest annual row w/ data
-    const latestAnn = stmts.incomeAnnual[0]
-    const prevAnn = stmts.incomeAnnual[1]
-    const latestBal = stmts.balanceAnnual[0]
-    const prevBal = stmts.balanceAnnual[1]
-    const latestCash = stmts.cashAnnual[0]
+    const incomeSeries = period === 'annual' ? stmts.incomeAnnual : stmts.incomeQuarterly
+    const balanceSeries = period === 'annual' ? stmts.balanceAnnual : stmts.balanceQuarterly
+    const cashSeries = period === 'annual' ? stmts.cashAnnual : stmts.cashQuarterly
+
+    const latestAnn = incomeSeries[0]
+    const prevAnn = incomeSeries[1]
+    const latestBal = balanceSeries[0]
+    const prevBal = balanceSeries[1]
+    const latestCash = cashSeries[0]
 
     if (!latestAnn || !prevAnn || !latestBal || !prevBal) return null
 
-    // Free cash flow TTM (use annual if quarterly not summed)
-    const fcf = latestCash?.freeCashflow ?? null
-    const ocf = latestCash?.operating ?? null
-    const prevOcf = stmts.cashAnnual[1]?.operating ?? null
+    // TTM FCF when annual view selected (sum last 4 quarterly); else use the series value directly
+    const useTTM = period === 'annual' && stmts.cashQuarterly.length >= 4
+    const fcf = useTTM
+      ? stmts.cashQuarterly.slice(0, 4).reduce((s, r) => s + (r.freeCashflow ?? 0), 0)
+      : latestCash?.freeCashflow ?? null
+    const ocf = useTTM
+      ? stmts.cashQuarterly.slice(0, 4).reduce((s, r) => s + (r.operating ?? 0), 0)
+      : latestCash?.operating ?? null
+    const prevOcf = cashSeries[1]?.operating ?? null
 
     // Graham number
     const bvps =
@@ -175,7 +184,7 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
       dcf,
       grossC
     }
-  }, [stmts, fund, growthRate, terminalGrowth, discountRate, years])
+  }, [stmts, fund, growthRate, terminalGrowth, discountRate, years, period])
 
   if (!stmts || !fund) {
     return (
@@ -203,6 +212,27 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
 
   return (
     <div className="space-y-3 p-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex overflow-hidden rounded border border-[var(--color-border)]">
+          {(['annual', 'quarterly'] as const).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              className={cn(
+                'px-3 py-1 text-[10px] font-semibold uppercase tracking-wide',
+                period === p
+                  ? 'bg-[var(--color-info)] text-white'
+                  : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-bg)]'
+              )}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+        <div className="text-[9px] text-[var(--color-fg-muted)]">
+          FCF = TTM (sum last 4 Q) when annual active. Data: Yahoo fundamentals-timeseries.
+        </div>
+      </div>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <Score
           label="Piotroski F-score"
