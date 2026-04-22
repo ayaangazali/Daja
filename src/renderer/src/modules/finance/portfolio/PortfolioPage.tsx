@@ -13,6 +13,7 @@ import { TaxHarvestPanel } from './TaxHarvestPanel'
 import { CorrelationMatrix } from './CorrelationMatrix'
 import { SectorAllocation } from './SectorAllocation'
 import { RebalancePanel } from './RebalancePanel'
+import { PortfolioEarnings } from './PortfolioEarnings'
 import { useTrades } from '../../../hooks/useTrades'
 import { downloadCsv, toCsv } from '../../../lib/csv'
 
@@ -61,6 +62,7 @@ export function PortfolioPage(): React.JSX.Element {
           </div>
         </div>
         <EquityCurve />
+        <PortfolioEarnings />
         <RiskDashboard trades={trades} />
         <DividendTracker />
         <AllocationBar />
