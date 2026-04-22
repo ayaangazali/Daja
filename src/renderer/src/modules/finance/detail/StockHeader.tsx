@@ -4,6 +4,7 @@ import type { Quote } from '../../../hooks/useFinance'
 import type { Fundamentals } from '../../../hooks/useFundamentals'
 import { fmtPrice, fmtSignedPrice, fmtPct, signColor } from '../../../lib/format'
 import { StrategyScoreBadge } from '../strategy/StrategyScoreBadge'
+import { Range52w } from '../../../components/Range52w'
 import { cn } from '../../../lib/cn'
 
 export function StockHeader({
@@ -62,6 +63,12 @@ export function StockHeader({
         <div className={cn('font-mono text-sm tabular', signColor(quote?.changePercent))}>
           {quote ? fmtPct(quote.changePercent) : ''}
         </div>
+        <Range52w
+          low={quote?.fiftyTwoWeekLow}
+          high={quote?.fiftyTwoWeekHigh}
+          current={quote?.price}
+          className="ml-2"
+        />
         <div className="ml-auto flex items-center gap-2">
           <StrategyScoreBadge fundamentals={fundamentals} />
           {pos && (
