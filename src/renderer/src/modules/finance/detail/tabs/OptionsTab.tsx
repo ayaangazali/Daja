@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
+import { Flame, TrendingDown, TrendingUp } from 'lucide-react'
 import { useOptions, type OptionsContract } from '../../../../hooks/useStatements'
-import { fmtPct, fmtPrice } from '../../../../lib/format'
+import { fmtLargeNum, fmtPct, fmtPrice } from '../../../../lib/format'
 import { blackScholes } from '../../../../lib/blackScholes'
+import { findUnusualActivity, flowBias } from '../../../../lib/optionsFlow'
 import { cn } from '../../../../lib/cn'
 
 const RISK_FREE_RATE = 0.045 // approximation — fetch from FRED in Phase 2
@@ -47,6 +49,8 @@ export function OptionsTab({ ticker }: { ticker: string }): React.JSX.Element {
   const callVol = calls.reduce((s, c) => s + (c.volume ?? 0), 0)
   const putVol = puts.reduce((s, c) => s + (c.volume ?? 0), 0)
   const pcRatio = callVol === 0 ? 0 : putVol / callVol
+  const unusual = findUnusualActivity(calls, puts, { topN: 12 })
+  const bias = flowBias(unusual)
   return (
     <div className="space-y-3 p-3">
       <div className="flex items-center gap-3">
@@ -75,6 +79,85 @@ export function OptionsTab({ ticker }: { ticker: string }): React.JSX.Element {
           P/C vol ratio {pcRatio.toFixed(2)}
         </div>
       </div>
+
+      {unusual.length > 0 && (
+        <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)]">
+          <div className="flex items-center justify-between border-b border-[var(--color-border)] px-3 py-2">
+            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-fg-muted)]">
+              <Flame className="h-3 w-3 text-[var(--color-warn)]" /> Unusual Options Activity
+              <span className="normal-case text-[9px]">(vol / OI ≥ 2, vol ≥ 100)</span>
+            </div>
+            <div className="flex items-center gap-2 font-mono text-[10px] tabular">
+              {bias.bias === 'bullish' && (
+                <span className="flex items-center gap-1 text-[var(--color-pos)]">
+                  <TrendingUp className="h-3 w-3" /> bullish flow {bias.score > 0 ? '+' : ''}
+                  {bias.score}
+                </span>
+              )}
+              {bias.bias === 'bearish' && (
+                <span className="flex items-center gap-1 text-[var(--color-neg)]">
+                  <TrendingDown className="h-3 w-3" /> bearish flow {bias.score}
+                </span>
+              )}
+              {bias.bias === 'balanced' && (
+                <span className="text-[var(--color-fg-muted)]">balanced flow</span>
+              )}
+              <span className="text-[var(--color-pos)]">
+                C ${fmtLargeNum(bias.callPremium)}
+              </span>
+              <span className="text-[var(--color-neg)]">P ${fmtLargeNum(bias.putPremium)}</span>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-[10px]">
+              <thead className="text-[9px] uppercase text-[var(--color-fg-muted)]">
+                <tr>
+                  <th className="px-2 py-1 text-left">Side</th>
+                  <th className="px-2 py-1 text-right">Strike</th>
+                  <th className="px-2 py-1 text-left">Expiry</th>
+                  <th className="px-2 py-1 text-right">Vol</th>
+                  <th className="px-2 py-1 text-right">OI</th>
+                  <th className="px-2 py-1 text-right">Vol/OI</th>
+                  <th className="px-2 py-1 text-right">Premium</th>
+                  <th className="px-2 py-1 text-right">IV</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unusual.map((u) => (
+                  <tr
+                    key={u.contractSymbol}
+                    className="border-t border-[var(--color-border)] font-mono tabular"
+                  >
+                    <td
+                      className={cn(
+                        'px-2 py-0.5 font-semibold uppercase',
+                        u.side === 'call'
+                          ? 'text-[var(--color-pos)]'
+                          : 'text-[var(--color-neg)]'
+                      )}
+                    >
+                      {u.side}
+                    </td>
+                    <td className="px-2 py-0.5 text-right">{u.strike}</td>
+                    <td className="px-2 py-0.5">
+                      {new Date(u.expiration * 1000).toISOString().slice(0, 10)}
+                    </td>
+                    <td className="px-2 py-0.5 text-right">{u.volume.toLocaleString()}</td>
+                    <td className="px-2 py-0.5 text-right">{u.openInterest.toLocaleString()}</td>
+                    <td className="px-2 py-0.5 text-right font-semibold text-[var(--color-warn)]">
+                      {u.volOiRatio.toFixed(1)}×
+                    </td>
+                    <td className="px-2 py-0.5 text-right">${fmtLargeNum(u.premium)}</td>
+                    <td className="px-2 py-0.5 text-right">
+                      {u.iv != null ? fmtPct(u.iv * 100, 0) : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <ChainTable
