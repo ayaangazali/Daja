@@ -14,6 +14,7 @@ import { CorrelationMatrix } from './CorrelationMatrix'
 import { SectorAllocation } from './SectorAllocation'
 import { RebalancePanel } from './RebalancePanel'
 import { PortfolioEarnings } from './PortfolioEarnings'
+import { DripCalculator } from './DripCalculator'
 import { useTrades } from '../../../hooks/useTrades'
 import { downloadCsv, toCsv } from '../../../lib/csv'
 
@@ -72,6 +73,7 @@ export function PortfolioPage(): React.JSX.Element {
         <TaxLotView />
         <TaxHarvestPanel />
         <CorrelationMatrix />
+        <DripCalculator />
         <TradeForm />
         <TradesTable />
         <WatchlistImport />
