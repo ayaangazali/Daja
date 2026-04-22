@@ -89,9 +89,7 @@ describe('computeTaxLotPositions FIFO', () => {
     expect(r[0].realizedShortTerm).toBe(200)
   })
   it('fees included in per-share basis', () => {
-    const r = computeTaxLotPositions([
-      t({ side: 'buy', quantity: 10, price: 100, fees: 10 })
-    ])
+    const r = computeTaxLotPositions([t({ side: 'buy', quantity: 10, price: 100, fees: 10 })])
     expect(r[0].openLots[0].price).toBeCloseTo(101, 5) // (1000 + 10) / 10
   })
   it('fees reduce per-share sell proceeds', () => {

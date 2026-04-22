@@ -77,11 +77,24 @@ export function OptionsTab({ ticker }: { ticker: string }): React.JSX.Element {
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <ChainTable title="Calls" type="call" contracts={calls} underlying={data.underlyingPrice} tone="pos" />
-        <ChainTable title="Puts" type="put" contracts={puts} underlying={data.underlyingPrice} tone="neg" />
+        <ChainTable
+          title="Calls"
+          type="call"
+          contracts={calls}
+          underlying={data.underlyingPrice}
+          tone="pos"
+        />
+        <ChainTable
+          title="Puts"
+          type="put"
+          contracts={puts}
+          underlying={data.underlyingPrice}
+          tone="neg"
+        />
       </div>
       <div className="text-[9px] text-[var(--color-fg-muted)]">
-        Greeks computed via Black-Scholes at r={RISK_FREE_RATE * 100}% using Yahoo IV. Δ = delta, Γ = gamma, Θ = theta/day, V = vega/1% vol.
+        Greeks computed via Black-Scholes at r={RISK_FREE_RATE * 100}% using Yahoo IV. Δ = delta, Γ
+        = gamma, Θ = theta/day, V = vega/1% vol.
       </div>
     </div>
   )
@@ -129,8 +142,12 @@ function ChainTable({
               <th className="px-1 py-1 text-right">Vol</th>
               <th className="px-1 py-1 text-right">OI</th>
               <th className="px-1 py-1 text-right">IV</th>
-              <th className="px-1 py-1 text-right" title="Delta">Δ</th>
-              <th className="px-1 py-1 text-right" title="Theta per day">Θ/d</th>
+              <th className="px-1 py-1 text-right" title="Delta">
+                Δ
+              </th>
+              <th className="px-1 py-1 text-right" title="Theta per day">
+                Θ/d
+              </th>
             </tr>
           </thead>
           <tbody>

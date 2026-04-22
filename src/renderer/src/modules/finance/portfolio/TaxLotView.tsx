@@ -41,10 +41,7 @@ export function TaxLotView(): React.JSX.Element {
 
   return (
     <div
-      className={cn(
-        'rounded-md border',
-        'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
-      )}
+      className={cn('rounded-md border', 'border-[var(--color-border)] bg-[var(--color-bg-elev)]')}
     >
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-border)] px-3 py-2">
         <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-fg-muted)]">
@@ -72,19 +69,27 @@ export function TaxLotView(): React.JSX.Element {
               Realized:{' '}
               <span
                 className={cn(
-                  totalRealized >= 0
-                    ? 'text-[var(--color-pos)]'
-                    : 'text-[var(--color-neg)]'
+                  totalRealized >= 0 ? 'text-[var(--color-pos)]' : 'text-[var(--color-neg)]'
                 )}
               >
                 {totalRealized >= 0 ? '+' : ''}${fmtLargeNum(totalRealized)}
               </span>
             </span>
             <span className="text-[var(--color-fg-muted)]">
-              LT <span className={cn(totalLT >= 0 ? 'text-[var(--color-pos)]' : 'text-[var(--color-neg)]')}>${fmtLargeNum(totalLT)}</span>
+              LT{' '}
+              <span
+                className={cn(totalLT >= 0 ? 'text-[var(--color-pos)]' : 'text-[var(--color-neg)]')}
+              >
+                ${fmtLargeNum(totalLT)}
+              </span>
             </span>
             <span className="text-[var(--color-fg-muted)]">
-              ST <span className={cn(totalST >= 0 ? 'text-[var(--color-pos)]' : 'text-[var(--color-neg)]')}>${fmtLargeNum(totalST)}</span>
+              ST{' '}
+              <span
+                className={cn(totalST >= 0 ? 'text-[var(--color-pos)]' : 'text-[var(--color-neg)]')}
+              >
+                ${fmtLargeNum(totalST)}
+              </span>
             </span>
           </div>
         </div>
@@ -118,7 +123,9 @@ export function TaxLotView(): React.JSX.Element {
                 >
                   Realized ${p.realized.toFixed(0)}
                 </span>
-                <span className="text-[9px] text-[var(--color-fg-muted)]">{isOpen ? '▼' : '▶'}</span>
+                <span className="text-[9px] text-[var(--color-fg-muted)]">
+                  {isOpen ? '▼' : '▶'}
+                </span>
               </div>
             </div>
             {isOpen && (

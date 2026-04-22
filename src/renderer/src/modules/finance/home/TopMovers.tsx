@@ -11,14 +11,16 @@ export function TopMovers(): React.JSX.Element | null {
   const quotes = useQuotes(items.map((i) => i.ticker))
 
   const movers = useMemo(() => {
-    const enriched = items.map((item, i) => {
-      const q = quotes[i]?.data
-      return {
-        ticker: item.ticker,
-        price: q?.price ?? null,
-        pct: q?.changePercent ?? null
-      }
-    }).filter((r): r is { ticker: string; price: number | null; pct: number } => r.pct != null)
+    const enriched = items
+      .map((item, i) => {
+        const q = quotes[i]?.data
+        return {
+          ticker: item.ticker,
+          price: q?.price ?? null,
+          pct: q?.changePercent ?? null
+        }
+      })
+      .filter((r): r is { ticker: string; price: number | null; pct: number } => r.pct != null)
     const gainers = [...enriched].sort((a, b) => (b.pct ?? 0) - (a.pct ?? 0)).slice(0, 3)
     const losers = [...enriched].sort((a, b) => (a.pct ?? 0) - (b.pct ?? 0)).slice(0, 3)
     return { gainers, losers }

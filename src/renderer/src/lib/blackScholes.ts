@@ -34,11 +34,7 @@ export function normCdf(x: number): number {
   const sign = x < 0 ? -1 : 1
   const ax = Math.abs(x) / Math.SQRT2
   const t = 1 / (1 + p * ax)
-  const y =
-    1 -
-    (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) *
-      t *
-      Math.exp(-ax * ax)
+  const y = 1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-ax * ax)
   return 0.5 * (1 + sign * y)
 }
 

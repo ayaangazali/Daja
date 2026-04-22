@@ -42,9 +42,7 @@ export interface TaxLotPosition {
 export type LotMethod = 'fifo' | 'lifo' | 'hifo'
 
 function daysBetween(a: string, b: string): number {
-  return Math.floor(
-    (new Date(b).getTime() - new Date(a).getTime()) / (1000 * 60 * 60 * 24)
-  )
+  return Math.floor((new Date(b).getTime() - new Date(a).getTime()) / (1000 * 60 * 60 * 24))
 }
 
 /**
