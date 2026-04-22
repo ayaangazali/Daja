@@ -9,6 +9,17 @@ import {
   sharpeRatio,
   stddev
 } from '../../../../lib/indicators'
+import {
+  calmarRatio,
+  conditionalVaR,
+  historicalVaR,
+  informationRatio,
+  kurtosis,
+  skewness,
+  sortinoRatio,
+  treynorRatio,
+  ulcerIndex
+} from '../../../../lib/riskMetrics'
 import { fmtPct } from '../../../../lib/format'
 import { cn } from '../../../../lib/cn'
 
@@ -53,7 +64,41 @@ export function RiskVsSpy({ ticker }: { ticker: string }): React.JSX.Element {
     const marketRet = (mT[mT.length - 1] / mT[0] - 1) * 100
     const alpha = stockRet - (b ?? 1) * marketRet
 
-    return { vol, marketVol, b, c, sharpe, dd, stockRet, marketRet, alpha }
+    // Advanced risk
+    const sortino = sortinoRatio(sR, rfDaily)
+    const calmar = calmarRatio(stockRet, dd)
+    const ir = informationRatio(sR, mR)
+    const treynor = (() => {
+      if (b == null || b === 0) return 0
+      const meanR = sR.reduce((a, r) => a + r, 0) / sR.length
+      return treynorRatio(meanR, rfDaily, b)
+    })()
+    const var5 = historicalVaR(sR, 0.05) * 100
+    const cvar5 = conditionalVaR(sR, 0.05) * 100
+    const skew = skewness(sR)
+    const kurt = kurtosis(sR)
+    const ulcer = ulcerIndex(sT)
+
+    return {
+      vol,
+      marketVol,
+      b,
+      c,
+      sharpe,
+      dd,
+      stockRet,
+      marketRet,
+      alpha,
+      sortino,
+      calmar,
+      ir,
+      treynor,
+      var5,
+      cvar5,
+      skew,
+      kurt,
+      ulcer
+    }
   }, [stockBars, spyBars])
 
   if (sLoad || mLoad) {
@@ -117,6 +162,36 @@ export function RiskVsSpy({ ticker }: { ticker: string }): React.JSX.Element {
           value={fmtPct(metrics.alpha)}
           tone={metrics.alpha > 0 ? 'text-[var(--color-pos)]' : 'text-[var(--color-neg)]'}
         />
+      </div>
+      <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-4">
+        <Stat
+          label="Sortino"
+          value={metrics.sortino === Infinity ? '∞' : metrics.sortino.toFixed(2)}
+          tone={metrics.sortino > 1 ? 'text-[var(--color-pos)]' : ''}
+        />
+        <Stat
+          label="Calmar"
+          value={metrics.calmar.toFixed(2)}
+          tone={metrics.calmar > 1 ? 'text-[var(--color-pos)]' : ''}
+        />
+        <Stat label="Info Ratio" value={metrics.ir.toFixed(2)} />
+        <Stat label="Treynor" value={metrics.treynor.toFixed(2)} />
+        <Stat
+          label="VaR 5%"
+          value={fmtPct(metrics.var5)}
+          tone="text-[var(--color-neg)]"
+        />
+        <Stat
+          label="CVaR 5%"
+          value={fmtPct(metrics.cvar5)}
+          tone="text-[var(--color-neg)]"
+        />
+        <Stat label="Skew" value={metrics.skew.toFixed(2)} />
+        <Stat label="Ulcer" value={metrics.ulcer.toFixed(2)} />
+      </div>
+      <div className="mt-1 text-[9px] text-[var(--color-fg-muted)]">
+        Sortino = downside-only Sharpe · Calmar = return ÷ |max DD| · VaR = daily 5% loss
+        threshold · CVaR = avg of worst 5% · Ulcer = √mean(DD²) drawdown pain score.
       </div>
     </div>
   )
