@@ -29,7 +29,7 @@ export function usePriceAlerts(watchlist: WatchlistItem[], quotes: { data?: Quot
         const key = `${item.ticker}-above-${item.alert_above}`
         if (!FIRED.has(key)) {
           FIRED.add(key)
-          void window.nexus.system.notify({
+          void window.daja.system.notify({
             title: `${item.ticker} hit $${item.alert_above.toFixed(2)}`,
             body: `Current price $${q.price.toFixed(2)} (+${((q.price / item.alert_above - 1) * 100).toFixed(2)}%)`
           })
@@ -39,7 +39,7 @@ export function usePriceAlerts(watchlist: WatchlistItem[], quotes: { data?: Quot
         const key = `${item.ticker}-below-${item.alert_below}`
         if (!FIRED.has(key)) {
           FIRED.add(key)
-          void window.nexus.system.notify({
+          void window.daja.system.notify({
             title: `${item.ticker} dropped to $${item.alert_below.toFixed(2)}`,
             body: `Current price $${q.price.toFixed(2)} (${((q.price / item.alert_below - 1) * 100).toFixed(2)}%)`
           })

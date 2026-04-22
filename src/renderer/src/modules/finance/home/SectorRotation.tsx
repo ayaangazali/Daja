@@ -52,7 +52,7 @@ export function SectorRotation(): React.JSX.Element {
   const queries = useQueries({
     queries: SECTORS.map((s) => ({
       queryKey: ['historical', s.ticker, '1y'],
-      queryFn: () => window.nexus.finance.historical(s.ticker, '1y') as Promise<HistoricalBar[]>,
+      queryFn: () => window.daja.finance.historical(s.ticker, '1y') as Promise<HistoricalBar[]>,
       staleTime: 30 * 60_000
     }))
   })

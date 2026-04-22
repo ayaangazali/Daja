@@ -57,7 +57,7 @@ export function StatusBar(): React.JSX.Element {
     queryFn: async () => {
       const t0 = performance.now()
       try {
-        await window.nexus.prefs.get()
+        await window.daja.prefs.get()
       } catch {
         return -1
       }

@@ -21,7 +21,7 @@ export interface JournalEntry {
 export function useJournal(): ReturnType<typeof useQuery<JournalEntry[], Error>> {
   return useQuery<JournalEntry[], Error>({
     queryKey: ['journal'],
-    queryFn: () => window.nexus.db.call<JournalEntry[]>('journal', 'list'),
+    queryFn: () => window.daja.db.call<JournalEntry[]>('journal', 'list'),
     staleTime: 10_000
   })
 }
@@ -31,7 +31,7 @@ export function useJournalByTicker(
 ): ReturnType<typeof useQuery<JournalEntry[], Error>> {
   return useQuery<JournalEntry[], Error>({
     queryKey: ['journal', ticker],
-    queryFn: () => window.nexus.db.call<JournalEntry[]>('journal', 'byTicker', [ticker]),
+    queryFn: () => window.daja.db.call<JournalEntry[]>('journal', 'byTicker', [ticker]),
     enabled: !!ticker,
     staleTime: 10_000
   })
@@ -43,7 +43,7 @@ export function useAddJournal(): ReturnType<
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (j: Omit<JournalEntry, 'id' | 'created_at' | 'updated_at'>) =>
-      window.nexus.db.call<JournalEntry>('journal', 'add', [j]),
+      window.daja.db.call<JournalEntry>('journal', 'add', [j]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['journal'] })
   })
 }
@@ -51,7 +51,7 @@ export function useAddJournal(): ReturnType<
 export function useRemoveJournal(): ReturnType<typeof useMutation<unknown, Error, number>> {
   const qc = useQueryClient()
   return useMutation<unknown, Error, number>({
-    mutationFn: (id) => window.nexus.db.call('journal', 'remove', [id]),
+    mutationFn: (id) => window.daja.db.call('journal', 'remove', [id]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['journal'] })
   })
 }

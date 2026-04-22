@@ -16,7 +16,7 @@ interface DividendInfo {
 export function DividendPanel({ ticker }: { ticker: string }): React.JSX.Element | null {
   const { data } = useQuery<DividendInfo, Error>({
     queryKey: ['dividends', ticker],
-    queryFn: () => window.nexus.finance.dividends(ticker) as Promise<DividendInfo>,
+    queryFn: () => window.daja.finance.dividends(ticker) as Promise<DividendInfo>,
     staleTime: 6 * 60 * 60_000
   })
 

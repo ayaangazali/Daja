@@ -18,7 +18,7 @@ export function useWatchlist(
 ): ReturnType<typeof useQuery<WatchlistItem[], Error>> {
   return useQuery<WatchlistItem[], Error>({
     queryKey: ['watchlist', listName],
-    queryFn: () => window.nexus.db.call<WatchlistItem[]>('watchlist', 'list', [listName]),
+    queryFn: () => window.daja.db.call<WatchlistItem[]>('watchlist', 'list', [listName]),
     staleTime: 30_000
   })
 }
@@ -37,7 +37,7 @@ export function useAddToWatchlist(): ReturnType<
     { ticker: string; listName?: string; assetClass?: string }
   >({
     mutationFn: ({ ticker, listName = 'default', assetClass = 'stock' }) =>
-      window.nexus.db.call<WatchlistItem>('watchlist', 'add', [ticker, listName, assetClass]),
+      window.daja.db.call<WatchlistItem>('watchlist', 'add', [ticker, listName, assetClass]),
     onSuccess: (_d, vars) =>
       qc.invalidateQueries({ queryKey: ['watchlist', vars.listName ?? 'default'] })
   })
@@ -49,7 +49,7 @@ export function useRemoveFromWatchlist(): ReturnType<
   const qc = useQueryClient()
   return useMutation<unknown, Error, { ticker: string; listName?: string }>({
     mutationFn: ({ ticker, listName = 'default' }) =>
-      window.nexus.db.call('watchlist', 'remove', [ticker, listName]),
+      window.daja.db.call('watchlist', 'remove', [ticker, listName]),
     onSuccess: (_d, vars) =>
       qc.invalidateQueries({ queryKey: ['watchlist', vars.listName ?? 'default'] })
   })
@@ -69,7 +69,7 @@ export function useSetWatchlistAlerts(): ReturnType<
     { ticker: string; above: number | null; below: number | null; listName?: string }
   >({
     mutationFn: ({ ticker, above, below, listName = 'default' }) =>
-      window.nexus.db.call('watchlist', 'setAlerts', [ticker, above, below, listName]),
+      window.daja.db.call('watchlist', 'setAlerts', [ticker, above, below, listName]),
     onSuccess: (_d, vars) =>
       qc.invalidateQueries({ queryKey: ['watchlist', vars.listName ?? 'default'] })
   })

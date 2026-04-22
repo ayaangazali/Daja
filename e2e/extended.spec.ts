@@ -16,7 +16,7 @@ async function snap(page: any, name: string): Promise<void> {
   }
 }
 
-test.describe('NexusHub extended interactions', () => {
+test.describe('Daja extended interactions', () => {
   test('stock detail tabs + portfolio trade + settings + cmdk + sports + pdf', async () => {
     const app = await electron.launch({
       args: [join(ROOT, 'out/main/index.js')],

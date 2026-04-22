@@ -31,7 +31,7 @@ export function TopBar(): React.JSX.Element {
         <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--color-info)] text-xs font-bold text-white">
           N
         </div>
-        <span className="text-sm font-semibold tracking-tight">NexusHub</span>
+        <span className="text-sm font-semibold tracking-tight">Daja</span>
       </div>
       <button
         onClick={togglePalette}

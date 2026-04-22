@@ -34,7 +34,7 @@ export interface YahooSearchResult {
 }
 
 const DEFAULT_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (NexusHub)',
+  'User-Agent': 'Mozilla/5.0 (Daja)',
   Accept: 'application/json'
 }
 

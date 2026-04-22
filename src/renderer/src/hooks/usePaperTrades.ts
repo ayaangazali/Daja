@@ -15,7 +15,7 @@ export interface PaperTrade {
 export function usePaperTrades(): ReturnType<typeof useQuery<PaperTrade[], Error>> {
   return useQuery<PaperTrade[], Error>({
     queryKey: ['paper_trades'],
-    queryFn: () => window.nexus.db.call<PaperTrade[]>('paperTrades', 'list'),
+    queryFn: () => window.daja.db.call<PaperTrade[]>('paperTrades', 'list'),
     staleTime: 10_000
   })
 }
@@ -31,7 +31,7 @@ export function useAddPaperTrade(): ReturnType<
   return useMutation({
     mutationFn: (
       t: Omit<PaperTrade, 'id' | 'created_at'> & { fees?: number; notes?: string | null }
-    ) => window.nexus.db.call<PaperTrade>('paperTrades', 'add', [t]),
+    ) => window.daja.db.call<PaperTrade>('paperTrades', 'add', [t]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['paper_trades'] })
   })
 }
@@ -39,7 +39,7 @@ export function useAddPaperTrade(): ReturnType<
 export function useRemovePaperTrade(): ReturnType<typeof useMutation<unknown, Error, number>> {
   const qc = useQueryClient()
   return useMutation<unknown, Error, number>({
-    mutationFn: (id) => window.nexus.db.call('paperTrades', 'remove', [id]),
+    mutationFn: (id) => window.daja.db.call('paperTrades', 'remove', [id]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['paper_trades'] })
   })
 }
@@ -47,7 +47,7 @@ export function useRemovePaperTrade(): ReturnType<typeof useMutation<unknown, Er
 export function useResetPaperTrades(): ReturnType<typeof useMutation<unknown, Error, void>> {
   const qc = useQueryClient()
   return useMutation<unknown, Error, void>({
-    mutationFn: () => window.nexus.db.call('paperTrades', 'reset', []),
+    mutationFn: () => window.daja.db.call('paperTrades', 'reset', []),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['paper_trades'] })
   })
 }

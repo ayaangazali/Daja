@@ -10,7 +10,7 @@ interface PrefsRecord extends Record<string, unknown> {
 let _store: ReturnType<typeof createJsonStore<PrefsRecord>> | null = null
 function store(): ReturnType<typeof createJsonStore<PrefsRecord>> {
   if (!_store) {
-    _store = createJsonStore<PrefsRecord>('nexus-prefs', {
+    _store = createJsonStore<PrefsRecord>('daja-prefs', {
       aiByModule: {},
       modelByProvider: {},
       theme: 'dark'

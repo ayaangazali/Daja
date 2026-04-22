@@ -40,7 +40,7 @@ export function useDashboardLayout(
     ;(async (): Promise<void> => {
       setLoading(true)
       try {
-        const row = (await window.nexus.db.call<SavedLayout | null>('layouts', 'get', [
+        const row = (await window.daja.db.call<SavedLayout | null>('layouts', 'get', [
           module,
           name
         ])) as SavedLayout | null
@@ -64,7 +64,7 @@ export function useDashboardLayout(
   }, [module, name])
 
   const save = async (): Promise<void> => {
-    await window.nexus.db.call('layouts', 'save', [module, name, layout, true])
+    await window.daja.db.call('layouts', 'save', [module, name, layout, true])
   }
 
   const reset = (): void => setLayout(initial)

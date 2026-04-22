@@ -36,7 +36,7 @@ export const useUIStore = create<UIState>((set) => ({
   toggleAlwaysOnTop: (): void => {
     set((s) => {
       const next = !s.alwaysOnTop
-      window.nexus.window?.setAlwaysOnTop?.(next)
+      window.daja.window?.setAlwaysOnTop?.(next)
       return { alwaysOnTop: next }
     })
   },

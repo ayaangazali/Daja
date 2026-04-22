@@ -11,7 +11,7 @@ export function PeersTab({ ticker }: { ticker: string }): React.JSX.Element {
   const results = useQueries({
     queries: symbols.map((s) => ({
       queryKey: ['fundamentals', s],
-      queryFn: () => window.nexus.finance.fundamentals(s) as Promise<Fundamentals>,
+      queryFn: () => window.daja.finance.fundamentals(s) as Promise<Fundamentals>,
       staleTime: 15 * 60_000,
       enabled: !!peerList
     }))

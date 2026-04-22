@@ -45,7 +45,7 @@ export function Watchlist(): React.JSX.Element {
     const reordered = [...items]
     const [moved] = reordered.splice(fromIdx, 1)
     reordered.splice(toIdx, 0, moved)
-    await window.nexus.db.call('watchlist', 'reorder', [reordered.map((i) => i.id)])
+    await window.daja.db.call('watchlist', 'reorder', [reordered.map((i) => i.id)])
     // optimistic: invalidate handled by next query refetch via hook
   }
 

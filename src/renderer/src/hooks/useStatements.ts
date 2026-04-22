@@ -47,7 +47,7 @@ export function useStatements(
 ): ReturnType<typeof useQuery<Statements, Error>> {
   return useQuery<Statements, Error>({
     queryKey: ['statements', ticker],
-    queryFn: () => window.nexus.finance.statements(ticker as string) as Promise<Statements>,
+    queryFn: () => window.daja.finance.statements(ticker as string) as Promise<Statements>,
     enabled: !!ticker,
     staleTime: 30 * 60_000
   })
@@ -95,7 +95,7 @@ export function useOwnership(
 ): ReturnType<typeof useQuery<Ownership, Error>> {
   return useQuery<Ownership, Error>({
     queryKey: ['ownership', ticker],
-    queryFn: () => window.nexus.finance.ownership(ticker as string) as Promise<Ownership>,
+    queryFn: () => window.daja.finance.ownership(ticker as string) as Promise<Ownership>,
     enabled: !!ticker,
     staleTime: 60 * 60_000
   })
@@ -132,7 +132,7 @@ export function useOptions(
   return useQuery<OptionsChain, Error>({
     queryKey: ['options', ticker, expiration],
     queryFn: () =>
-      window.nexus.finance.options(ticker as string, expiration) as Promise<OptionsChain>,
+      window.daja.finance.options(ticker as string, expiration) as Promise<OptionsChain>,
     enabled: !!ticker,
     staleTime: 5 * 60_000
   })
@@ -154,7 +154,7 @@ export function useNews(
 ): ReturnType<typeof useQuery<NewsItem[], Error>> {
   return useQuery<NewsItem[], Error>({
     queryKey: ['news', ticker],
-    queryFn: () => window.nexus.finance.news(ticker as string) as Promise<NewsItem[]>,
+    queryFn: () => window.daja.finance.news(ticker as string) as Promise<NewsItem[]>,
     enabled: !!ticker,
     staleTime: 10 * 60_000
   })
@@ -174,7 +174,7 @@ export function useFilings(
 ): ReturnType<typeof useQuery<SecFiling[], Error>> {
   return useQuery<SecFiling[], Error>({
     queryKey: ['filings', ticker],
-    queryFn: () => window.nexus.finance.filings(ticker as string) as Promise<SecFiling[]>,
+    queryFn: () => window.daja.finance.filings(ticker as string) as Promise<SecFiling[]>,
     enabled: !!ticker,
     staleTime: 60 * 60_000
   })
@@ -197,7 +197,7 @@ export function useReddit(
 ): ReturnType<typeof useQuery<RedditPost[], Error>> {
   return useQuery<RedditPost[], Error>({
     queryKey: ['reddit', ticker],
-    queryFn: () => window.nexus.finance.reddit(ticker as string) as Promise<RedditPost[]>,
+    queryFn: () => window.daja.finance.reddit(ticker as string) as Promise<RedditPost[]>,
     enabled: !!ticker,
     staleTime: 10 * 60_000
   })

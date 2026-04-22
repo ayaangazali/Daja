@@ -40,7 +40,7 @@ export function RelativePerformance({ ticker }: { ticker: string }): React.JSX.E
   const queries = useQueries({
     queries: symbols.map((s) => ({
       queryKey: ['historical', s, range],
-      queryFn: () => window.nexus.finance.historical(s, range) as Promise<HistoricalBar[]>,
+      queryFn: () => window.daja.finance.historical(s, range) as Promise<HistoricalBar[]>,
       staleTime: 30 * 60_000
     }))
   })

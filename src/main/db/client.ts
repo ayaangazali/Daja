@@ -8,7 +8,7 @@ let db: Database.Database | null = null
 export function openDatabase(): Database.Database {
   if (db) return db
   const dir = app.getPath('userData')
-  const path = join(dir, 'nexus.db')
+  const path = join(dir, 'daja.db')
   db = new Database(path)
   db.pragma('journal_mode = WAL')
   db.pragma('foreign_keys = ON')

@@ -298,7 +298,7 @@ function LiveEmbed({
         </div>
       ) : (
         <div className="rounded-md border border-dashed border-[var(--color-border)] p-8 text-center text-[11px] text-[var(--color-fg-muted)]">
-          Paste a YouTube live stream URL to watch inside NexusHub.
+          Paste a YouTube live stream URL to watch inside Daja.
         </div>
       )}
     </div>

@@ -17,7 +17,7 @@ interface VaultSchema extends Record<string, unknown> {
 
 let _store: ReturnType<typeof createJsonStore<VaultSchema>> | null = null
 function store(): ReturnType<typeof createJsonStore<VaultSchema>> {
-  if (!_store) _store = createJsonStore<VaultSchema>('nexus-vault', { keys: {} })
+  if (!_store) _store = createJsonStore<VaultSchema>('daja-vault', { keys: {} })
   return _store
 }
 

@@ -41,7 +41,7 @@ export function ScreenerPage(): React.JSX.Element {
     isRefetching
   } = useQuery<ScreenerStock[]>({
     queryKey: ['screener', preset],
-    queryFn: () => window.nexus.finance.screener(preset, 30) as Promise<ScreenerStock[]>,
+    queryFn: () => window.daja.finance.screener(preset, 30) as Promise<ScreenerStock[]>,
     staleTime: 60_000
   })
   const addWatch = useAddToWatchlist()

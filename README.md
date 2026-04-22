@@ -1,4 +1,4 @@
-# Daja — NexusHub
+# Daja — Daja
 
 > **Desktop-first AI super app.** Financial research workstation + portfolio tracking + AI assistant + sports, PDF, health. All local, all your keys, all yours.
 
@@ -65,14 +65,14 @@ First run: open Settings (⚙) → add at least one AI provider key. Yahoo data 
 
 - Everything local. No telemetry. No accounts.
 - API keys encrypted via OS keychain (`safeStorage`) — never in repo, never in plaintext disk.
-- SQLite at `app.getPath('userData')/nexus.db`.
+- SQLite at `app.getPath('userData')/daja.db`.
 - Context isolation enabled, Node integration disabled, all IPC typed + zod-validated.
 
 ## Architecture
 
 ```
 src/main/           Electron main — DB, keyvault, AI router, IPC
-src/preload/        Typed bridge (window.nexus.*)
+src/preload/        Typed bridge (window.daja.*)
 src/shared/         IPC channel constants + zod schemas
 src/renderer/       React app (lazy-loaded modules)
   shell/            Topbar, rail, cmdk, status bar, cheatsheet

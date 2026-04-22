@@ -1,9 +1,9 @@
 import type { ElectronAPI } from '@electron-toolkit/preload'
-import type { NexusBridge } from './index'
+import type { DajaBridge } from './index'
 
 declare global {
   interface Window {
     electron: ElectronAPI
-    nexus: NexusBridge
+    daja: DajaBridge
   }
 }

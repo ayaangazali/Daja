@@ -12,7 +12,7 @@ interface Point {
 }
 
 async function fetchHist(ticker: string, range: string): Promise<HistoricalBar[]> {
-  return window.nexus.finance.historical(ticker, range) as Promise<HistoricalBar[]>
+  return window.daja.finance.historical(ticker, range) as Promise<HistoricalBar[]>
 }
 
 function aggregate(

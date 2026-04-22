@@ -54,7 +54,7 @@ export function useAI(): {
 
   const cancel = useCallback((): void => {
     if (reqIdRef.current) {
-      void window.nexus.ai.cancel(reqIdRef.current)
+      void window.daja.ai.cancel(reqIdRef.current)
     }
     cleanup()
     setState((s) => ({ ...s, streaming: false }))
@@ -65,7 +65,7 @@ export function useAI(): {
       cleanup()
       setState({ streaming: true, text: '', error: null, provider: null, model: null })
       try {
-        const { requestId, provider, model } = (await window.nexus.ai.start(opts)) as {
+        const { requestId, provider, model } = (await window.daja.ai.start(opts)) as {
           requestId: string
           provider: AIProviderId
           model: string
@@ -74,17 +74,17 @@ export function useAI(): {
         setState((s) => ({ ...s, provider, model }))
 
         unsubRef.current.push(
-          window.nexus.ai.onChunk(requestId, (chunk) => {
+          window.daja.ai.onChunk(requestId, (chunk) => {
             setState((s) => ({ ...s, text: s.text + chunk }))
           })
         )
         unsubRef.current.push(
-          window.nexus.ai.onDone(requestId, () => {
+          window.daja.ai.onDone(requestId, () => {
             setState((s) => ({ ...s, streaming: false }))
           })
         )
         unsubRef.current.push(
-          window.nexus.ai.onError(requestId, (msg) => {
+          window.daja.ai.onError(requestId, (msg) => {
             setState((s) => ({ ...s, streaming: false, error: msg }))
           })
         )

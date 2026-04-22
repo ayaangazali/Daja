@@ -76,7 +76,7 @@ function MergeTab(): React.JSX.Element {
   const [busy, setBusy] = useState(false)
 
   const add = async (): Promise<void> => {
-    const paths = (await window.nexus.pdf.open()) as string[]
+    const paths = (await window.daja.pdf.open()) as string[]
     setFiles((prev) => [...prev, ...paths])
   }
 
@@ -100,7 +100,7 @@ function MergeTab(): React.JSX.Element {
     if (files.length === 0 || !outPath) return
     setBusy(true)
     try {
-      const res = await window.nexus.pdf.merge(files, outPath)
+      const res = await window.daja.pdf.merge(files, outPath)
       setResult(res.path)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Merge failed')
@@ -209,7 +209,7 @@ function SplitTab(): React.JSX.Element {
   const [busy, setBusy] = useState(false)
 
   const pick = async (): Promise<void> => {
-    const paths = (await window.nexus.pdf.open()) as string[]
+    const paths = (await window.daja.pdf.open()) as string[]
     if (paths[0]) setPath(paths[0])
   }
 
@@ -223,7 +223,7 @@ function SplitTab(): React.JSX.Element {
     if (!path || !outDir || ranges.length === 0) return
     setBusy(true)
     try {
-      const res = await window.nexus.pdf.split(path, outDir, ranges)
+      const res = await window.daja.pdf.split(path, outDir, ranges)
       setFiles(res.files)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Split failed')
@@ -336,12 +336,12 @@ function InfoTab(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null)
 
   const pick = async (): Promise<void> => {
-    const paths = (await window.nexus.pdf.open()) as string[]
+    const paths = (await window.daja.pdf.open()) as string[]
     if (!paths[0]) return
     setPath(paths[0])
     setError(null)
     try {
-      const data = await window.nexus.pdf.info(paths[0])
+      const data = await window.daja.pdf.info(paths[0])
       setInfo(data as { pages: number; title: string | null; author: string | null })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Info failed')

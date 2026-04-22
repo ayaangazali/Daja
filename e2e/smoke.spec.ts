@@ -17,7 +17,7 @@ async function snap(page: any, name: string): Promise<void> {
   }
 }
 
-test.describe('NexusHub end-to-end', () => {
+test.describe('Daja end-to-end', () => {
   test('every route + finance detail tabs + assistant meeting notes', async () => {
     const app = await electron.launch({
       args: [join(ROOT, 'out/main/index.js')],
@@ -39,8 +39,8 @@ test.describe('NexusHub end-to-end', () => {
 
     // 1. Finance home
     await snap(page, '01-finance-home')
-    const nexus = page.getByText('NexusHub').first()
-    await expect(nexus).toBeVisible({ timeout: 10_000 })
+    const daja = page.getByText('Daja').first()
+    await expect(daja).toBeVisible({ timeout: 10_000 })
 
     // 2. Sidebar module icons (by title attribute)
     for (const label of ['Sports', 'PDF Tools', 'Health', 'Assistant']) {

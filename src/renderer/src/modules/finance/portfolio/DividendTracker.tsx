@@ -24,7 +24,7 @@ export function DividendTracker(): React.JSX.Element {
   const divQueries = useQueries({
     queries: tickers.map((t) => ({
       queryKey: ['dividends', t],
-      queryFn: () => window.nexus.finance.dividends(t) as Promise<DividendInfo>,
+      queryFn: () => window.daja.finance.dividends(t) as Promise<DividendInfo>,
       staleTime: 60 * 60_000
     }))
   })

@@ -48,7 +48,7 @@ export interface Scoreboard {
 async function fetchJson<T>(url: string): Promise<T> {
   const res = await fetch(url, {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (NexusHub Sports)',
+      'User-Agent': 'Mozilla/5.0 (Daja Sports)',
       Accept: 'application/json'
     }
   })

@@ -5,7 +5,7 @@ import type { AIProviderId, KeyMeta, ModuleId, Prefs, ProviderId, TestResult } f
 
 type Unsubscribe = () => void
 
-const nexus = {
+const daja = {
   keys: {
     list: (): Promise<KeyMeta[]> => ipcRenderer.invoke(IPC_CHANNELS.keysList),
     set: (provider: ProviderId, key: string): Promise<{ ok: boolean }> =>
@@ -126,7 +126,7 @@ const nexus = {
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('nexus', nexus)
+    contextBridge.exposeInMainWorld('daja', daja)
   } catch (error) {
     console.error(error)
   }
@@ -134,7 +134,7 @@ if (process.contextIsolated) {
   // @ts-ignore legacy fallback
   window.electron = electronAPI
   // @ts-ignore legacy fallback
-  window.nexus = nexus
+  window.daja = daja
 }
 
-export type NexusBridge = typeof nexus
+export type DajaBridge = typeof daja

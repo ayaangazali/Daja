@@ -41,7 +41,7 @@ export function CorrelationMatrix(): React.JSX.Element | null {
   const historical = useQueries({
     queries: tickers.map((t) => ({
       queryKey: ['historical', t, '1y'],
-      queryFn: () => window.nexus.finance.historical(t, '1y') as Promise<HistoricalBar[]>,
+      queryFn: () => window.daja.finance.historical(t, '1y') as Promise<HistoricalBar[]>,
       staleTime: 30 * 60_000
     }))
   })

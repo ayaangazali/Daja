@@ -51,7 +51,7 @@ export function SectorAllocation(): React.JSX.Element | null {
   const fundamentals = useQueries({
     queries: tickers.map((t) => ({
       queryKey: ['fundamentals', t],
-      queryFn: () => window.nexus.finance.fundamentals(t) as Promise<Fundamentals>,
+      queryFn: () => window.daja.finance.fundamentals(t) as Promise<Fundamentals>,
       staleTime: 15 * 60_000
     }))
   })

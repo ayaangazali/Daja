@@ -95,7 +95,7 @@ async function fetchEarningsFallback(from: Date, to: Date): Promise<EarningsCale
       headers: {
         'content-type': 'application/json',
         Accept: 'application/json',
-        'User-Agent': 'Mozilla/5.0 (NexusHub)'
+        'User-Agent': 'Mozilla/5.0 (Daja)'
       },
       body: JSON.stringify(body)
     })

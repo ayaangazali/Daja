@@ -22,7 +22,7 @@ export function useConversations(
 ): ReturnType<typeof useQuery<AIConversation[], Error>> {
   return useQuery<AIConversation[], Error>({
     queryKey: ['conversations', module],
-    queryFn: () => window.nexus.db.call<AIConversation[]>('conversations', 'list', [module]),
+    queryFn: () => window.daja.db.call<AIConversation[]>('conversations', 'list', [module]),
     staleTime: 10_000
   })
 }
@@ -50,7 +50,7 @@ export function useAddConversation(): ReturnType<
       title?: string
       messages: { role: 'user' | 'assistant'; content: string }[]
       context_ticker?: string
-    }) => window.nexus.db.call<AIConversation>('conversations', 'add', [c]),
+    }) => window.daja.db.call<AIConversation>('conversations', 'add', [c]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['conversations'] })
   })
 }
@@ -71,7 +71,7 @@ export function useUpdateConversation(): ReturnType<
 > {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, patch }) => window.nexus.db.call('conversations', 'update', [id, patch]),
+    mutationFn: ({ id, patch }) => window.daja.db.call('conversations', 'update', [id, patch]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['conversations'] })
   })
 }
@@ -79,7 +79,7 @@ export function useUpdateConversation(): ReturnType<
 export function useRemoveConversation(): ReturnType<typeof useMutation<unknown, Error, number>> {
   const qc = useQueryClient()
   return useMutation<unknown, Error, number>({
-    mutationFn: (id) => window.nexus.db.call('conversations', 'remove', [id]),
+    mutationFn: (id) => window.daja.db.call('conversations', 'remove', [id]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['conversations'] })
   })
 }

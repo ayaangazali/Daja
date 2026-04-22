@@ -8,7 +8,7 @@ import { fmtLargeNum, fmtPct, signColor } from '../../../lib/format'
 import { cn } from '../../../lib/cn'
 
 async function fetchHist(ticker: string, range = '1y'): Promise<HistoricalBar[]> {
-  return window.nexus.finance.historical(ticker, range) as Promise<HistoricalBar[]>
+  return window.daja.finance.historical(ticker, range) as Promise<HistoricalBar[]>
 }
 
 function alignSeries(

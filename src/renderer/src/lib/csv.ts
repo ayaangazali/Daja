@@ -13,7 +13,7 @@ export function toCsv<T extends Record<string, unknown>>(rows: T[], columns?: (k
 }
 
 export async function downloadCsv(filename: string, content: string): Promise<boolean> {
-  const res = await window.nexus.system.saveFile({
+  const res = await window.daja.system.saveFile({
     defaultPath: filename,
     filters: [{ name: 'CSV', extensions: ['csv'] }],
     contents: content

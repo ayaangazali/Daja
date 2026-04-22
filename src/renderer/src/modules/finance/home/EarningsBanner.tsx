@@ -16,7 +16,7 @@ interface EarningsEntry {
 export function EarningsBanner(): React.JSX.Element {
   const { data = [] } = useQuery<EarningsEntry[]>({
     queryKey: ['earnings_calendar'],
-    queryFn: () => window.nexus.finance.earningsCalendar(7) as Promise<EarningsEntry[]>,
+    queryFn: () => window.daja.finance.earningsCalendar(7) as Promise<EarningsEntry[]>,
     staleTime: 30 * 60_000
   })
 

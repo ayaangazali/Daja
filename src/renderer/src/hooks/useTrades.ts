@@ -32,7 +32,7 @@ export interface NewTrade {
 export function useTrades(): ReturnType<typeof useQuery<Trade[], Error>> {
   return useQuery<Trade[], Error>({
     queryKey: ['trades'],
-    queryFn: () => window.nexus.db.call<Trade[]>('trades', 'list'),
+    queryFn: () => window.daja.db.call<Trade[]>('trades', 'list'),
     staleTime: 30_000
   })
 }
@@ -42,7 +42,7 @@ export function useTradesByTicker(
 ): ReturnType<typeof useQuery<Trade[], Error>> {
   return useQuery<Trade[], Error>({
     queryKey: ['trades', ticker],
-    queryFn: () => window.nexus.db.call<Trade[]>('trades', 'byTicker', [ticker]),
+    queryFn: () => window.daja.db.call<Trade[]>('trades', 'byTicker', [ticker]),
     enabled: !!ticker,
     staleTime: 30_000
   })
@@ -51,7 +51,7 @@ export function useTradesByTicker(
 export function useAddTrade(): ReturnType<typeof useMutation<Trade, Error, NewTrade>> {
   const qc = useQueryClient()
   return useMutation<Trade, Error, NewTrade>({
-    mutationFn: (t) => window.nexus.db.call<Trade>('trades', 'add', [t]),
+    mutationFn: (t) => window.daja.db.call<Trade>('trades', 'add', [t]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['trades'] })
   })
 }
@@ -59,7 +59,7 @@ export function useAddTrade(): ReturnType<typeof useMutation<Trade, Error, NewTr
 export function useRemoveTrade(): ReturnType<typeof useMutation<unknown, Error, number>> {
   const qc = useQueryClient()
   return useMutation<unknown, Error, number>({
-    mutationFn: (id) => window.nexus.db.call('trades', 'remove', [id]),
+    mutationFn: (id) => window.daja.db.call('trades', 'remove', [id]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['trades'] })
   })
 }

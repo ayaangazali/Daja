@@ -15,6 +15,7 @@ import { SectorAllocation } from './SectorAllocation'
 import { RebalancePanel } from './RebalancePanel'
 import { PortfolioEarnings } from './PortfolioEarnings'
 import { DripCalculator } from './DripCalculator'
+import { PortfolioExitSignals } from './PortfolioExitSignals'
 import { useTrades } from '../../../hooks/useTrades'
 import { downloadCsv, toCsv } from '../../../lib/csv'
 
@@ -62,6 +63,7 @@ export function PortfolioPage(): React.JSX.Element {
             </div>
           </div>
         </div>
+        <PortfolioExitSignals />
         <EquityCurve />
         <PortfolioEarnings />
         <RiskDashboard trades={trades} />

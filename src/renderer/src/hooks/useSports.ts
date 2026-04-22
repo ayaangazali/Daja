@@ -29,7 +29,7 @@ export interface Scoreboard {
 export function useScoreboard(league: string): ReturnType<typeof useQuery<Scoreboard, Error>> {
   return useQuery<Scoreboard, Error>({
     queryKey: ['scoreboard', league],
-    queryFn: () => window.nexus.sports.scoreboard(league) as Promise<Scoreboard>,
+    queryFn: () => window.daja.sports.scoreboard(league) as Promise<Scoreboard>,
     staleTime: 30_000,
     refetchInterval: 60_000
   })
@@ -49,7 +49,7 @@ export interface Standing {
 export function useStandings(league: string): ReturnType<typeof useQuery<Standing[], Error>> {
   return useQuery<Standing[], Error>({
     queryKey: ['standings', league],
-    queryFn: () => window.nexus.sports.standings(league) as Promise<Standing[]>,
+    queryFn: () => window.daja.sports.standings(league) as Promise<Standing[]>,
     staleTime: 5 * 60_000
   })
 }

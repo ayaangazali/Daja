@@ -16,7 +16,7 @@ export async function fetchNews(symbol: string): Promise<NewsItem[]> {
     symbol
   )}&quotesCount=0&newsCount=15`
   const res = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (NexusHub)', Accept: 'application/json' }
+    headers: { 'User-Agent': 'Mozilla/5.0 (Daja)', Accept: 'application/json' }
   })
   if (!res.ok) throw new Error(`Yahoo news ${res.status}`)
   const json = (await res.json()) as { news?: Obj[] }
@@ -55,7 +55,7 @@ let cikCache: Map<string, string> | null = null
 async function getCikMap(): Promise<Map<string, string>> {
   if (cikCache) return cikCache
   const res = await fetch('https://www.sec.gov/files/company_tickers.json', {
-    headers: { 'User-Agent': 'NexusHub ayaangazali.work@gmail.com', Accept: 'application/json' }
+    headers: { 'User-Agent': 'Daja ayaangazali.work@gmail.com', Accept: 'application/json' }
   })
   if (!res.ok) throw new Error(`SEC CIK map ${res.status}`)
   const data = (await res.json()) as Record<string, CikRow>
@@ -72,7 +72,7 @@ export async function fetchSecFilings(symbol: string): Promise<SecFiling[]> {
   const cik = map.get(symbol.toUpperCase())
   if (!cik) return []
   const res = await fetch(`https://data.sec.gov/submissions/CIK${cik}.json`, {
-    headers: { 'User-Agent': 'NexusHub ayaangazali.work@gmail.com', Accept: 'application/json' }
+    headers: { 'User-Agent': 'Daja ayaangazali.work@gmail.com', Accept: 'application/json' }
   })
   if (!res.ok) throw new Error(`SEC submissions ${res.status}`)
   const json = (await res.json()) as {
@@ -123,7 +123,7 @@ export async function fetchRedditMentions(symbol: string): Promise<RedditPost[]>
     '$' + symbol
   )}&sort=new&limit=25&t=week`
   const res = await fetch(url, {
-    headers: { 'User-Agent': 'NexusHub/1.0 (Reddit sentiment scan)', Accept: 'application/json' }
+    headers: { 'User-Agent': 'Daja/1.0 (Reddit sentiment scan)', Accept: 'application/json' }
   })
   if (!res.ok) return []
   const json = (await res.json()) as {

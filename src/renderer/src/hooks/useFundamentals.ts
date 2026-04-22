@@ -62,7 +62,7 @@ export function useFundamentals(
 ): ReturnType<typeof useQuery<Fundamentals, Error>> {
   return useQuery<Fundamentals, Error>({
     queryKey: ['fundamentals', ticker],
-    queryFn: () => window.nexus.finance.fundamentals(ticker as string) as Promise<Fundamentals>,
+    queryFn: () => window.daja.finance.fundamentals(ticker as string) as Promise<Fundamentals>,
     enabled: !!ticker,
     staleTime: 15 * 60_000
   })

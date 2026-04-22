@@ -23,7 +23,7 @@ export interface Strategy {
 export function useStrategies(): ReturnType<typeof useQuery<Strategy[], Error>> {
   return useQuery<Strategy[], Error>({
     queryKey: ['strategies'],
-    queryFn: () => window.nexus.db.call<Strategy[]>('strategies', 'list'),
+    queryFn: () => window.daja.db.call<Strategy[]>('strategies', 'list'),
     staleTime: 30_000
   })
 }
@@ -31,7 +31,7 @@ export function useStrategies(): ReturnType<typeof useQuery<Strategy[], Error>> 
 export function useActiveStrategies(): ReturnType<typeof useQuery<Strategy[], Error>> {
   return useQuery<Strategy[], Error>({
     queryKey: ['strategies', 'active'],
-    queryFn: () => window.nexus.db.call<Strategy[]>('strategies', 'listActive'),
+    queryFn: () => window.daja.db.call<Strategy[]>('strategies', 'listActive'),
     staleTime: 30_000
   })
 }
@@ -57,7 +57,7 @@ export function useAddStrategy(): ReturnType<
       rules: StrategyRule[]
       natural_language?: string
       asset_classes?: string[]
-    }) => window.nexus.db.call<Strategy>('strategies', 'add', [s]),
+    }) => window.daja.db.call<Strategy>('strategies', 'add', [s]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['strategies'] })
   })
 }
@@ -65,7 +65,7 @@ export function useAddStrategy(): ReturnType<
 export function useRemoveStrategy(): ReturnType<typeof useMutation<unknown, Error, number>> {
   const qc = useQueryClient()
   return useMutation<unknown, Error, number>({
-    mutationFn: (id) => window.nexus.db.call('strategies', 'remove', [id]),
+    mutationFn: (id) => window.daja.db.call('strategies', 'remove', [id]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['strategies'] })
   })
 }

@@ -24,7 +24,7 @@ export interface HealthLog {
 export function useHealthLogs(): ReturnType<typeof useQuery<HealthLog[], Error>> {
   return useQuery<HealthLog[], Error>({
     queryKey: ['health_logs'],
-    queryFn: () => window.nexus.db.call<HealthLog[]>('health', 'list'),
+    queryFn: () => window.daja.db.call<HealthLog[]>('health', 'list'),
     staleTime: 10_000
   })
 }
@@ -32,7 +32,7 @@ export function useHealthLogs(): ReturnType<typeof useQuery<HealthLog[], Error>>
 export function useRecentHealth(days = 30): ReturnType<typeof useQuery<HealthLog[], Error>> {
   return useQuery<HealthLog[], Error>({
     queryKey: ['health_logs', 'recent', days],
-    queryFn: () => window.nexus.db.call<HealthLog[]>('health', 'recent', [days]),
+    queryFn: () => window.daja.db.call<HealthLog[]>('health', 'recent', [days]),
     staleTime: 10_000
   })
 }
@@ -47,7 +47,7 @@ export function useAddHealthLog(): ReturnType<
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (log: Partial<Omit<HealthLog, 'id' | 'created_at'>> & { date: string }) =>
-      window.nexus.db.call<HealthLog>('health', 'add', [log]),
+      window.daja.db.call<HealthLog>('health', 'add', [log]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['health_logs'] })
   })
 }
@@ -55,7 +55,7 @@ export function useAddHealthLog(): ReturnType<
 export function useRemoveHealthLog(): ReturnType<typeof useMutation<unknown, Error, number>> {
   const qc = useQueryClient()
   return useMutation<unknown, Error, number>({
-    mutationFn: (id) => window.nexus.db.call('health', 'remove', [id]),
+    mutationFn: (id) => window.daja.db.call('health', 'remove', [id]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['health_logs'] })
   })
 }
@@ -77,7 +77,7 @@ export interface Medication {
 export function useMedications(): ReturnType<typeof useQuery<Medication[], Error>> {
   return useQuery<Medication[], Error>({
     queryKey: ['medications'],
-    queryFn: () => window.nexus.db.call<Medication[]>('medications', 'list'),
+    queryFn: () => window.daja.db.call<Medication[]>('medications', 'list'),
     staleTime: 30_000
   })
 }
@@ -92,7 +92,7 @@ export function useAddMedication(): ReturnType<
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (m: Partial<Omit<Medication, 'id' | 'created_at'>> & { name: string }) =>
-      window.nexus.db.call<Medication>('medications', 'add', [m]),
+      window.daja.db.call<Medication>('medications', 'add', [m]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['medications'] })
   })
 }
@@ -102,7 +102,7 @@ export function useSetMedActive(): ReturnType<
 > {
   const qc = useQueryClient()
   return useMutation<unknown, Error, { id: number; active: 0 | 1 }>({
-    mutationFn: ({ id, active }) => window.nexus.db.call('medications', 'setActive', [id, active]),
+    mutationFn: ({ id, active }) => window.daja.db.call('medications', 'setActive', [id, active]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['medications'] })
   })
 }
@@ -110,7 +110,7 @@ export function useSetMedActive(): ReturnType<
 export function useRemoveMedication(): ReturnType<typeof useMutation<unknown, Error, number>> {
   const qc = useQueryClient()
   return useMutation<unknown, Error, number>({
-    mutationFn: (id) => window.nexus.db.call('medications', 'remove', [id]),
+    mutationFn: (id) => window.daja.db.call('medications', 'remove', [id]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['medications'] })
   })
 }

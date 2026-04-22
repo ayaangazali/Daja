@@ -187,7 +187,7 @@ export function AssistantHome(): React.JSX.Element {
           <div className="mx-auto max-w-3xl space-y-4">
             {messages.length === 0 && !state.streaming && (
               <div className="rounded-md border border-dashed border-[var(--color-border)] p-6 text-center text-[var(--color-fg-muted)]">
-                <div className="text-sm font-medium text-[var(--color-fg)]">NexusHub Assistant</div>
+                <div className="text-sm font-medium text-[var(--color-fg)]">Daja Assistant</div>
                 <div className="mt-1 text-[11px]">
                   General chat grounded in your personal context (strategies, portfolio, health
                   logs). Pick provider on left.

@@ -37,7 +37,7 @@ export function PortfolioEarnings(): React.JSX.Element | null {
 
   const { data = [] } = useQuery<EarningsEntry[]>({
     queryKey: ['earnings_calendar', 30],
-    queryFn: () => window.nexus.finance.earningsCalendar(30) as Promise<EarningsEntry[]>,
+    queryFn: () => window.daja.finance.earningsCalendar(30) as Promise<EarningsEntry[]>,
     staleTime: 30 * 60_000,
     enabled: openTickers.size > 0
   })
