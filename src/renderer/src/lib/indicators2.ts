@@ -404,6 +404,99 @@ export function roc(arr: number[], p = 12): number | null {
   return ((arr[arr.length - 1] - past) / past) * 100
 }
 
+/** Ichimoku Cloud — Tenkan, Kijun, Senkou A, Senkou B, Chikou. */
+export function ichimoku(
+  highs: number[],
+  lows: number[],
+  closes: number[],
+  tenkanP = 9,
+  kijunP = 26,
+  senkouBP = 52,
+  chikouShift = 26
+): {
+  tenkan: (number | null)[]
+  kijun: (number | null)[]
+  senkouA: (number | null)[]
+  senkouB: (number | null)[]
+  chikou: (number | null)[]
+} {
+  const midPeriod = (i: number, p: number): number | null => {
+    if (i < p - 1) return null
+    let hi = -Infinity
+    let lo = Infinity
+    for (let j = i - p + 1; j <= i; j++) {
+      if (highs[j] > hi) hi = highs[j]
+      if (lows[j] < lo) lo = lows[j]
+    }
+    return (hi + lo) / 2
+  }
+  const n = closes.length
+  const tenkan: (number | null)[] = Array(n).fill(null)
+  const kijun: (number | null)[] = Array(n).fill(null)
+  const senkouA: (number | null)[] = Array(n).fill(null)
+  const senkouB: (number | null)[] = Array(n).fill(null)
+  const chikou: (number | null)[] = Array(n).fill(null)
+  for (let i = 0; i < n; i++) {
+    tenkan[i] = midPeriod(i, tenkanP)
+    kijun[i] = midPeriod(i, kijunP)
+    const sbMid = midPeriod(i, senkouBP)
+    const shifted = i + chikouShift
+    if (shifted < n) {
+      senkouA[shifted] =
+        tenkan[i] != null && kijun[i] != null ? ((tenkan[i] as number) + (kijun[i] as number)) / 2 : null
+      senkouB[shifted] = sbMid
+    }
+    // chikou = current close shifted backwards
+    const back = i - chikouShift
+    if (back >= 0) chikou[back] = closes[i]
+  }
+  return { tenkan, kijun, senkouA, senkouB, chikou }
+}
+
+/** Keltner Channels — EMA middle, ATR-based bands. */
+export function keltnerChannels(
+  highs: number[],
+  lows: number[],
+  closes: number[],
+  p = 20,
+  mult = 2
+): { upper: (number | null)[]; middle: (number | null)[]; lower: (number | null)[] } {
+  const n = closes.length
+  const mid = emaSeries(closes, p)
+  const atrSer = atrSeries(highs, lows, closes, p)
+  const upper: (number | null)[] = Array(n).fill(null)
+  const lower: (number | null)[] = Array(n).fill(null)
+  for (let i = 0; i < n; i++) {
+    const m = mid[i]
+    const a = atrSer[i]
+    if (m != null && a != null) {
+      upper[i] = m + mult * a
+      lower[i] = m - mult * a
+    }
+  }
+  return { upper, middle: mid, lower }
+}
+
+/** Donchian Channels — highest high / lowest low over p periods. */
+export function donchianChannels(
+  highs: number[],
+  lows: number[],
+  p = 20
+): { upper: (number | null)[]; middle: (number | null)[]; lower: (number | null)[] } {
+  const n = highs.length
+  const upper: (number | null)[] = Array(n).fill(null)
+  const middle: (number | null)[] = Array(n).fill(null)
+  const lower: (number | null)[] = Array(n).fill(null)
+  for (let i = p - 1; i < n; i++) {
+    const hh = Math.max(...highs.slice(i - p + 1, i + 1))
+    const ll = Math.min(...lows.slice(i - p + 1, i + 1))
+    upper[i] = hh
+    lower[i] = ll
+    middle[i] = (hh + ll) / 2
+  }
+  return { upper, middle, lower }
+}
+
 /** Stochastic K series for charting. */
 export function stochasticSeries(
   highs: number[],

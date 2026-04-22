@@ -243,6 +243,42 @@ describe('mfi', () => {
   })
 })
 
+describe('ichimoku + keltner + donchian', () => {
+  it('ichimoku returns series of same length', async () => {
+    const { ichimoku } = await import('./indicators2')
+    const n = 80
+    const h = Array.from({ length: n }, (_, i) => 100 + i * 0.5)
+    const l = h.map((v) => v - 2)
+    const c = h.map((v) => v - 1)
+    const r = ichimoku(h, l, c)
+    expect(r.tenkan).toHaveLength(n)
+    expect(r.kijun).toHaveLength(n)
+    expect(r.senkouA).toHaveLength(n)
+  })
+  it('keltner upper ≥ middle ≥ lower', async () => {
+    const { keltnerChannels } = await import('./indicators2')
+    const n = 40
+    const h = Array.from({ length: n }, (_, i) => 100 + Math.sin(i / 3) * 5)
+    const l = h.map((v) => v - 2)
+    const c = h.map((v) => v - 1)
+    const r = keltnerChannels(h, l, c, 20, 2)
+    const i = n - 1
+    if (r.upper[i] != null && r.middle[i] != null && r.lower[i] != null) {
+      expect(r.upper[i]!).toBeGreaterThanOrEqual(r.middle[i]!)
+      expect(r.middle[i]!).toBeGreaterThanOrEqual(r.lower[i]!)
+    }
+  })
+  it('donchian upper equals HH over last p, lower equals LL', async () => {
+    const { donchianChannels } = await import('./indicators2')
+    const h = Array.from({ length: 21 }, (_, i) => i + 1)
+    const l = h.map((v) => v - 1)
+    const r = donchianChannels(h, l, 20)
+    // At index 20, window = [1..20] (slice(1, 21)) → HH = 21 (since h[20]=21), LL = 1 (l[1]=1)
+    expect(r.upper[20]).toBe(21)
+    expect(r.lower[20]).toBe(1)
+  })
+})
+
 describe('series variants', () => {
   it('stochasticSeries same length as input', async () => {
     const { stochasticSeries } = await import('./indicators2')

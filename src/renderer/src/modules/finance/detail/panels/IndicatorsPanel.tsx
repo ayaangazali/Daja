@@ -3,7 +3,10 @@ import { Activity } from 'lucide-react'
 import { useHistorical } from '../../../../hooks/useFinance'
 import {
   bollingerSeries,
+  donchianChannels,
   emaSeries,
+  ichimoku,
+  keltnerChannels,
   macdSeries,
   obv,
   rsiSeries,
@@ -13,7 +16,17 @@ import {
 import { MultiLineChart, ZeroBarChart, BarChart } from '../../../../components/charts/ChartPrimitives'
 import { cn } from '../../../../lib/cn'
 
-type Overlay = 'sma20' | 'sma50' | 'sma200' | 'ema9' | 'ema21' | 'bollinger' | 'vwap'
+type Overlay =
+  | 'sma20'
+  | 'sma50'
+  | 'sma200'
+  | 'ema9'
+  | 'ema21'
+  | 'bollinger'
+  | 'vwap'
+  | 'keltner'
+  | 'donchian'
+  | 'ichimoku'
 
 const OVERLAYS: { key: Overlay; label: string; color: string }[] = [
   { key: 'sma20', label: 'SMA 20', color: '#60a5fa' },
@@ -22,7 +35,10 @@ const OVERLAYS: { key: Overlay; label: string; color: string }[] = [
   { key: 'ema9', label: 'EMA 9', color: '#c084fc' },
   { key: 'ema21', label: 'EMA 21', color: '#34d399' },
   { key: 'bollinger', label: 'Bollinger', color: '#a78bfa' },
-  { key: 'vwap', label: 'VWAP', color: '#fb923c' }
+  { key: 'vwap', label: 'VWAP', color: '#fb923c' },
+  { key: 'keltner', label: 'Keltner', color: '#38bdf8' },
+  { key: 'donchian', label: 'Donchian', color: '#facc15' },
+  { key: 'ichimoku', label: 'Ichimoku', color: '#22d3ee' }
 ]
 
 export function IndicatorsPanel({ ticker }: { ticker: string }): React.JSX.Element {
@@ -67,6 +83,18 @@ export function IndicatorsPanel({ ticker }: { ticker: string }): React.JSX.Eleme
     () => (active.has('bollinger') ? bollingerSeries(closes, 20, 2) : null),
     [closes, active]
   )
+  const keltner = useMemo(
+    () => (active.has('keltner') ? keltnerChannels(highs, lows, closes, 20, 2) : null),
+    [highs, lows, closes, active]
+  )
+  const donchian = useMemo(
+    () => (active.has('donchian') ? donchianChannels(highs, lows, 20) : null),
+    [highs, lows, active]
+  )
+  const ichi = useMemo(
+    () => (active.has('ichimoku') ? ichimoku(highs, lows, closes) : null),
+    [highs, lows, closes, active]
+  )
 
   const rsi = useMemo(() => rsiSeries(closes, 14), [closes])
   const macd = useMemo(() => macdSeries(closes, 12, 26, 9), [closes])
@@ -101,6 +129,27 @@ export function IndicatorsPanel({ ticker }: { ticker: string }): React.JSX.Eleme
           { values: bollinger.upper, color: '#a78bfa', strokeWidth: 0.8, dashed: true },
           { values: bollinger.middle, color: '#a78bfa', strokeWidth: 0.8 },
           { values: bollinger.lower, color: '#a78bfa', strokeWidth: 0.8, dashed: true }
+        ]
+      : []),
+    ...(keltner
+      ? [
+          { values: keltner.upper, color: '#38bdf8', strokeWidth: 0.8, dashed: true },
+          { values: keltner.lower, color: '#38bdf8', strokeWidth: 0.8, dashed: true }
+        ]
+      : []),
+    ...(donchian
+      ? [
+          { values: donchian.upper, color: '#facc15', strokeWidth: 0.8, dashed: true },
+          { values: donchian.lower, color: '#facc15', strokeWidth: 0.8, dashed: true }
+        ]
+      : []),
+    ...(ichi
+      ? [
+          { values: ichi.tenkan, color: '#f87171', strokeWidth: 0.9 },
+          { values: ichi.kijun, color: '#60a5fa', strokeWidth: 0.9 },
+          { values: ichi.senkouA, color: '#4ade80', strokeWidth: 0.7 },
+          { values: ichi.senkouB, color: '#fb923c', strokeWidth: 0.7 },
+          { values: ichi.chikou, color: '#c084fc', strokeWidth: 0.7, dashed: true }
         ]
       : [])
   ]
