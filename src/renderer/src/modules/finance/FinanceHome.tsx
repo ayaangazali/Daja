@@ -9,6 +9,7 @@ import { SearchBar } from './home/SearchBar'
 import { SectorHeatmap } from './home/SectorHeatmap'
 import { TopMovers } from './home/TopMovers'
 import { MacroIndicators } from './home/MacroIndicators'
+import { WatchlistHeatmap } from './home/WatchlistHeatmap'
 import { useDashboardLayout, type Layout } from '../../hooks/useLayout'
 import { cn } from '../../lib/cn'
 import 'react-grid-layout/css/styles.css'
@@ -21,7 +22,8 @@ const DEFAULT_LAYOUT: Layout[] = [
   { i: 'macro', x: 0, y: 6, w: 12, h: 4, minW: 6, minH: 3 },
   { i: 'movers', x: 0, y: 10, w: 12, h: 4, minW: 6, minH: 3 },
   { i: 'sectors', x: 0, y: 14, w: 12, h: 5, minW: 6, minH: 3 },
-  { i: 'summary', x: 0, y: 19, w: 12, h: 8, minW: 4, minH: 4 }
+  { i: 'heatmap', x: 0, y: 19, w: 12, h: 6, minW: 6, minH: 4 },
+  { i: 'summary', x: 0, y: 25, w: 12, h: 8, minW: 4, minH: 4 }
 ]
 
 export function FinanceHome(): React.JSX.Element {
@@ -114,6 +116,14 @@ export function FinanceHome(): React.JSX.Element {
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
               <SectorHeatmap />
+            </div>
+          </div>
+          <div key="heatmap" className="h-full overflow-hidden rounded-md">
+            <div className="panel-handle flex cursor-move items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-bg-elev)] px-2 py-1 text-[10px] uppercase tracking-wide text-[var(--color-fg-muted)]">
+              <span>Watchlist heatmap</span>
+            </div>
+            <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
+              <WatchlistHeatmap />
             </div>
           </div>
           <div key="summary" className="h-full overflow-hidden rounded-md">
