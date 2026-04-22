@@ -1,12 +1,19 @@
+import { useMemo } from 'react'
 import { ExternalLink, FileText, Newspaper } from 'lucide-react'
 import { useFilings, useNews } from '../../../../hooks/useStatements'
 import { useAI } from '../../../../hooks/useAI'
+import { aggregateSentiment, scoreHeadline } from '../../../../lib/sentiment'
 import { cn } from '../../../../lib/cn'
 
 export function NewsTab({ ticker }: { ticker: string }): React.JSX.Element {
   const { data: news = [], isLoading: newsLoading } = useNews(ticker)
   const { data: filings = [], isLoading: filLoading } = useFilings(ticker)
   const { state, start, cancel } = useAI()
+
+  const sentiment = useMemo(() => {
+    const scored = news.map((n) => ({ ...n, score: scoreHeadline(n.title) }))
+    return { scored, summary: aggregateSentiment(scored.map((s) => s.score)) }
+  }, [news])
 
   const digest = (): void => {
     const headlines = news
@@ -61,7 +68,31 @@ export function NewsTab({ ticker }: { ticker: string }): React.JSX.Element {
         <Panel icon={<Newspaper className="h-3 w-3" />} title="News">
           {newsLoading && <Loading />}
           {news.length === 0 && !newsLoading && <Empty />}
-          {news.map((n) => (
+          {news.length > 0 && (
+            <div className="mb-2 flex items-center justify-between rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 text-[10px]">
+              <span className="text-[var(--color-fg-muted)]">
+                Headline sentiment ({news.length}):
+              </span>
+              <span className="flex items-center gap-2 font-mono tabular">
+                <span
+                  className={cn(
+                    'font-semibold uppercase',
+                    sentiment.summary.label === 'bullish' && 'text-[var(--color-pos)]',
+                    sentiment.summary.label === 'bearish' && 'text-[var(--color-neg)]',
+                    sentiment.summary.label === 'neutral' && 'text-[var(--color-fg-muted)]'
+                  )}
+                >
+                  {sentiment.summary.label}
+                </span>
+                <span className="text-[var(--color-pos)]">+{sentiment.summary.positive}</span>
+                <span className="text-[var(--color-neg)]">-{sentiment.summary.negative}</span>
+                <span className="text-[var(--color-fg-muted)]">
+                  avg {sentiment.summary.averageScore.toFixed(2)}
+                </span>
+              </span>
+            </div>
+          )}
+          {sentiment.scored.map((n) => (
             <a
               key={n.id || n.link}
               href={n.link}
@@ -70,6 +101,17 @@ export function NewsTab({ ticker }: { ticker: string }): React.JSX.Element {
               className="flex flex-col border-b border-[var(--color-border)] py-2 text-[11px] last:border-0 hover:bg-[var(--color-bg)]"
             >
               <div className="flex items-start gap-2">
+                <span
+                  className={cn(
+                    'mt-1 inline-block h-2 w-2 shrink-0 rounded-full',
+                    n.score > 0.1
+                      ? 'bg-[var(--color-pos)]'
+                      : n.score < -0.1
+                        ? 'bg-[var(--color-neg)]'
+                        : 'bg-[var(--color-fg-muted)]'
+                  )}
+                  title={`score ${n.score.toFixed(2)}`}
+                />
                 <div className="flex-1">
                   <div className="font-medium leading-snug">{n.title}</div>
                   <div className="mt-0.5 flex items-center gap-2 text-[9px] text-[var(--color-fg-muted)]">
