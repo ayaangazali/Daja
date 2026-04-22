@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import {
   useStatements,
   type BalanceRow,
@@ -150,14 +150,13 @@ function IncomeTable({ rows }: { rows: IncomeRow[] }): React.JSX.Element {
             >
               <td className="px-2 py-1 text-[var(--color-fg-muted)]">{label}</td>
               {sorted.map((r, i) => (
-                <>
-                  <Cell key={`v-${r.date}`} value={r[key] as number | null} />
+                <Fragment key={r.date}>
+                  <Cell value={r[key] as number | null} />
                   <GrowthCell
-                    key={`g-${r.date}`}
                     curr={r[key] as number | null}
                     prev={(sorted[i - 1]?.[key] as number | null) ?? null}
                   />
-                </>
+                </Fragment>
               ))}
             </tr>
           ))}
