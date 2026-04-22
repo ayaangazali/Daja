@@ -21,15 +21,17 @@ export function StockDetail(): React.JSX.Element {
   const { data: quote } = useQuote(upper)
   const { data: fundamentals, error: fundError } = useFundamentals(upper)
 
-  // Keyboard shortcuts 1-9 jump between detail tabs
+  // Keyboard shortcuts 1-9 jump between detail tabs.
+  // Reject shift+digit (='!@#...') and all other modifier combos.
   useEffect(() => {
     const h = (e: KeyboardEvent): void => {
       const el = document.activeElement as HTMLElement | null
       const tagName = el?.tagName.toLowerCase()
       if (tagName === 'input' || tagName === 'textarea' || el?.isContentEditable) return
-      if (e.metaKey || e.ctrlKey || e.altKey) return
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return
+      if (!/^[1-9]$/.test(e.key)) return
       const n = parseInt(e.key, 10)
-      if (!Number.isFinite(n) || n < 1 || n > DETAIL_TABS.length) return
+      if (n < 1 || n > DETAIL_TABS.length) return
       e.preventDefault()
       setTab(DETAIL_TABS[n - 1])
     }
