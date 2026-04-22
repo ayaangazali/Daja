@@ -127,8 +127,14 @@ export function piotroskiScore({ curr, prev }: PiotroskiInput): PiotroskiResult 
     passed: (c.ocf ?? 0) > 0
   })
   // 3. ROA rising (NI / assets)
-  const roaC = c.netIncome != null && c.totalAssets != null && c.totalAssets > 0 ? c.netIncome / c.totalAssets : null
-  const roaP = p.netIncome != null && p.totalAssets != null && p.totalAssets > 0 ? p.netIncome / p.totalAssets : null
+  const roaC =
+    c.netIncome != null && c.totalAssets != null && c.totalAssets > 0
+      ? c.netIncome / c.totalAssets
+      : null
+  const roaP =
+    p.netIncome != null && p.totalAssets != null && p.totalAssets > 0
+      ? p.netIncome / p.totalAssets
+      : null
   checks.push({
     name: 'ROA improving',
     passed: roaC != null && roaP != null && roaC > roaP
@@ -146,8 +152,7 @@ export function piotroskiScore({ curr, prev }: PiotroskiInput): PiotroskiResult 
   // 6. Current ratio rising
   checks.push({
     name: 'Current ratio improving',
-    passed:
-      c.currentRatio != null && p.currentRatio != null && c.currentRatio > p.currentRatio
+    passed: c.currentRatio != null && p.currentRatio != null && c.currentRatio > p.currentRatio
   })
   // 7. No new shares (no dilution)
   checks.push({
@@ -162,8 +167,7 @@ export function piotroskiScore({ curr, prev }: PiotroskiInput): PiotroskiResult 
   // 9. Asset turnover rising
   checks.push({
     name: 'Asset turnover improving',
-    passed:
-      c.assetTurnover != null && p.assetTurnover != null && c.assetTurnover > p.assetTurnover
+    passed: c.assetTurnover != null && p.assetTurnover != null && c.assetTurnover > p.assetTurnover
   })
 
   const score = checks.filter((c) => c.passed).length
@@ -190,7 +194,10 @@ export interface AltmanInput {
   totalAssets: number | null
 }
 
-export function altmanZ(i: AltmanInput): { z: number | null; zone: 'safe' | 'grey' | 'distress' | 'unknown' } {
+export function altmanZ(i: AltmanInput): {
+  z: number | null
+  zone: 'safe' | 'grey' | 'distress' | 'unknown'
+} {
   if (
     i.workingCapital == null ||
     i.retainedEarnings == null ||
@@ -253,7 +260,10 @@ export function magicFormulaMetrics(input: {
 // ────────────────────────────────────────────────────────────────
 // Sustainable Growth Rate = ROE × retention ratio
 // ────────────────────────────────────────────────────────────────
-export function sustainableGrowth(roePct: number | null, payoutRatio: number | null): number | null {
+export function sustainableGrowth(
+  roePct: number | null,
+  payoutRatio: number | null
+): number | null {
   if (roePct == null) return null
   const retention = payoutRatio != null ? 1 - payoutRatio : 1
   return roePct * retention
@@ -285,7 +295,10 @@ export function shareholderYield(
 // Interest Coverage = EBIT / Interest Expense
 // >3 = healthy, <1.5 = distressed
 // ────────────────────────────────────────────────────────────────
-export function interestCoverage(ebit: number | null, interestExpense: number | null): number | null {
+export function interestCoverage(
+  ebit: number | null,
+  interestExpense: number | null
+): number | null {
   if (ebit == null || interestExpense == null || interestExpense === 0) return null
   return ebit / Math.abs(interestExpense)
 }

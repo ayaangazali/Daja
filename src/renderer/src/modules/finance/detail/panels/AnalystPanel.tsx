@@ -48,10 +48,10 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
     const useTTM = period === 'annual' && stmts.cashQuarterly.length >= 4
     const fcf = useTTM
       ? stmts.cashQuarterly.slice(0, 4).reduce((s, r) => s + (r.freeCashflow ?? 0), 0)
-      : latestCash?.freeCashflow ?? null
+      : (latestCash?.freeCashflow ?? null)
     const ocf = useTTM
       ? stmts.cashQuarterly.slice(0, 4).reduce((s, r) => s + (r.operating ?? 0), 0)
-      : latestCash?.operating ?? null
+      : (latestCash?.operating ?? null)
     const prevOcf = cashSeries[1]?.operating ?? null
 
     // Graham number
@@ -63,9 +63,10 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
     const graham = grahamNumber(eps, bvps)
 
     // Piotroski F
-    const grossC = latestAnn.revenue != null && latestAnn.revenue > 0
-      ? ((latestAnn.revenue - (latestAnn.netIncome ?? 0) * 0) - 0) / latestAnn.revenue  // placeholder; we'd need COGS
-      : null
+    const grossC =
+      latestAnn.revenue != null && latestAnn.revenue > 0
+        ? (latestAnn.revenue - (latestAnn.netIncome ?? 0) * 0 - 0) / latestAnn.revenue // placeholder; we'd need COGS
+        : null
     const pScore = piotroskiScore({
       curr: {
         netIncome: latestAnn.netIncome,
@@ -115,8 +116,7 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
     const roicPct = roic({
       operatingIncome: latestAnn.operatingIncome,
       taxRate: 0.21, // US corp default
-      totalDebt:
-        (latestBal.longTermDebt ?? 0) + (latestBal.shortTermDebt ?? 0),
+      totalDebt: (latestBal.longTermDebt ?? 0) + (latestBal.shortTermDebt ?? 0),
       totalEquity: latestBal.totalEquity,
       cash: latestBal.cash
     })
@@ -143,9 +143,7 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
 
     // Revenue CAGR 3y
     const rev3 = stmts.incomeAnnual.slice(0, 4).map((r) => r.revenue)
-    const revCagr = rev3.length >= 4
-      ? cagr(rev3[3] ?? null, rev3[0] ?? null, 3)
-      : null
+    const revCagr = rev3.length >= 4 ? cagr(rev3[3] ?? null, rev3[0] ?? null, 3) : null
     const ni3 = stmts.incomeAnnual.slice(0, 4).map((r) => r.netIncome)
     const niCagr = ni3.length >= 4 ? cagr(ni3[3] ?? null, ni3[0] ?? null, 3) : null
 
@@ -154,20 +152,19 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
     const termN = Number(terminalGrowth) / 100
     const discountN = Number(discountRate) / 100
     const yearsN = Math.max(1, Math.min(30, Number(years) || 5))
-    const dcf = fcf != null && fund.sharesOutstanding
-      ? dcfValue({
-          fcfBase: fcf,
-          growthRate: growthN,
-          terminalGrowth: termN,
-          discountRate: discountN,
-          years: yearsN,
-          sharesOut: fund.sharesOutstanding,
-          netDebt:
-            (latestBal.longTermDebt ?? 0) +
-            (latestBal.shortTermDebt ?? 0) -
-            (latestBal.cash ?? 0)
-        })
-      : null
+    const dcf =
+      fcf != null && fund.sharesOutstanding
+        ? dcfValue({
+            fcfBase: fcf,
+            growthRate: growthN,
+            terminalGrowth: termN,
+            discountRate: discountN,
+            years: yearsN,
+            sharesOut: fund.sharesOutstanding,
+            netDebt:
+              (latestBal.longTermDebt ?? 0) + (latestBal.shortTermDebt ?? 0) - (latestBal.cash ?? 0)
+          })
+        : null
 
     return {
       graham,
@@ -202,9 +199,10 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
   }
 
   const intrinsicPrice = analysis.dcf?.perShare
-  const currentPrice = fund.marketCap != null && fund.sharesOutstanding
-    ? fund.marketCap / fund.sharesOutstanding
-    : null
+  const currentPrice =
+    fund.marketCap != null && fund.sharesOutstanding
+      ? fund.marketCap / fund.sharesOutstanding
+      : null
   const marginOfSafety =
     intrinsicPrice != null && currentPrice != null && intrinsicPrice > 0
       ? ((intrinsicPrice - currentPrice) / intrinsicPrice) * 100
@@ -237,9 +235,7 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
         <Score
           label="Piotroski F-score"
           value={`${analysis.pScore.score}/9`}
-          tone={
-            analysis.pScore.score >= 7 ? 'pos' : analysis.pScore.score >= 4 ? 'warn' : 'neg'
-          }
+          tone={analysis.pScore.score >= 7 ? 'pos' : analysis.pScore.score >= 4 ? 'warn' : 'neg'}
           sub={
             analysis.pScore.score >= 7
               ? 'Strong balance sheet'
@@ -287,12 +283,21 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
       </div>
 
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-        <Metric label="Graham Number" value={analysis.graham != null ? `$${fmtPrice(analysis.graham)}` : '—'} />
+        <Metric
+          label="Graham Number"
+          value={analysis.graham != null ? `$${fmtPrice(analysis.graham)}` : '—'}
+        />
         <Metric
           label="FCF Yield"
           value={analysis.fcfY != null ? `${analysis.fcfY.toFixed(2)}%` : '—'}
           tone={
-            analysis.fcfY != null ? (analysis.fcfY > 5 ? 'pos' : analysis.fcfY > 2 ? 'warn' : 'neg') : null
+            analysis.fcfY != null
+              ? analysis.fcfY > 5
+                ? 'pos'
+                : analysis.fcfY > 2
+                  ? 'warn'
+                  : 'neg'
+              : null
           }
         />
         <Metric
@@ -323,12 +328,28 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
         <Metric
           label="3y Revenue CAGR"
           value={analysis.revCagr != null ? fmtPct(analysis.revCagr) : '—'}
-          tone={analysis.revCagr != null ? (analysis.revCagr > 10 ? 'pos' : analysis.revCagr > 0 ? 'warn' : 'neg') : null}
+          tone={
+            analysis.revCagr != null
+              ? analysis.revCagr > 10
+                ? 'pos'
+                : analysis.revCagr > 0
+                  ? 'warn'
+                  : 'neg'
+              : null
+          }
         />
         <Metric
           label="3y Earnings CAGR"
           value={analysis.niCagr != null ? fmtPct(analysis.niCagr) : '—'}
-          tone={analysis.niCagr != null ? (analysis.niCagr > 10 ? 'pos' : analysis.niCagr > 0 ? 'warn' : 'neg') : null}
+          tone={
+            analysis.niCagr != null
+              ? analysis.niCagr > 10
+                ? 'pos'
+                : analysis.niCagr > 0
+                  ? 'warn'
+                  : 'neg'
+              : null
+          }
         />
         <Metric
           label="Int Coverage"
@@ -378,14 +399,36 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
         </div>
         {analysis.dcf ? (
           <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-            <Metric label="Intrinsic/share" value={`$${fmtPrice(analysis.dcf.perShare)}`} emphasize />
-            <Metric label="Current price" value={currentPrice != null ? `$${fmtPrice(currentPrice)}` : '—'} />
+            <Metric
+              label="Intrinsic/share"
+              value={`$${fmtPrice(analysis.dcf.perShare)}`}
+              emphasize
+            />
+            <Metric
+              label="Current price"
+              value={currentPrice != null ? `$${fmtPrice(currentPrice)}` : '—'}
+            />
             <Metric
               label="Margin of safety"
-              value={marginOfSafety != null ? `${marginOfSafety > 0 ? '+' : ''}${marginOfSafety.toFixed(1)}%` : '—'}
-              tone={marginOfSafety != null ? (marginOfSafety > 20 ? 'pos' : marginOfSafety > 0 ? 'warn' : 'neg') : null}
+              value={
+                marginOfSafety != null
+                  ? `${marginOfSafety > 0 ? '+' : ''}${marginOfSafety.toFixed(1)}%`
+                  : '—'
+              }
+              tone={
+                marginOfSafety != null
+                  ? marginOfSafety > 20
+                    ? 'pos'
+                    : marginOfSafety > 0
+                      ? 'warn'
+                      : 'neg'
+                  : null
+              }
             />
-            <Metric label="Enterprise Value" value={`$${fmtLargeNum(analysis.dcf.enterpriseValue)}`} />
+            <Metric
+              label="Enterprise Value"
+              value={`$${fmtLargeNum(analysis.dcf.enterpriseValue)}`}
+            />
           </div>
         ) : (
           <div className="text-[11px] text-[var(--color-fg-muted)]">

@@ -20,7 +20,7 @@ export interface InsiderSignal {
 
 function isPurchase(t: InsiderTxn): boolean {
   const s = (t.transaction || '').toLowerCase()
-  return s.includes('purchase') || s.includes('award') === false && s.includes('buy')
+  return s.includes('purchase') || (s.includes('award') === false && s.includes('buy'))
 }
 
 function isSale(t: InsiderTxn): boolean {
@@ -56,7 +56,8 @@ export function analyzeInsiderActivity(txns: InsiderTxn[], refDate = new Date())
     }
   }
 
-  const lastTxnDays = mostRecent > 0 ? Math.floor((refDate.getTime() - mostRecent) / (1000 * 60 * 60 * 24)) : null
+  const lastTxnDays =
+    mostRecent > 0 ? Math.floor((refDate.getTime() - mostRecent) / (1000 * 60 * 60 * 24)) : null
 
   let signal: InsiderSignal['signal'] = 'neutral'
   let score = 0

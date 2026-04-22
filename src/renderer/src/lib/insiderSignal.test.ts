@@ -68,18 +68,12 @@ describe('analyzeInsiderActivity', () => {
     expect(r.score).toBe(0)
   })
   it('excludes txns older than 90 days', () => {
-    const r = analyzeInsiderActivity(
-      [tx({ transaction: 'Purchase', date: daysAgo(120) })],
-      REF
-    )
+    const r = analyzeInsiderActivity([tx({ transaction: 'Purchase', date: daysAgo(120) })], REF)
     expect(r.purchases90d).toBe(0)
     expect(r.sales90d).toBe(0)
   })
   it('lastTxnDays correctly reported', () => {
-    const r = analyzeInsiderActivity(
-      [tx({ transaction: 'Purchase', date: daysAgo(15) })],
-      REF
-    )
+    const r = analyzeInsiderActivity([tx({ transaction: 'Purchase', date: daysAgo(15) })], REF)
     expect(r.lastTxnDays).toBe(15)
   })
   it('score +100 when all value is purchases', () => {
@@ -125,10 +119,7 @@ describe('analyzeInsiderActivity', () => {
     expect(r.sales90d).toBe(0)
   })
   it('absolute value handles negative', () => {
-    const r = analyzeInsiderActivity(
-      [tx({ transaction: 'Sale', value: -500_000 })],
-      REF
-    )
+    const r = analyzeInsiderActivity([tx({ transaction: 'Sale', value: -500_000 })], REF)
     expect(r.saleValue90d).toBe(500_000)
   })
 })

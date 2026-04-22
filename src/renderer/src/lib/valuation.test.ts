@@ -72,14 +72,29 @@ describe('dcfValue', () => {
     expect(r!.pvForecast).toHaveLength(10)
   })
   it('higher netDebt reduces per-share value', () => {
-    const base = { fcfBase: 1e9, growthRate: 0.05, terminalGrowth: 0.02, discountRate: 0.1, years: 5, sharesOut: 1e8 }
+    const base = {
+      fcfBase: 1e9,
+      growthRate: 0.05,
+      terminalGrowth: 0.02,
+      discountRate: 0.1,
+      years: 5,
+      sharesOut: 1e8
+    }
     const lowDebt = dcfValue({ ...base, netDebt: 0 })!.perShare
     const highDebt = dcfValue({ ...base, netDebt: 1e10 })!.perShare
     expect(highDebt).toBeLessThan(lowDebt)
   })
   it('zero shares → null', () => {
     expect(
-      dcfValue({ fcfBase: 1e6, growthRate: 0.05, terminalGrowth: 0.02, discountRate: 0.1, years: 5, sharesOut: 0, netDebt: 0 })
+      dcfValue({
+        fcfBase: 1e6,
+        growthRate: 0.05,
+        terminalGrowth: 0.02,
+        discountRate: 0.1,
+        years: 5,
+        sharesOut: 0,
+        netDebt: 0
+      })
     ).toBeNull()
   })
 })
@@ -113,8 +128,27 @@ describe('piotroskiScore', () => {
   })
   it('broken company scores low (≤ 2/9)', () => {
     const r = piotroskiScore({
-      curr: { netIncome: -50, ocf: -10, totalAssets: 1000, prevAssets: 1100, longTermDebt: 400, currentRatio: 0.8, sharesOut: 200, grossMargin: 0.1, assetTurnover: 0.5 },
-      prev: { netIncome: 10, ocf: 5, totalAssets: 1100, longTermDebt: 300, currentRatio: 1.0, sharesOut: 150, grossMargin: 0.2, assetTurnover: 0.7 }
+      curr: {
+        netIncome: -50,
+        ocf: -10,
+        totalAssets: 1000,
+        prevAssets: 1100,
+        longTermDebt: 400,
+        currentRatio: 0.8,
+        sharesOut: 200,
+        grossMargin: 0.1,
+        assetTurnover: 0.5
+      },
+      prev: {
+        netIncome: 10,
+        ocf: 5,
+        totalAssets: 1100,
+        longTermDebt: 300,
+        currentRatio: 1.0,
+        sharesOut: 150,
+        grossMargin: 0.2,
+        assetTurnover: 0.7
+      }
     })
     expect(r.score).toBeLessThanOrEqual(2)
   })
@@ -132,8 +166,27 @@ describe('piotroskiScore', () => {
   })
   it('handles null gracefully', () => {
     const r = piotroskiScore({
-      curr: { netIncome: null, ocf: null, totalAssets: null, prevAssets: null, longTermDebt: null, currentRatio: null, sharesOut: null, grossMargin: null, assetTurnover: null },
-      prev: { netIncome: null, ocf: null, totalAssets: null, longTermDebt: null, currentRatio: null, sharesOut: null, grossMargin: null, assetTurnover: null }
+      curr: {
+        netIncome: null,
+        ocf: null,
+        totalAssets: null,
+        prevAssets: null,
+        longTermDebt: null,
+        currentRatio: null,
+        sharesOut: null,
+        grossMargin: null,
+        assetTurnover: null
+      },
+      prev: {
+        netIncome: null,
+        ocf: null,
+        totalAssets: null,
+        longTermDebt: null,
+        currentRatio: null,
+        sharesOut: null,
+        grossMargin: null,
+        assetTurnover: null
+      }
     })
     expect(r.score).toBe(0)
     expect(r.checks).toHaveLength(9)
@@ -200,16 +253,19 @@ describe('roic', () => {
     // OpInc 1000, tax 25%, Debt 2000, Equity 3000, Cash 500
     // NOPAT = 750, IC = 2000+3000-500 = 4500
     // ROIC = 750/4500 = 16.67%
-    expect(roic({ operatingIncome: 1000, taxRate: 0.25, totalDebt: 2000, totalEquity: 3000, cash: 500 }))
-      .toBeCloseTo(16.67, 1)
+    expect(
+      roic({ operatingIncome: 1000, taxRate: 0.25, totalDebt: 2000, totalEquity: 3000, cash: 500 })
+    ).toBeCloseTo(16.67, 1)
   })
   it('null on zero invested capital', () => {
-    expect(roic({ operatingIncome: 100, taxRate: 0.25, totalDebt: 0, totalEquity: 0, cash: 1000 }))
-      .toBeNull()
+    expect(
+      roic({ operatingIncome: 100, taxRate: 0.25, totalDebt: 0, totalEquity: 0, cash: 1000 })
+    ).toBeNull()
   })
   it('null on missing inputs', () => {
-    expect(roic({ operatingIncome: null, taxRate: 0.25, totalDebt: 1000, totalEquity: 1000, cash: 100 }))
-      .toBeNull()
+    expect(
+      roic({ operatingIncome: null, taxRate: 0.25, totalDebt: 1000, totalEquity: 1000, cash: 100 })
+    ).toBeNull()
   })
 })
 
@@ -220,7 +276,9 @@ describe('magicFormulaMetrics', () => {
     expect(r.roicPct).toBe(15)
   })
   it('null ey when EV ≤ 0', () => {
-    expect(magicFormulaMetrics({ ebit: 100, enterpriseValue: 0, roicPct: 15 }).earningsYieldPct).toBeNull()
+    expect(
+      magicFormulaMetrics({ ebit: 100, enterpriseValue: 0, roicPct: 15 }).earningsYieldPct
+    ).toBeNull()
   })
 })
 

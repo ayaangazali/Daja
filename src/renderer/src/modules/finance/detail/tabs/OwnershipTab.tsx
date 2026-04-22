@@ -47,7 +47,8 @@ export function OwnershipTab({ ticker }: { ticker: string }): React.JSX.Element 
               </span>
             </span>
             <span className="text-[10px] text-[var(--color-fg-muted)]">
-              score {insider.score > 0 ? '+' : ''}{insider.score}
+              score {insider.score > 0 ? '+' : ''}
+              {insider.score}
             </span>
           </div>
           <div className="flex items-center gap-3 text-[10px] font-mono tabular">
