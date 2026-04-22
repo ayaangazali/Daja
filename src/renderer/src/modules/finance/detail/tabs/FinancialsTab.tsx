@@ -7,6 +7,7 @@ import {
 } from '../../../../hooks/useStatements'
 import { fmtLargeNum } from '../../../../lib/format'
 import { MarginTrend } from '../panels/MarginTrend'
+import { FinancialsCharts } from '../panels/FinancialsCharts'
 import { cn } from '../../../../lib/cn'
 
 type Period = 'annual' | 'quarterly'
@@ -27,6 +28,7 @@ export function FinancialsTab({ ticker }: { ticker: string }): React.JSX.Element
 
   return (
     <div className="space-y-3 p-3">
+      <FinancialsCharts ticker={ticker} />
       <div className="flex items-center gap-2">
         <div className="flex overflow-hidden rounded border border-[var(--color-border)]">
           {(['income', 'balance', 'cashflow'] as Statement[]).map((s) => (
