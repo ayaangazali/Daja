@@ -21,6 +21,7 @@ import { RiskVsSpy } from './RiskVsSpy'
 import { FinancialRatios } from './FinancialRatios'
 import { MonteCarloPanel } from './MonteCarloPanel'
 import { BacktestPanel } from './BacktestPanel'
+import { QualityScorecard } from './QualityScorecard'
 
 export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element {
   const { data: stmts } = useStatements(ticker)
@@ -235,6 +236,7 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
           FCF = TTM (sum last 4 Q) when annual active. Data: Yahoo fundamentals-timeseries.
         </div>
       </div>
+      <QualityScorecard ticker={ticker} />
       <RiskVsSpy ticker={ticker} />
       <FinancialRatios ticker={ticker} />
       <MonteCarloPanel ticker={ticker} />
