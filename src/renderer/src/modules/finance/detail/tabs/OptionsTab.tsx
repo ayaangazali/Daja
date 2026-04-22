@@ -4,6 +4,7 @@ import { useOptions, type OptionsContract } from '../../../../hooks/useStatement
 import { fmtLargeNum, fmtPct, fmtPrice } from '../../../../lib/format'
 import { blackScholes } from '../../../../lib/blackScholes'
 import { findUnusualActivity, flowBias } from '../../../../lib/optionsFlow'
+import { OptionsPayoffPanel } from '../panels/OptionsPayoffPanel'
 import { cn } from '../../../../lib/cn'
 
 const RISK_FREE_RATE = 0.045 // approximation — fetch from FRED in Phase 2
@@ -79,6 +80,8 @@ export function OptionsTab({ ticker }: { ticker: string }): React.JSX.Element {
           P/C vol ratio {pcRatio.toFixed(2)}
         </div>
       </div>
+
+      <OptionsPayoffPanel ticker={ticker} />
 
       {unusual.length > 0 && (
         <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)]">
