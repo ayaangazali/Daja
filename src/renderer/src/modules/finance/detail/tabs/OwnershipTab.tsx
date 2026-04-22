@@ -1,5 +1,7 @@
+import { TrendingDown, TrendingUp } from 'lucide-react'
 import { useOwnership } from '../../../../hooks/useStatements'
 import { fmtLargeNum, fmtPct } from '../../../../lib/format'
+import { analyzeInsiderActivity } from '../../../../lib/insiderSignal'
 import { cn } from '../../../../lib/cn'
 
 export function OwnershipTab({ ticker }: { ticker: string }): React.JSX.Element {
@@ -13,8 +15,59 @@ export function OwnershipTab({ ticker }: { ticker: string }): React.JSX.Element 
   if (isLoading || !data)
     return <div className="p-4 text-[11px] text-[var(--color-fg-muted)]">Loading…</div>
 
+  const insider = analyzeInsiderActivity(data.insiderTransactions)
+
   return (
     <div className="space-y-3 p-3">
+      <div
+        className={cn(
+          'rounded-md border p-3',
+          'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
+        )}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {insider.signal === 'bullish' && (
+              <TrendingUp className="h-4 w-4 text-[var(--color-pos)]" />
+            )}
+            {insider.signal === 'bearish' && (
+              <TrendingDown className="h-4 w-4 text-[var(--color-neg)]" />
+            )}
+            <span className="text-[11px] font-semibold uppercase tracking-wide">
+              Insider signal (90d):{' '}
+              <span
+                className={cn(
+                  insider.signal === 'bullish' && 'text-[var(--color-pos)]',
+                  insider.signal === 'bearish' && 'text-[var(--color-neg)]',
+                  insider.signal === 'mixed' && 'text-[var(--color-warn)]',
+                  insider.signal === 'neutral' && 'text-[var(--color-fg-muted)]'
+                )}
+              >
+                {insider.signal}
+              </span>
+            </span>
+            <span className="text-[10px] text-[var(--color-fg-muted)]">
+              score {insider.score > 0 ? '+' : ''}{insider.score}
+            </span>
+          </div>
+          <div className="flex items-center gap-3 text-[10px] font-mono tabular">
+            <span className="text-[var(--color-pos)]">
+              {insider.purchases90d} buys · ${fmtLargeNum(insider.purchaseValue90d)}
+            </span>
+            <span className="text-[var(--color-neg)]">
+              {insider.sales90d} sells · ${fmtLargeNum(insider.saleValue90d)}
+            </span>
+            <span className="text-[var(--color-fg-muted)]">
+              {insider.uniqueBuyers90d} unique buyers
+            </span>
+            {insider.lastTxnDays != null && (
+              <span className="text-[var(--color-fg-muted)]">
+                last txn {insider.lastTxnDays}d ago
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
         <Stat
           label="Insiders %"
