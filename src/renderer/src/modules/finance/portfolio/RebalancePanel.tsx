@@ -14,7 +14,9 @@ export function RebalancePanel(): React.JSX.Element | null {
 
   const positionsList = useMemo(() => {
     const taxLotTrades: TaxLotTrade[] = trades
-      .filter((t): t is typeof t & { side: 'buy' | 'sell' } => t.side === 'buy' || t.side === 'sell')
+      .filter(
+        (t): t is typeof t & { side: 'buy' | 'sell' } => t.side === 'buy' || t.side === 'sell'
+      )
       .map((t) => ({
         date: t.date,
         ticker: t.ticker,
@@ -162,9 +164,7 @@ export function RebalancePanel(): React.JSX.Element | null {
         {Math.abs(result.unallocatedWeight) > 0.001 && (
           <span
             className={
-              result.unallocatedWeight > 0
-                ? 'text-[var(--color-warn)]'
-                : 'text-[var(--color-neg)]'
+              result.unallocatedWeight > 0 ? 'text-[var(--color-warn)]' : 'text-[var(--color-neg)]'
             }
           >
             Targets sum to {((1 - result.unallocatedWeight) * 100).toFixed(1)}%

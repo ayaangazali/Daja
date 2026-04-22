@@ -20,7 +20,9 @@ export function PortfolioEarnings(): React.JSX.Element | null {
 
   const openTickers = useMemo(() => {
     const taxLotTrades: TaxLotTrade[] = trades
-      .filter((t): t is typeof t & { side: 'buy' | 'sell' } => t.side === 'buy' || t.side === 'sell')
+      .filter(
+        (t): t is typeof t & { side: 'buy' | 'sell' } => t.side === 'buy' || t.side === 'sell'
+      )
       .map((t) => ({
         date: t.date,
         ticker: t.ticker,
@@ -79,9 +81,7 @@ export function PortfolioEarnings(): React.JSX.Element | null {
             {upcoming.map((e) => {
               const days = Math.max(
                 0,
-                Math.round(
-                  (new Date(e.startDateFormatted).getTime() - Date.now()) / 86400000
-                )
+                Math.round((new Date(e.startDateFormatted).getTime() - Date.now()) / 86400000)
               )
               return (
                 <tr

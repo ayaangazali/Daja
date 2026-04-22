@@ -12,10 +12,7 @@ export function TaxHarvestPanel(): React.JSX.Element {
   const [stRate, setStRate] = useState('32')
   const [ltRate, setLtRate] = useState('15')
 
-  const tickers = useMemo(
-    () => Array.from(new Set(trades.map((t) => t.ticker))),
-    [trades]
-  )
+  const tickers = useMemo(() => Array.from(new Set(trades.map((t) => t.ticker))), [trades])
   const quotes = useQuotes(tickers)
   const priceMap: Record<string, number | null> = {}
   tickers.forEach((t, i) => {
@@ -25,7 +22,9 @@ export function TaxHarvestPanel(): React.JSX.Element {
   const summary = useMemo(() => {
     if (trades.length === 0) return null
     const taxLotTrades: TaxLotTrade[] = trades
-      .filter((t): t is typeof t & { side: 'buy' | 'sell' } => t.side === 'buy' || t.side === 'sell')
+      .filter(
+        (t): t is typeof t & { side: 'buy' | 'sell' } => t.side === 'buy' || t.side === 'sell'
+      )
       .map((t) => ({
         date: t.date,
         ticker: t.ticker,
@@ -79,21 +78,9 @@ export function TaxHarvestPanel(): React.JSX.Element {
       ) : (
         <>
           <div className="mb-2 grid grid-cols-2 gap-2 md:grid-cols-4">
-            <Stat
-              label="ST losses"
-              value={`$${fmtLargeNum(summary.shortTermLoss)}`}
-              tone="neg"
-            />
-            <Stat
-              label="LT losses"
-              value={`$${fmtLargeNum(summary.longTermLoss)}`}
-              tone="neg"
-            />
-            <Stat
-              label="Total loss"
-              value={`$${fmtLargeNum(summary.totalLoss)}`}
-              tone="neg"
-            />
+            <Stat label="ST losses" value={`$${fmtLargeNum(summary.shortTermLoss)}`} tone="neg" />
+            <Stat label="LT losses" value={`$${fmtLargeNum(summary.longTermLoss)}`} tone="neg" />
+            <Stat label="Total loss" value={`$${fmtLargeNum(summary.totalLoss)}`} tone="neg" />
             <Stat
               label="Est tax saved"
               value={`$${fmtLargeNum(summary.totalTaxSaving)}`}
@@ -136,9 +123,7 @@ export function TaxHarvestPanel(): React.JSX.Element {
                     <td
                       className={cn(
                         'px-2 py-1 text-[10px] uppercase',
-                        c.term === 'long'
-                          ? 'text-[var(--color-pos)]'
-                          : 'text-[var(--color-warn)]'
+                        c.term === 'long' ? 'text-[var(--color-pos)]' : 'text-[var(--color-warn)]'
                       )}
                     >
                       {c.term}

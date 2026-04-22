@@ -57,9 +57,7 @@ export function SeasonalityPanel({ ticker }: { ticker: string }): React.JSX.Elem
             </span>
           )}
           {s.worstMonth != null && (
-            <span className="text-[var(--color-neg)]">
-              Worst avg: {MONTHS[s.worstMonth - 1]}
-            </span>
+            <span className="text-[var(--color-neg)]">Worst avg: {MONTHS[s.worstMonth - 1]}</span>
           )}
         </div>
       </div>
@@ -103,9 +101,7 @@ export function SeasonalityPanel({ ticker }: { ticker: string }): React.JSX.Elem
               </tr>
             ))}
             <tr className="border-t border-[var(--color-border)]">
-              <td className="px-2 py-1 text-[9px] uppercase text-[var(--color-fg-muted)]">
-                Avg
-              </td>
+              <td className="px-2 py-1 text-[9px] uppercase text-[var(--color-fg-muted)]">Avg</td>
               {s.avgByMonth.map((v, mi) => (
                 <td
                   key={`avg-${mi}`}

@@ -21,15 +21,10 @@ export function MarginTrend({ ticker }: { ticker: string }): React.JSX.Element {
     return rows.map((r) => {
       const rev = r.revenue
       const gross =
-        rev != null && rev > 0 && r.grossProfit != null
-          ? (r.grossProfit / rev) * 100
-          : null
+        rev != null && rev > 0 && r.grossProfit != null ? (r.grossProfit / rev) * 100 : null
       const op =
-        rev != null && rev > 0 && r.operatingIncome != null
-          ? (r.operatingIncome / rev) * 100
-          : null
-      const net =
-        rev != null && rev > 0 && r.netIncome != null ? (r.netIncome / rev) * 100 : null
+        rev != null && rev > 0 && r.operatingIncome != null ? (r.operatingIncome / rev) * 100 : null
+      const net = rev != null && rev > 0 && r.netIncome != null ? (r.netIncome / rev) * 100 : null
       return { date: r.date, gross, operating: op, net }
     })
   }, [stmts])
@@ -52,9 +47,9 @@ export function MarginTrend({ ticker }: { ticker: string }): React.JSX.Element {
   const plotW = width - padL - padR
   const plotH = height - padT - padB
 
-  const allValues = points.flatMap((p) => [p.gross, p.operating, p.net]).filter(
-    (v): v is number => v != null && Number.isFinite(v)
-  )
+  const allValues = points
+    .flatMap((p) => [p.gross, p.operating, p.net])
+    .filter((v): v is number => v != null && Number.isFinite(v))
   const yMin = Math.min(0, Math.min(...allValues))
   const yMax = Math.max(...allValues, 0)
   const yRange = yMax - yMin || 1
@@ -161,15 +156,11 @@ export function MarginTrend({ ticker }: { ticker: string }): React.JSX.Element {
         {/* Point dots */}
         {points.map((p, i) => (
           <g key={i}>
-            {p.gross != null && (
-              <circle cx={x(i)} cy={y(p.gross)} r={2} fill="var(--color-pos)" />
-            )}
+            {p.gross != null && <circle cx={x(i)} cy={y(p.gross)} r={2} fill="var(--color-pos)" />}
             {p.operating != null && (
               <circle cx={x(i)} cy={y(p.operating)} r={2} fill="var(--color-info)" />
             )}
-            {p.net != null && (
-              <circle cx={x(i)} cy={y(p.net)} r={2} fill="var(--color-warn)" />
-            )}
+            {p.net != null && <circle cx={x(i)} cy={y(p.net)} r={2} fill="var(--color-warn)" />}
           </g>
         ))}
       </svg>
@@ -177,7 +168,11 @@ export function MarginTrend({ ticker }: { ticker: string }): React.JSX.Element {
       {points.length > 0 && (
         <div className="mt-2 grid grid-cols-3 gap-2 text-[10px]">
           <Metric label="Gross" value={points[points.length - 1]?.gross} color="var(--color-pos)" />
-          <Metric label="Operating" value={points[points.length - 1]?.operating} color="var(--color-info)" />
+          <Metric
+            label="Operating"
+            value={points[points.length - 1]?.operating}
+            color="var(--color-info)"
+          />
           <Metric label="Net" value={points[points.length - 1]?.net} color="var(--color-warn)" />
         </div>
       )}

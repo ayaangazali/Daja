@@ -71,9 +71,7 @@ export function PeersTab({ ticker }: { ticker: string }): React.JSX.Element {
   }
 
   // For each metric, identify best (green) and worst (red) across peers for highlighting.
-  function rank(
-    m: typeof metrics[number]
-  ): { best: number | null; worst: number | null } {
+  function rank(m: (typeof metrics)[number]): { best: number | null; worst: number | null } {
     const vals = loaded
       .map((r) => r.data[m.key] as number | null)
       .filter((v): v is number => v != null && Number.isFinite(v))
@@ -158,9 +156,7 @@ export function PeersTab({ ticker }: { ticker: string }): React.JSX.Element {
         </table>
       </div>
       {results.some((r) => r.isLoading) && (
-        <div className="text-[10px] text-[var(--color-fg-muted)]">
-          Loading peer fundamentals…
-        </div>
+        <div className="text-[10px] text-[var(--color-fg-muted)]">Loading peer fundamentals…</div>
       )}
     </div>
   )

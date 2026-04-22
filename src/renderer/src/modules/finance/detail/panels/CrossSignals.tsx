@@ -8,9 +8,7 @@ export function CrossSignals({ ticker }: { ticker: string }): React.JSX.Element 
   const { data: bars = [] } = useHistorical(ticker, '2y')
   const crosses = useMemo(() => {
     const closes = bars.map((b) => b.close).filter((v): v is number => v != null)
-    const times = bars
-      .filter((b) => b.close != null)
-      .map((b) => b.time)
+    const times = bars.filter((b) => b.close != null).map((b) => b.time)
     return detectCrosses(closes, times, 50, 200)
   }, [bars])
 

@@ -102,9 +102,7 @@ export function OptionsTab({ ticker }: { ticker: string }): React.JSX.Element {
               {bias.bias === 'balanced' && (
                 <span className="text-[var(--color-fg-muted)]">balanced flow</span>
               )}
-              <span className="text-[var(--color-pos)]">
-                C ${fmtLargeNum(bias.callPremium)}
-              </span>
+              <span className="text-[var(--color-pos)]">C ${fmtLargeNum(bias.callPremium)}</span>
               <span className="text-[var(--color-neg)]">P ${fmtLargeNum(bias.putPremium)}</span>
             </div>
           </div>
@@ -131,9 +129,7 @@ export function OptionsTab({ ticker }: { ticker: string }): React.JSX.Element {
                     <td
                       className={cn(
                         'px-2 py-0.5 font-semibold uppercase',
-                        u.side === 'call'
-                          ? 'text-[var(--color-pos)]'
-                          : 'text-[var(--color-neg)]'
+                        u.side === 'call' ? 'text-[var(--color-pos)]' : 'text-[var(--color-neg)]'
                       )}
                     >
                       {u.side}

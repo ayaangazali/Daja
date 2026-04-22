@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  findUnusualActivity,
-  flowBias,
-  type OptionContractLike
-} from './optionsFlow'
+import { findUnusualActivity, flowBias, type OptionContractLike } from './optionsFlow'
 
 function mkCall(partial: Partial<OptionContractLike>): OptionContractLike {
   return {
@@ -79,24 +75,84 @@ describe('flowBias', () => {
   })
   it('bullish when calls dominate premium', () => {
     const r = flowBias([
-      { contractSymbol: 'c', side: 'call', strike: 100, expiration: 0, volume: 1, openInterest: 1, volOiRatio: 1, premium: 900_000, iv: null },
-      { contractSymbol: 'p', side: 'put', strike: 100, expiration: 0, volume: 1, openInterest: 1, volOiRatio: 1, premium: 100_000, iv: null }
+      {
+        contractSymbol: 'c',
+        side: 'call',
+        strike: 100,
+        expiration: 0,
+        volume: 1,
+        openInterest: 1,
+        volOiRatio: 1,
+        premium: 900_000,
+        iv: null
+      },
+      {
+        contractSymbol: 'p',
+        side: 'put',
+        strike: 100,
+        expiration: 0,
+        volume: 1,
+        openInterest: 1,
+        volOiRatio: 1,
+        premium: 100_000,
+        iv: null
+      }
     ])
     expect(r.bias).toBe('bullish')
     expect(r.score).toBeGreaterThanOrEqual(25)
   })
   it('bearish when puts dominate', () => {
     const r = flowBias([
-      { contractSymbol: 'c', side: 'call', strike: 100, expiration: 0, volume: 1, openInterest: 1, volOiRatio: 1, premium: 100_000, iv: null },
-      { contractSymbol: 'p', side: 'put', strike: 100, expiration: 0, volume: 1, openInterest: 1, volOiRatio: 1, premium: 900_000, iv: null }
+      {
+        contractSymbol: 'c',
+        side: 'call',
+        strike: 100,
+        expiration: 0,
+        volume: 1,
+        openInterest: 1,
+        volOiRatio: 1,
+        premium: 100_000,
+        iv: null
+      },
+      {
+        contractSymbol: 'p',
+        side: 'put',
+        strike: 100,
+        expiration: 0,
+        volume: 1,
+        openInterest: 1,
+        volOiRatio: 1,
+        premium: 900_000,
+        iv: null
+      }
     ])
     expect(r.bias).toBe('bearish')
     expect(r.score).toBeLessThanOrEqual(-25)
   })
   it('balanced near 50/50', () => {
     const r = flowBias([
-      { contractSymbol: 'c', side: 'call', strike: 100, expiration: 0, volume: 1, openInterest: 1, volOiRatio: 1, premium: 500_000, iv: null },
-      { contractSymbol: 'p', side: 'put', strike: 100, expiration: 0, volume: 1, openInterest: 1, volOiRatio: 1, premium: 450_000, iv: null }
+      {
+        contractSymbol: 'c',
+        side: 'call',
+        strike: 100,
+        expiration: 0,
+        volume: 1,
+        openInterest: 1,
+        volOiRatio: 1,
+        premium: 500_000,
+        iv: null
+      },
+      {
+        contractSymbol: 'p',
+        side: 'put',
+        strike: 100,
+        expiration: 0,
+        volume: 1,
+        openInterest: 1,
+        volOiRatio: 1,
+        premium: 450_000,
+        iv: null
+      }
     ])
     expect(r.bias).toBe('balanced')
   })

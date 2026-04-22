@@ -20,10 +20,7 @@ export function EarningsTab({ ticker }: { ticker: string }): React.JSX.Element {
     withSurprise.length > 0
       ? withSurprise.reduce((s, h) => s + h.surprisePercent * 100, 0) / withSurprise.length
       : null
-  const maxAbs = Math.max(
-    1,
-    ...withSurprise.map((h) => Math.abs(h.surprisePercent * 100))
-  )
+  const maxAbs = Math.max(1, ...withSurprise.map((h) => Math.abs(h.surprisePercent * 100)))
 
   return (
     <div className="space-y-3 p-3">
@@ -46,7 +43,11 @@ export function EarningsTab({ ticker }: { ticker: string }): React.JSX.Element {
                 const scale = (Math.abs(pct) / maxAbs) * h50
                 const pos = pct >= 0
                 return (
-                  <div key={h.quarter} className="flex-1 text-center" title={`${h.quarter}: ${fmtPct(pct)}`}>
+                  <div
+                    key={h.quarter}
+                    className="flex-1 text-center"
+                    title={`${h.quarter}: ${fmtPct(pct)}`}
+                  >
                     <div className="relative flex h-[50px] flex-col justify-end">
                       <div
                         className={cn(

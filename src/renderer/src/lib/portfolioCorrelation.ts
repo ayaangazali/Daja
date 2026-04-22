@@ -10,9 +10,10 @@ export interface CorrelationCell {
  * Pairwise correlation of daily log returns across tickers.
  * Series are aligned by trailing common length before correlation is computed.
  */
-export function correlationMatrix(
-  series: Record<string, number[]>
-): { tickers: string[]; matrix: CorrelationCell[][] } {
+export function correlationMatrix(series: Record<string, number[]>): {
+  tickers: string[]
+  matrix: CorrelationCell[][]
+} {
   const tickers = Object.keys(series).filter((t) => (series[t]?.length ?? 0) >= 30)
   const returnsMap: Record<string, number[]> = {}
   for (const t of tickers) {

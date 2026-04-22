@@ -93,15 +93,8 @@ export function RiskVsSpy({ ticker }: { ticker: string }): React.JSX.Element {
         <Gauge className="h-3 w-3" /> Risk / Return (2y vs {spyLabel})
       </div>
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-        <Stat
-          label="Beta"
-          value={metrics.b != null ? metrics.b.toFixed(2) : '—'}
-          tone={betaTone}
-        />
-        <Stat
-          label="Correl"
-          value={metrics.c != null ? metrics.c.toFixed(2) : '—'}
-        />
+        <Stat label="Beta" value={metrics.b != null ? metrics.b.toFixed(2) : '—'} tone={betaTone} />
+        <Stat label="Correl" value={metrics.c != null ? metrics.c.toFixed(2) : '—'} />
         <Stat label="Ann Vol" value={fmtPct(metrics.vol)} />
         <Stat label="Sharpe" value={metrics.sharpe.toFixed(2)} />
         <Stat

@@ -31,7 +31,9 @@ export function SectorAllocation(): React.JSX.Element | null {
 
   const openPositions = useMemo(() => {
     const taxLotTrades: TaxLotTrade[] = trades
-      .filter((t): t is typeof t & { side: 'buy' | 'sell' } => t.side === 'buy' || t.side === 'sell')
+      .filter(
+        (t): t is typeof t & { side: 'buy' | 'sell' } => t.side === 'buy' || t.side === 'sell'
+      )
       .map((t) => ({
         date: t.date,
         ticker: t.ticker,

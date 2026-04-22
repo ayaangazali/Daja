@@ -23,7 +23,9 @@ export function CorrelationMatrix(): React.JSX.Element | null {
 
   const tickers = useMemo(() => {
     const taxLotTrades: TaxLotTrade[] = trades
-      .filter((t): t is typeof t & { side: 'buy' | 'sell' } => t.side === 'buy' || t.side === 'sell')
+      .filter(
+        (t): t is typeof t & { side: 'buy' | 'sell' } => t.side === 'buy' || t.side === 'sell'
+      )
       .map((t) => ({
         date: t.date,
         ticker: t.ticker,
@@ -39,8 +41,7 @@ export function CorrelationMatrix(): React.JSX.Element | null {
   const historical = useQueries({
     queries: tickers.map((t) => ({
       queryKey: ['historical', t, '1y'],
-      queryFn: () =>
-        window.nexus.finance.historical(t, '1y') as Promise<HistoricalBar[]>,
+      queryFn: () => window.nexus.finance.historical(t, '1y') as Promise<HistoricalBar[]>,
       staleTime: 30 * 60_000
     }))
   })

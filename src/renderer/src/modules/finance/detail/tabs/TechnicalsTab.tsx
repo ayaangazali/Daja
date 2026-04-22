@@ -3,6 +3,7 @@ import { useHistorical } from '../../../../hooks/useFinance'
 import { cn } from '../../../../lib/cn'
 import { SeasonalityPanel } from '../panels/SeasonalityPanel'
 import { CrossSignals } from '../panels/CrossSignals'
+import { IndicatorsPanel } from '../panels/IndicatorsPanel'
 
 function sma(arr: number[], p: number): number | null {
   if (arr.length < p) return null
@@ -166,6 +167,7 @@ export function TechnicalsTab({ ticker }: { ticker: string }): React.JSX.Element
 
   return (
     <div className="space-y-3 p-3">
+      <IndicatorsPanel ticker={ticker} />
       <CrossSignals ticker={ticker} />
       <SeasonalityPanel ticker={ticker} />
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
