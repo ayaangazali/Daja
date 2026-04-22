@@ -50,7 +50,9 @@ export async function fetchDividends(symbol: string): Promise<DividendInfo> {
     yield: meta.trailingAnnualDividendYield != null ? meta.trailingAnnualDividendYield * 100 : null,
     rate: meta.trailingAnnualDividendRate ?? null,
     exDate: null,
-    payDate: meta.dividendDate ? new Date(meta.dividendDate * 1000).toISOString().slice(0, 10) : null,
+    payDate: meta.dividendDate
+      ? new Date(meta.dividendDate * 1000).toISOString().slice(0, 10)
+      : null,
     history
   }
 }

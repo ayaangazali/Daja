@@ -37,10 +37,7 @@ interface PortfolioRisk {
 }
 
 export function RiskDashboard({ trades }: { trades: Trade[] }): React.JSX.Element {
-  const positions = useMemo(
-    () => computePositions(trades).filter((p) => p.qty > 0),
-    [trades]
-  )
+  const positions = useMemo(() => computePositions(trades).filter((p) => p.qty > 0), [trades])
   const tickers = positions.map((p) => p.ticker)
   const quotes = useQuotes(tickers)
 
@@ -218,13 +215,7 @@ export function RiskDashboard({ trades }: { trades: Trade[] }): React.JSX.Elemen
         <Stat
           label="Top-3 concentration"
           value={fmtPct(risk.concentrationRisk)}
-          tone={
-            risk.concentrationRisk > 80
-              ? 'neg'
-              : risk.concentrationRisk > 60
-                ? 'warn'
-                : null
-          }
+          tone={risk.concentrationRisk > 80 ? 'neg' : risk.concentrationRisk > 60 ? 'warn' : null}
           sub={
             risk.concentrationRisk > 80
               ? 'Highly concentrated'

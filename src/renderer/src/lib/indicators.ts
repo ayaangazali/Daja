@@ -137,7 +137,12 @@ export function positionSize({
   return { shares, dollarRisk, positionValue, portfolioPct, riskPerShare }
 }
 
-export function rMultiple(entry: number, exit: number, stop: number, side: 'long' | 'short' = 'long'): number {
+export function rMultiple(
+  entry: number,
+  exit: number,
+  stop: number,
+  side: 'long' | 'short' = 'long'
+): number {
   const risk = Math.abs(entry - stop)
   if (risk === 0) return 0
   const pnl = side === 'long' ? exit - entry : entry - exit

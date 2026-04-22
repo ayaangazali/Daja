@@ -18,10 +18,7 @@ interface DividendInfo {
 
 export function DividendTracker(): React.JSX.Element {
   const { data: trades = [] } = useTrades()
-  const positions = useMemo(
-    () => computePositions(trades).filter((p) => p.qty > 0),
-    [trades]
-  )
+  const positions = useMemo(() => computePositions(trades).filter((p) => p.qty > 0), [trades])
   const tickers = positions.map((p) => p.ticker)
 
   const divQueries = useQueries({
@@ -47,10 +44,7 @@ export function DividendTracker(): React.JSX.Element {
 
   return (
     <div
-      className={cn(
-        'rounded-md border',
-        'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
-      )}
+      className={cn('rounded-md border', 'border-[var(--color-border)] bg-[var(--color-bg-elev)]')}
     >
       <div className="flex items-center justify-between border-b border-[var(--color-border)] px-3 py-2">
         <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-fg-muted)]">
@@ -59,10 +53,16 @@ export function DividendTracker(): React.JSX.Element {
         </div>
         <div className="flex items-center gap-3 text-[10px]">
           <span className="text-[var(--color-fg-muted)]">
-            Payers: <span className="font-mono tabular text-[var(--color-fg)]">{payers.length}/{rows.length}</span>
+            Payers:{' '}
+            <span className="font-mono tabular text-[var(--color-fg)]">
+              {payers.length}/{rows.length}
+            </span>
           </span>
           <span className="text-[var(--color-fg-muted)]">
-            Est. annual: <span className="font-mono tabular text-[var(--color-pos)]">${fmtLargeNum(totalIncome)}</span>
+            Est. annual:{' '}
+            <span className="font-mono tabular text-[var(--color-pos)]">
+              ${fmtLargeNum(totalIncome)}
+            </span>
           </span>
           <span className="text-[var(--color-fg-muted)]">
             YoC avg: <span className="font-mono tabular">{fmtPct(avgYoC)}</span>

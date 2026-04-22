@@ -32,7 +32,8 @@ export function PositionSizeCalculator(): React.JSX.Element {
   )
 
   const reward = targetN > 0 ? Math.abs(targetN - entryN) * result.shares : 0
-  const rr = result.riskPerShare > 0 && targetN > 0 ? Math.abs(targetN - entryN) / result.riskPerShare : 0
+  const rr =
+    result.riskPerShare > 0 && targetN > 0 ? Math.abs(targetN - entryN) / result.riskPerShare : 0
   const rMult = targetN > 0 && entryN > 0 && stopN > 0 ? rMultiple(entryN, targetN, stopN, side) : 0
 
   // Validation warnings
@@ -56,8 +57,8 @@ export function PositionSizeCalculator(): React.JSX.Element {
           Position Size Calculator
         </h1>
         <div className="text-[11px] text-[var(--color-fg-muted)]">
-          Fixed-fractional risk model: risk a fixed % of account per trade, size shares so a stop-loss
-          hit equals that dollar risk.
+          Fixed-fractional risk model: risk a fixed % of account per trade, size shares so a
+          stop-loss hit equals that dollar risk.
         </div>
 
         <div
@@ -171,24 +172,10 @@ export function PositionSizeCalculator(): React.JSX.Element {
         </div>
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <Stat
-            label="Shares"
-            value={result.shares.toLocaleString()}
-            emphasize
-          />
-          <Stat
-            label="Risk per share"
-            value={`$${fmtPrice(result.riskPerShare)}`}
-          />
-          <Stat
-            label="Dollar risk"
-            value={`$${fmtLargeNum(result.dollarRisk)}`}
-            tone="neg"
-          />
-          <Stat
-            label="Position value"
-            value={`$${fmtLargeNum(result.positionValue)}`}
-          />
+          <Stat label="Shares" value={result.shares.toLocaleString()} emphasize />
+          <Stat label="Risk per share" value={`$${fmtPrice(result.riskPerShare)}`} />
+          <Stat label="Dollar risk" value={`$${fmtLargeNum(result.dollarRisk)}`} tone="neg" />
+          <Stat label="Position value" value={`$${fmtLargeNum(result.positionValue)}`} />
           <Stat
             label="% of account"
             value={`${result.portfolioPct.toFixed(1)}%`}
@@ -196,11 +183,7 @@ export function PositionSizeCalculator(): React.JSX.Element {
           />
           {targetN > 0 && (
             <>
-              <Stat
-                label="Reward"
-                value={`$${fmtLargeNum(reward)}`}
-                tone="pos"
-              />
+              <Stat label="Reward" value={`$${fmtLargeNum(reward)}`} tone="pos" />
               <Stat
                 label="Risk : Reward"
                 value={rr > 0 ? `1 : ${rr.toFixed(2)}` : '—'}
@@ -208,8 +191,20 @@ export function PositionSizeCalculator(): React.JSX.Element {
               />
               <Stat
                 label="R multiple"
-                value={rMult > 0 ? `+${rMult.toFixed(2)}R` : rMult < 0 ? `${rMult.toFixed(2)}R` : '—'}
-                tone={rMult >= 2 ? 'pos' : rMult >= 1 ? 'warn' : rMult > 0 ? 'warn' : rMult < 0 ? 'neg' : null}
+                value={
+                  rMult > 0 ? `+${rMult.toFixed(2)}R` : rMult < 0 ? `${rMult.toFixed(2)}R` : '—'
+                }
+                tone={
+                  rMult >= 2
+                    ? 'pos'
+                    : rMult >= 1
+                      ? 'warn'
+                      : rMult > 0
+                        ? 'warn'
+                        : rMult < 0
+                          ? 'neg'
+                          : null
+                }
               />
             </>
           )}

@@ -49,9 +49,7 @@ export function PortfolioPage(): React.JSX.Element {
             >
               <Download className="h-3 w-3" /> Export CSV
             </button>
-            {csvErr && (
-              <span className="text-[10px] text-[var(--color-neg)]">{csvErr}</span>
-            )}
+            {csvErr && <span className="text-[10px] text-[var(--color-neg)]">{csvErr}</span>}
             <div className="text-[10px] text-[var(--color-fg-muted)]">
               Avg-cost basis · Realized+Unrealized P&amp;L · Live prices via Yahoo
             </div>

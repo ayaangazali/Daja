@@ -18,13 +18,16 @@ describe('sparklinePath', () => {
   })
   it('subsequent commands are L', () => {
     const d = sparklinePath([1, 2, 3], size)
-    expect(d.split(' ').slice(1).every((seg) => seg.startsWith('L'))).toBe(true)
+    expect(
+      d
+        .split(' ')
+        .slice(1)
+        .every((seg) => seg.startsWith('L'))
+    ).toBe(true)
   })
   it('evenly distributes x across width', () => {
     const d = sparklinePath([0, 1, 2, 3], { width: 90, height: 10 })
-    const xs = d
-      .split(' ')
-      .map((seg) => parseFloat(seg.slice(1).split(',')[0]))
+    const xs = d.split(' ').map((seg) => parseFloat(seg.slice(1).split(',')[0]))
     expect(xs[0]).toBe(0)
     expect(xs[xs.length - 1]).toBe(90)
   })

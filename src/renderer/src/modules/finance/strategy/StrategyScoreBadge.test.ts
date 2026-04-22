@@ -23,13 +23,20 @@ function evalRule(rule: Rule, value: number | null): 'pass' | 'fail' | 'unknown'
   }
   const target = Array.isArray(rule.value) ? rule.value[0] : rule.value
   switch (rule.operator) {
-    case '>': return value > target ? 'pass' : 'fail'
-    case '>=': return value >= target ? 'pass' : 'fail'
-    case '<': return value < target ? 'pass' : 'fail'
-    case '<=': return value <= target ? 'pass' : 'fail'
-    case '==': return value === target ? 'pass' : 'fail'
-    case '!=': return value !== target ? 'pass' : 'fail'
-    default: return 'unknown'
+    case '>':
+      return value > target ? 'pass' : 'fail'
+    case '>=':
+      return value >= target ? 'pass' : 'fail'
+    case '<':
+      return value < target ? 'pass' : 'fail'
+    case '<=':
+      return value <= target ? 'pass' : 'fail'
+    case '==':
+      return value === target ? 'pass' : 'fail'
+    case '!=':
+      return value !== target ? 'pass' : 'fail'
+    default:
+      return 'unknown'
   }
 }
 
