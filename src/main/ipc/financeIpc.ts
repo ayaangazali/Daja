@@ -8,6 +8,7 @@ import { fetchNews, fetchRedditMentions, fetchSecFilings } from '../services/fin
 import { fetchEarningsCalendar } from '../services/finance/earnings'
 import { fetchScreener } from '../services/finance/screener'
 import { fetchDividends } from '../services/finance/dividends'
+import { fetchPeers } from '../services/finance/peers'
 
 const QuotePayload = z.object({ ticker: z.string().min(1) })
 const HistoricalPayload = z.object({ ticker: z.string().min(1), range: z.string().min(1) })
@@ -68,5 +69,9 @@ export function registerFinanceIpc(): void {
   ipcMain.handle(IPC_CHANNELS.financeDividends, async (_e, raw) => {
     const { ticker } = QuotePayload.parse(raw)
     return fetchDividends(ticker)
+  })
+  ipcMain.handle(IPC_CHANNELS.financePeers, async (_e, raw) => {
+    const { ticker } = QuotePayload.parse(raw)
+    return fetchPeers(ticker)
   })
 }

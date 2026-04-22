@@ -8,6 +8,7 @@ export const DETAIL_TABS = [
   'Earnings',
   'Options',
   'Ownership',
+  'Peers',
   'News',
   'Sentiment',
   'Simulation'

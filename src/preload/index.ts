@@ -80,7 +80,9 @@ const nexus = {
     screener: (id: string, count = 25): Promise<unknown> =>
       ipcRenderer.invoke(IPC_CHANNELS.financeScreener, { id, count }),
     dividends: (ticker: string): Promise<unknown> =>
-      ipcRenderer.invoke(IPC_CHANNELS.financeDividends, { ticker })
+      ipcRenderer.invoke(IPC_CHANNELS.financeDividends, { ticker }),
+    peers: (ticker: string): Promise<unknown> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financePeers, { ticker })
   },
   pdf: {
     merge: (paths: string[], outPath: string): Promise<{ ok: boolean; path: string }> =>

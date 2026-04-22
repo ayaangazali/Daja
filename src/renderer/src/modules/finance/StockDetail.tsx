@@ -10,6 +10,7 @@ import { FinancialsTab } from './detail/tabs/FinancialsTab'
 import { TechnicalsTab } from './detail/tabs/TechnicalsTab'
 import { EarningsTab } from './detail/tabs/EarningsTab'
 import { OwnershipTab } from './detail/tabs/OwnershipTab'
+import { PeersTab } from './detail/tabs/PeersTab'
 import { OptionsTab } from './detail/tabs/OptionsTab'
 import { NewsTab } from './detail/tabs/NewsTab'
 import { SentimentTab } from './detail/tabs/SentimentTab'
@@ -52,6 +53,7 @@ export function StockDetail(): React.JSX.Element {
         {tab === 'Earnings' && <EarningsTab ticker={upper} />}
         {tab === 'Options' && <OptionsTab ticker={upper} />}
         {tab === 'Ownership' && <OwnershipTab ticker={upper} />}
+        {tab === 'Peers' && <PeersTab ticker={upper} />}
         {tab === 'News' && <NewsTab ticker={upper} />}
         {tab === 'Sentiment' && <SentimentTab ticker={upper} />}
         {tab === 'Simulation' && <SimulationTab ticker={upper} />}
