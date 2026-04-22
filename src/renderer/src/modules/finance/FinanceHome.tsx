@@ -7,6 +7,7 @@ import { MarketIndexCards, REGION_KEYS } from './home/MarketIndexCards'
 import { MarketSummary } from './home/MarketSummary'
 import { SearchBar } from './home/SearchBar'
 import { SectorHeatmap } from './home/SectorHeatmap'
+import { TopMovers } from './home/TopMovers'
 import { useDashboardLayout, type Layout } from '../../hooks/useLayout'
 import { cn } from '../../lib/cn'
 import 'react-grid-layout/css/styles.css'
@@ -16,8 +17,9 @@ const ResponsiveGrid = WidthProvider(Responsive)
 
 const DEFAULT_LAYOUT: Layout[] = [
   { i: 'indices', x: 0, y: 0, w: 12, h: 6, minW: 6, minH: 4 },
-  { i: 'sectors', x: 0, y: 6, w: 12, h: 5, minW: 6, minH: 3 },
-  { i: 'summary', x: 0, y: 11, w: 12, h: 8, minW: 4, minH: 4 }
+  { i: 'movers', x: 0, y: 6, w: 12, h: 4, minW: 6, minH: 3 },
+  { i: 'sectors', x: 0, y: 10, w: 12, h: 5, minW: 6, minH: 3 },
+  { i: 'summary', x: 0, y: 15, w: 12, h: 8, minW: 4, minH: 4 }
 ]
 
 export function FinanceHome(): React.JSX.Element {
@@ -86,6 +88,14 @@ export function FinanceHome(): React.JSX.Element {
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
               <MarketIndexCards region={region} />
+            </div>
+          </div>
+          <div key="movers" className="h-full overflow-hidden rounded-md">
+            <div className="panel-handle flex cursor-move items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-bg-elev)] px-2 py-1 text-[10px] uppercase tracking-wide text-[var(--color-fg-muted)]">
+              <span>Watchlist movers</span>
+            </div>
+            <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
+              <TopMovers />
             </div>
           </div>
           <div key="sectors" className="h-full overflow-hidden rounded-md">
