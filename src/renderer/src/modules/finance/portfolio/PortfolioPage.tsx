@@ -10,6 +10,7 @@ import { RiskDashboard } from './RiskDashboard'
 import { DividendTracker } from './DividendTracker'
 import { TaxLotView } from './TaxLotView'
 import { TaxHarvestPanel } from './TaxHarvestPanel'
+import { CorrelationMatrix } from './CorrelationMatrix'
 import { useTrades } from '../../../hooks/useTrades'
 import { downloadCsv, toCsv } from '../../../lib/csv'
 
@@ -64,6 +65,7 @@ export function PortfolioPage(): React.JSX.Element {
         <PositionsList />
         <TaxLotView />
         <TaxHarvestPanel />
+        <CorrelationMatrix />
         <TradeForm />
         <TradesTable />
         <WatchlistImport />
