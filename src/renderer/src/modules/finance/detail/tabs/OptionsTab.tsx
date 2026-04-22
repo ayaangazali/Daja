@@ -1,7 +1,34 @@
 import { useMemo, useState } from 'react'
 import { useOptions, type OptionsContract } from '../../../../hooks/useStatements'
 import { fmtPct, fmtPrice } from '../../../../lib/format'
+import { blackScholes } from '../../../../lib/blackScholes'
 import { cn } from '../../../../lib/cn'
+
+const RISK_FREE_RATE = 0.045 // approximation — fetch from FRED in Phase 2
+
+function computeGreeks(
+  c: OptionsContract,
+  type: 'call' | 'put',
+  underlying: number
+): { delta: number; gamma: number; theta: number; vega: number } | null {
+  if (c.impliedVolatility == null || c.impliedVolatility <= 0) return null
+  const nowSec = Math.floor(Date.now() / 1000)
+  const T = (c.expiration - nowSec) / (365.25 * 86400)
+  if (T <= 0) return null
+  const g = blackScholes(type, {
+    S: underlying,
+    K: c.strike,
+    T,
+    r: RISK_FREE_RATE,
+    sigma: c.impliedVolatility
+  })
+  return {
+    delta: g.delta,
+    gamma: g.gamma,
+    theta: g.theta / 365, // per-day
+    vega: g.vega / 100 // per-1% vol
+  }
+}
 
 export function OptionsTab({ ticker }: { ticker: string }): React.JSX.Element {
   const [expiration, setExpiration] = useState<number | undefined>(undefined)
@@ -50,8 +77,11 @@ export function OptionsTab({ ticker }: { ticker: string }): React.JSX.Element {
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <ChainTable title="Calls" contracts={calls} underlying={data.underlyingPrice} tone="pos" />
-        <ChainTable title="Puts" contracts={puts} underlying={data.underlyingPrice} tone="neg" />
+        <ChainTable title="Calls" type="call" contracts={calls} underlying={data.underlyingPrice} tone="pos" />
+        <ChainTable title="Puts" type="put" contracts={puts} underlying={data.underlyingPrice} tone="neg" />
+      </div>
+      <div className="text-[9px] text-[var(--color-fg-muted)]">
+        Greeks computed via Black-Scholes at r={RISK_FREE_RATE * 100}% using Yahoo IV. Δ = delta, Γ = gamma, Θ = theta/day, V = vega/1% vol.
       </div>
     </div>
   )
@@ -59,11 +89,13 @@ export function OptionsTab({ ticker }: { ticker: string }): React.JSX.Element {
 
 function ChainTable({
   title,
+  type,
   contracts,
   underlying,
   tone
 }: {
   title: string
+  type: 'call' | 'put'
   contracts: OptionsContract[]
   underlying: number
   tone: 'pos' | 'neg'
@@ -97,6 +129,8 @@ function ChainTable({
               <th className="px-1 py-1 text-right">Vol</th>
               <th className="px-1 py-1 text-right">OI</th>
               <th className="px-1 py-1 text-right">IV</th>
+              <th className="px-1 py-1 text-right" title="Delta">Δ</th>
+              <th className="px-1 py-1 text-right" title="Theta per day">Θ/d</th>
             </tr>
           </thead>
           <tbody>
@@ -126,6 +160,18 @@ function ChainTable({
                 </td>
                 <td className="px-1 py-0.5 text-right">
                   {c.impliedVolatility != null ? fmtPct(c.impliedVolatility * 100, 0) : '—'}
+                </td>
+                <td className="px-1 py-0.5 text-right">
+                  {(() => {
+                    const g = computeGreeks(c, type, underlying)
+                    return g ? g.delta.toFixed(2) : '—'
+                  })()}
+                </td>
+                <td className="px-1 py-0.5 text-right">
+                  {(() => {
+                    const g = computeGreeks(c, type, underlying)
+                    return g ? g.theta.toFixed(3) : '—'
+                  })()}
                 </td>
               </tr>
             ))}
