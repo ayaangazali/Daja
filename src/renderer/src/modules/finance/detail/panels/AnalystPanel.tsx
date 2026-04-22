@@ -17,6 +17,7 @@ import {
 } from '../../../../lib/valuation'
 import { fmtLargeNum, fmtPct, fmtPrice } from '../../../../lib/format'
 import { cn } from '../../../../lib/cn'
+import { RiskVsSpy } from './RiskVsSpy'
 
 export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element {
   const { data: stmts } = useStatements(ticker)
@@ -231,6 +232,7 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
           FCF = TTM (sum last 4 Q) when annual active. Data: Yahoo fundamentals-timeseries.
         </div>
       </div>
+      <RiskVsSpy ticker={ticker} />
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <Score
           label="Piotroski F-score"
