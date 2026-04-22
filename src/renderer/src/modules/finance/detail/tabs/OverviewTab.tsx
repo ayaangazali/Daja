@@ -9,6 +9,7 @@ import { DividendPanel } from '../panels/DividendPanel'
 import { RelativePerformance } from '../panels/RelativePerformance'
 import { TrendScorePanel } from '../panels/TrendScorePanel'
 import { ExitSignalsPanel } from '../panels/ExitSignalsPanel'
+import { EntrySignalsPanel } from '../panels/EntrySignalsPanel'
 import type { Fundamentals } from '../../../../hooks/useFundamentals'
 
 export function OverviewTab({
@@ -26,7 +27,10 @@ export function OverviewTab({
         </div>
         <TechnicalsGauge ticker={ticker} />
       </div>
-      <ExitSignalsPanel ticker={ticker} />
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <EntrySignalsPanel ticker={ticker} />
+        <ExitSignalsPanel ticker={ticker} />
+      </div>
       <TrendScorePanel ticker={ticker} />
       {fundamentals && <FundamentalsGrid data={fundamentals} />}
       {fundamentals && <MiniBarCharts data={fundamentals} />}
