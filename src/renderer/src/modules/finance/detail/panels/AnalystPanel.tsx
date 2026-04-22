@@ -18,6 +18,7 @@ import {
 import { fmtLargeNum, fmtPct, fmtPrice } from '../../../../lib/format'
 import { cn } from '../../../../lib/cn'
 import { RiskVsSpy } from './RiskVsSpy'
+import { FinancialRatios } from './FinancialRatios'
 
 export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element {
   const { data: stmts } = useStatements(ticker)
@@ -233,6 +234,7 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
         </div>
       </div>
       <RiskVsSpy ticker={ticker} />
+      <FinancialRatios ticker={ticker} />
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <Score
           label="Piotroski F-score"
