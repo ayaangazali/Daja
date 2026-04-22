@@ -18,6 +18,17 @@ import { DripCalculator } from './DripCalculator'
 import { PortfolioExitSignals } from './PortfolioExitSignals'
 import { useTrades } from '../../../hooks/useTrades'
 import { downloadCsv, toCsv } from '../../../lib/csv'
+import { ErrorBoundary } from '../../../shared/ErrorBoundary'
+
+function Panel({
+  label,
+  children
+}: {
+  label: string
+  children: React.ReactNode
+}): React.JSX.Element {
+  return <ErrorBoundary label={label}>{children}</ErrorBoundary>
+}
 
 export function PortfolioPage(): React.JSX.Element {
   const { data: trades = [] } = useTrades()
@@ -63,22 +74,22 @@ export function PortfolioPage(): React.JSX.Element {
             </div>
           </div>
         </div>
-        <PortfolioExitSignals />
-        <EquityCurve />
-        <PortfolioEarnings />
-        <RiskDashboard trades={trades} />
-        <DividendTracker />
-        <AllocationBar />
-        <SectorAllocation />
-        <RebalancePanel />
-        <PositionsList />
-        <TaxLotView />
-        <TaxHarvestPanel />
-        <CorrelationMatrix />
-        <DripCalculator />
-        <TradeForm />
-        <TradesTable />
-        <WatchlistImport />
+        <Panel label="ExitSignals"><PortfolioExitSignals /></Panel>
+        <Panel label="EquityCurve"><EquityCurve /></Panel>
+        <Panel label="PortfolioEarnings"><PortfolioEarnings /></Panel>
+        <Panel label="RiskDashboard"><RiskDashboard trades={trades} /></Panel>
+        <Panel label="DividendTracker"><DividendTracker /></Panel>
+        <Panel label="AllocationBar"><AllocationBar /></Panel>
+        <Panel label="SectorAllocation"><SectorAllocation /></Panel>
+        <Panel label="RebalancePanel"><RebalancePanel /></Panel>
+        <Panel label="PositionsList"><PositionsList /></Panel>
+        <Panel label="TaxLotView"><TaxLotView /></Panel>
+        <Panel label="TaxHarvestPanel"><TaxHarvestPanel /></Panel>
+        <Panel label="CorrelationMatrix"><CorrelationMatrix /></Panel>
+        <Panel label="DripCalculator"><DripCalculator /></Panel>
+        <Panel label="TradeForm"><TradeForm /></Panel>
+        <Panel label="TradesTable"><TradesTable /></Panel>
+        <Panel label="WatchlistImport"><WatchlistImport /></Panel>
       </div>
     </div>
   )
