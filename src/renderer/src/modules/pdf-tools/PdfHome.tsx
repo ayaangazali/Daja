@@ -68,10 +68,18 @@ function TabBtn({
   )
 }
 
+interface MergeResponse {
+  ok: boolean
+  path: string
+  mergedCount: number
+  pageCount: number
+  rejected: { path: string; reason: string }[]
+}
+
 function MergeTab(): React.JSX.Element {
   const [files, setFiles] = useState<string[]>([])
   const [outPath, setOutPath] = useState('')
-  const [result, setResult] = useState<string | null>(null)
+  const [result, setResult] = useState<MergeResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -80,8 +88,19 @@ function MergeTab(): React.JSX.Element {
     setFiles((prev) => [...prev, ...paths])
   }
 
+  const addFolder = async (): Promise<void> => {
+    const dir = (await window.daja.pdf.pickDir()) as string
+    if (dir) setFiles((prev) => [...prev, dir])
+  }
+
   const remove = (i: number): void => {
     setFiles((prev) => prev.filter((_, idx) => idx !== i))
+  }
+
+  const clearAll = (): void => {
+    setFiles([])
+    setResult(null)
+    setError(null)
   }
 
   const move = (i: number, dir: -1 | 1): void => {
@@ -94,14 +113,34 @@ function MergeTab(): React.JSX.Element {
     })
   }
 
+  const chooseSave = async (): Promise<void> => {
+    const p = (await window.daja.pdf.saveDialog(
+      `merged-${new Date().toISOString().slice(0, 10)}.pdf`
+    )) as string
+    if (p) setOutPath(p)
+  }
+
+  const reveal = async (): Promise<void> => {
+    if (result?.path) await window.daja.pdf.reveal(result.path)
+  }
+
+  // Inline hint about the output path
+  const outHint = (() => {
+    if (!outPath) return null
+    if (/[\\/]$/.test(outPath)) return 'Ends with slash — will auto-append merged-<timestamp>.pdf'
+    if (!/\.[^.]+$/.test(outPath)) return 'No extension — will add .pdf'
+    if (!/\.pdf$/i.test(outPath)) return 'Non-pdf extension — will force .pdf'
+    return null
+  })()
+
   const run = async (): Promise<void> => {
     setError(null)
     setResult(null)
     if (files.length === 0 || !outPath) return
     setBusy(true)
     try {
-      const res = await window.daja.pdf.merge(files, outPath)
-      setResult(res.path)
+      const res = (await window.daja.pdf.merge(files, outPath)) as MergeResponse
+      setResult(res)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Merge failed')
     } finally {
@@ -111,15 +150,29 @@ function MergeTab(): React.JSX.Element {
 
   return (
     <div className="mx-auto max-w-3xl space-y-3">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={add}
           className="flex items-center gap-1 rounded bg-[var(--color-info)] px-3 py-1.5 text-[11px] font-medium text-white"
         >
           <FilePlus className="h-3 w-3" /> Add PDFs
         </button>
+        <button
+          onClick={addFolder}
+          className="flex items-center gap-1 rounded border border-[var(--color-border)] px-3 py-1.5 text-[11px] font-medium"
+        >
+          <FilePlus className="h-3 w-3" /> Add folder
+        </button>
+        {files.length > 0 && (
+          <button
+            onClick={clearAll}
+            className="rounded border border-[var(--color-border)] px-3 py-1.5 text-[11px] text-[var(--color-fg-muted)] hover:text-[var(--color-neg)]"
+          >
+            Clear
+          </button>
+        )}
         <div className="text-[11px] text-[var(--color-fg-muted)]">
-          {files.length} selected · order matters
+          {files.length} selected · order matters · folders expand to contained PDFs
         </div>
       </div>
       <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)]">
@@ -165,28 +218,60 @@ function MergeTab(): React.JSX.Element {
           </div>
         ))}
       </div>
-      <div className="flex items-center gap-2">
-        <input
-          value={outPath}
-          onChange={(e) => setOutPath(e.target.value)}
-          placeholder="/absolute/path/to/merged.pdf"
-          className="flex-1 rounded border border-[var(--color-border)] bg-[var(--color-bg-elev)] px-2 py-1.5 font-mono text-[11px] outline-none"
-        />
-        <button
-          onClick={run}
-          disabled={busy || files.length === 0 || !outPath}
-          className="flex items-center gap-1 rounded bg-[var(--color-pos)] px-3 py-1.5 text-[11px] font-medium text-white disabled:opacity-40"
-        >
-          <Download className="h-3 w-3" /> {busy ? 'Merging…' : 'Merge & save'}
-        </button>
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <input
+            value={outPath}
+            onChange={(e) => setOutPath(e.target.value)}
+            placeholder="/absolute/path/to/merged.pdf (or pick with button)"
+            className="flex-1 rounded border border-[var(--color-border)] bg-[var(--color-bg-elev)] px-2 py-1.5 font-mono text-[11px] outline-none"
+          />
+          <button
+            onClick={chooseSave}
+            className="rounded border border-[var(--color-border)] px-3 py-1.5 text-[11px]"
+          >
+            Pick save location…
+          </button>
+          <button
+            onClick={run}
+            disabled={busy || files.length === 0 || !outPath}
+            className="flex items-center gap-1 rounded bg-[var(--color-pos)] px-3 py-1.5 text-[11px] font-medium text-white disabled:opacity-40"
+          >
+            <Download className="h-3 w-3" /> {busy ? 'Merging…' : 'Merge & save'}
+          </button>
+        </div>
+        {outHint && (
+          <div className="text-[10px] text-[var(--color-warn)]">ℹ {outHint}</div>
+        )}
       </div>
       {result && (
-        <div className="rounded bg-[var(--color-pos)]/10 p-2 text-[11px] text-[var(--color-pos)]">
-          Saved: <span className="font-mono">{result}</span>
+        <div className="space-y-1 rounded bg-[var(--color-pos)]/10 p-2 text-[11px] text-[var(--color-pos)]">
+          <div>
+            ✓ Merged {result.mergedCount} file{result.mergedCount === 1 ? '' : 's'} ({result.pageCount} pages)
+          </div>
+          <div className="break-all font-mono text-[10px]">{result.path}</div>
+          <button
+            onClick={reveal}
+            className="mt-1 rounded border border-[var(--color-pos)]/40 px-2 py-0.5 text-[10px]"
+          >
+            Reveal in Finder
+          </button>
+          {result.rejected.length > 0 && (
+            <div className="mt-1 rounded bg-[var(--color-warn)]/10 p-1 text-[10px] text-[var(--color-warn)]">
+              <div className="font-semibold">
+                Skipped {result.rejected.length} file{result.rejected.length === 1 ? '' : 's'}:
+              </div>
+              {result.rejected.map((r) => (
+                <div key={r.path} className="pl-2">
+                  • <span className="font-mono">{r.path}</span> — {r.reason}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
       {error && (
-        <div className="rounded bg-[var(--color-neg)]/10 p-2 text-[11px] text-[var(--color-neg)]">
+        <div className="whitespace-pre-wrap rounded bg-[var(--color-neg)]/10 p-2 font-mono text-[10px] text-[var(--color-neg)]">
           {error}
         </div>
       )}

@@ -1,25 +1,169 @@
-import { readFile, writeFile } from 'fs/promises'
-import { join, basename, extname } from 'path'
+import { readFile, writeFile, stat, mkdir, readdir } from 'fs/promises'
+import { existsSync } from 'fs'
+import { join, basename, extname, dirname, resolve } from 'path'
 import { PDFDocument } from 'pdf-lib'
 
-export async function mergePdfs(paths: string[], outPath: string): Promise<string> {
-  if (paths.length === 0) throw new Error('No files to merge')
+export interface ValidationResult {
+  valid: string[]
+  rejected: { path: string; reason: string }[]
+}
+
+export interface MergeResult {
+  path: string
+  mergedCount: number
+  pageCount: number
+  rejected: { path: string; reason: string }[]
+}
+
+/** List .pdf files directly inside a directory (non-recursive), sorted alphabetically. */
+export async function expandDirectoryToPDFs(dir: string): Promise<string[]> {
+  const entries = await readdir(dir, { withFileTypes: true })
+  const out: string[] = []
+  for (const e of entries) {
+    if (e.isFile() && e.name.toLowerCase().endsWith('.pdf')) {
+      out.push(join(dir, e.name))
+    }
+  }
+  return out.sort((a, b) => a.localeCompare(b))
+}
+
+/**
+ * Validate + expand a list of paths. Directories are expanded to contained
+ * .pdf files. Non-existent or non-PDF entries are rejected with a reason.
+ */
+export async function validateInputPaths(paths: string[]): Promise<ValidationResult> {
+  const valid: string[] = []
+  const rejected: { path: string; reason: string }[] = []
+  for (const raw of paths) {
+    const p = raw.replace(/\/+$/, '')
+    if (!p) {
+      rejected.push({ path: raw, reason: 'empty path' })
+      continue
+    }
+    if (!existsSync(p)) {
+      rejected.push({ path: raw, reason: 'file or directory does not exist' })
+      continue
+    }
+    try {
+      const s = await stat(p)
+      if (s.isDirectory()) {
+        const children = await expandDirectoryToPDFs(p)
+        if (children.length === 0) {
+          rejected.push({ path: raw, reason: 'directory contains no .pdf files' })
+        } else {
+          valid.push(...children)
+        }
+        continue
+      }
+      if (!s.isFile()) {
+        rejected.push({ path: raw, reason: 'not a regular file' })
+        continue
+      }
+      if (extname(p).toLowerCase() !== '.pdf') {
+        rejected.push({ path: raw, reason: 'not a .pdf file' })
+        continue
+      }
+      valid.push(p)
+    } catch (err) {
+      rejected.push({
+        path: raw,
+        reason: err instanceof Error ? err.message : 'stat failed'
+      })
+    }
+  }
+  return { valid, rejected }
+}
+
+function timestamp(): string {
+  const d = new Date()
+  const pad = (n: number): string => String(n).padStart(2, '0')
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`
+}
+
+/**
+ * Normalize an output path for PDF merge.
+ * - Trailing slash or existing directory → append merged-<timestamp>.pdf
+ * - Missing extension → append .pdf
+ * - Wrong extension → replace with .pdf
+ * - Ensure parent directory exists (mkdir -p)
+ */
+export async function resolveMergeOutputPath(outPath: string): Promise<string> {
+  if (!outPath || !outPath.trim()) {
+    throw new Error('Output path is empty — specify a target file path or directory.')
+  }
+  const trimmed = outPath.trim()
+  let p = resolve(trimmed)
+  const endsInSlash = /[\\/]$/.test(trimmed)
+  let isExistingDir = false
+  try {
+    const s = await stat(p)
+    isExistingDir = s.isDirectory()
+  } catch {
+    // doesn't exist — not a directory
+  }
+  if (endsInSlash || isExistingDir) {
+    p = join(p, `merged-${timestamp()}.pdf`)
+  } else if (extname(p) === '') {
+    p = `${p}.pdf`
+  } else if (extname(p).toLowerCase() !== '.pdf') {
+    p = `${p.slice(0, -extname(p).length)}.pdf`
+  }
+  const parent = dirname(p)
+  if (!existsSync(parent)) {
+    await mkdir(parent, { recursive: true })
+  }
+  return p
+}
+
+export async function mergePdfs(paths: string[], outPath: string): Promise<MergeResult> {
+  if (paths.length === 0) throw new Error('No files supplied to merge.')
+  const { valid, rejected } = await validateInputPaths(paths)
+  if (valid.length === 0) {
+    const reasons = rejected.map((r) => `  • ${r.path} — ${r.reason}`).join('\n')
+    throw new Error(`No valid PDF files to merge.\n${reasons}`)
+  }
+  const resolvedOut = await resolveMergeOutputPath(outPath)
   const out = await PDFDocument.create()
-  for (const p of paths) {
-    const bytes = await readFile(p)
-    const src = await PDFDocument.load(bytes)
+  for (const p of valid) {
+    let bytes: Uint8Array
+    try {
+      bytes = await readFile(p)
+    } catch (err) {
+      throw new Error(
+        `Failed to read "${p}": ${err instanceof Error ? err.message : 'unknown error'}`
+      )
+    }
+    let src: PDFDocument
+    try {
+      src = await PDFDocument.load(bytes, { ignoreEncryption: true })
+    } catch (err) {
+      throw new Error(
+        `Could not parse "${p}" as PDF — may be corrupt or password-protected. (${err instanceof Error ? err.message : 'unknown error'})`
+      )
+    }
     const pages = await out.copyPages(src, src.getPageIndices())
     for (const page of pages) out.addPage(page)
   }
-  const bytes = await out.save()
-  await writeFile(outPath, bytes)
-  return outPath
+  const mergedBytes = await out.save()
+  try {
+    await writeFile(resolvedOut, mergedBytes)
+  } catch (err) {
+    throw new Error(
+      `Failed to write merged PDF to "${resolvedOut}": ${err instanceof Error ? err.message : 'unknown error'}`
+    )
+  }
+  return {
+    path: resolvedOut,
+    mergedCount: valid.length,
+    pageCount: out.getPageCount(),
+    rejected
+  }
 }
 
 export interface SplitRange {
   name: string
-  from: number // 1-indexed inclusive
-  to: number // 1-indexed inclusive
+  from: number
+  to: number
 }
 
 export async function splitPdf(
@@ -27,8 +171,14 @@ export async function splitPdf(
   outDir: string,
   ranges: SplitRange[]
 ): Promise<string[]> {
+  if (!existsSync(path)) {
+    throw new Error(`Source PDF does not exist: ${path}`)
+  }
+  if (!existsSync(outDir)) {
+    await mkdir(outDir, { recursive: true })
+  }
   const bytes = await readFile(path)
-  const src = await PDFDocument.load(bytes)
+  const src = await PDFDocument.load(bytes, { ignoreEncryption: true })
   const total = src.getPageCount()
   const stem = basename(path, extname(path))
   const out: string[] = []
@@ -49,8 +199,11 @@ export async function splitPdf(
 export async function infoPdf(
   path: string
 ): Promise<{ pages: number; title: string | null; author: string | null }> {
+  if (!existsSync(path)) {
+    throw new Error(`PDF does not exist: ${path}`)
+  }
   const bytes = await readFile(path)
-  const doc = await PDFDocument.load(bytes, { updateMetadata: false })
+  const doc = await PDFDocument.load(bytes, { updateMetadata: false, ignoreEncryption: true })
   return {
     pages: doc.getPageCount(),
     title: doc.getTitle() ?? null,

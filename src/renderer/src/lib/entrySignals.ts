@@ -5,13 +5,7 @@
  */
 
 import { sma, logReturns } from './indicators'
-import {
-  adx,
-  bollinger,
-  keltnerChannels,
-  macd as macdSingle,
-  rsiSeries
-} from './indicators2'
+import { adx, bollinger, keltnerChannels, macd as macdSingle, rsiSeries } from './indicators2'
 import { detectPatterns, type Candle } from './candlePatterns'
 import { detectDivergences } from './divergence'
 import { detectSRLevels } from './supportResistance'
@@ -185,9 +179,7 @@ function sigRsiOversoldBounce(closes: number[]): EntrySignal | null {
 function sigBullishDivergence(closes: number[]): EntrySignal | null {
   const rsiArr = rsiSeries(closes, 14)
   const divs = detectDivergences(closes, rsiArr, 60, 3)
-  const recent = divs.filter(
-    (d) => d.type === 'bullish' && d.secondIdx >= closes.length - 20
-  )
+  const recent = divs.filter((d) => d.type === 'bullish' && d.secondIdx >= closes.length - 20)
   if (recent.length === 0) return null
   return {
     id: 'bullish_divergence',
@@ -215,9 +207,7 @@ function sigBounceOffSupport(
     topN: 10
   })
   const supports = levels.filter((l) => l.type === 'support')
-  const nearby = supports.find(
-    (s) => price >= s.price * 0.99 && price <= s.price * 1.02
-  )
+  const nearby = supports.find((s) => price >= s.price * 0.99 && price <= s.price * 1.02)
   if (nearby) {
     return {
       id: 'support_test',
@@ -260,8 +250,7 @@ function sigAccumulation(bars: EntryTechnicalInputs['bars']): EntrySignal | null
   if (bars.length < 30) return null
   const last = bars[bars.length - 1]
   if (!last) return null
-  const avgVol =
-    bars.slice(-21, -1).reduce((a, b) => a + (b.volume ?? 0), 0) / 20
+  const avgVol = bars.slice(-21, -1).reduce((a, b) => a + (b.volume ?? 0), 0) / 20
   if (avgVol <= 0) return null
   const volRatio = (last.volume ?? 0) / avgVol
   if (volRatio > 1.8 && last.close > last.open) {

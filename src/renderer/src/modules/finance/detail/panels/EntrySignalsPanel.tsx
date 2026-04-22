@@ -3,11 +3,7 @@ import { Rocket, Eye, Target, Info } from 'lucide-react'
 import { useHistorical, useQuote } from '../../../../hooks/useFinance'
 import { useFundamentals } from '../../../../hooks/useFundamentals'
 import { useOwnership, useStatements } from '../../../../hooks/useStatements'
-import {
-  computeEntrySignals,
-  type EntrySignal,
-  type Severity
-} from '../../../../lib/entrySignals'
+import { computeEntrySignals, type EntrySignal, type Severity } from '../../../../lib/entrySignals'
 import { analyzeInsiderActivity } from '../../../../lib/insiderSignal'
 import { altmanZ, piotroskiScore } from '../../../../lib/valuation'
 import { cn } from '../../../../lib/cn'

@@ -16,7 +16,6 @@ function risingBars(n: number, start = 100, step = 0.5): ReturnType<typeof bar>[
   return Array.from({ length: n }, (_, i) => bar(start + i * step, i))
 }
 
-
 describe('computeEntrySignals', () => {
   it('ignore verdict on dead-flat inputs', () => {
     const bars = Array.from({ length: 40 }, (_, i) => bar(100, i))

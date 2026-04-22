@@ -53,9 +53,7 @@ export function WatchlistEntrySignals(): React.JSX.Element | null {
       const fund = fundamentalQueries[i]?.data
       const own = ownershipQueries[i]?.data
       const loading =
-        quotes[i]?.isLoading ||
-        historicalQueries[i]?.isLoading ||
-        fundamentalQueries[i]?.isLoading
+        quotes[i]?.isLoading || historicalQueries[i]?.isLoading || fundamentalQueries[i]?.isLoading
       if (!quote || !bars || bars.length < 30) {
         return { ticker, verdict: null, loading: Boolean(loading) }
       }

@@ -96,7 +96,9 @@ export function FinanceHome(): React.JSX.Element {
               <span>Market indices ({region})</span>
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
-              <ErrorBoundary label="MarketIndexCards"><MarketIndexCards region={region} /></ErrorBoundary>
+              <ErrorBoundary label="MarketIndexCards">
+                <MarketIndexCards region={region} />
+              </ErrorBoundary>
             </div>
           </div>
           <div key="macro" className="h-full overflow-hidden rounded-md">
@@ -104,7 +106,9 @@ export function FinanceHome(): React.JSX.Element {
               <span>Macro</span>
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
-              <ErrorBoundary label="MacroIndicators"><MacroIndicators /></ErrorBoundary>
+              <ErrorBoundary label="MacroIndicators">
+                <MacroIndicators />
+              </ErrorBoundary>
             </div>
           </div>
           <div key="movers" className="h-full overflow-hidden rounded-md">
@@ -112,7 +116,9 @@ export function FinanceHome(): React.JSX.Element {
               <span>Watchlist movers</span>
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
-              <ErrorBoundary label="TopMovers"><TopMovers /></ErrorBoundary>
+              <ErrorBoundary label="TopMovers">
+                <TopMovers />
+              </ErrorBoundary>
             </div>
           </div>
           <div key="sectors" className="h-full overflow-hidden rounded-md">
@@ -120,7 +126,9 @@ export function FinanceHome(): React.JSX.Element {
               <span>Sector heatmap</span>
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
-              <ErrorBoundary label="SectorHeatmap"><SectorHeatmap /></ErrorBoundary>
+              <ErrorBoundary label="SectorHeatmap">
+                <SectorHeatmap />
+              </ErrorBoundary>
             </div>
           </div>
           <div key="heatmap" className="h-full overflow-hidden rounded-md">
@@ -128,7 +136,9 @@ export function FinanceHome(): React.JSX.Element {
               <span>Watchlist heatmap</span>
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
-              <ErrorBoundary label="WatchlistHeatmap"><WatchlistHeatmap /></ErrorBoundary>
+              <ErrorBoundary label="WatchlistHeatmap">
+                <WatchlistHeatmap />
+              </ErrorBoundary>
             </div>
           </div>
           <div key="rotation" className="h-full overflow-hidden rounded-md">
@@ -136,7 +146,9 @@ export function FinanceHome(): React.JSX.Element {
               <span>Sector rotation</span>
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
-              <ErrorBoundary label="SectorRotation"><SectorRotation /></ErrorBoundary>
+              <ErrorBoundary label="SectorRotation">
+                <SectorRotation />
+              </ErrorBoundary>
             </div>
           </div>
           <div key="entries" className="h-full overflow-hidden rounded-md">
@@ -144,7 +156,9 @@ export function FinanceHome(): React.JSX.Element {
               <span>Watchlist entry signals</span>
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
-              <ErrorBoundary label="WatchlistEntrySignals"><WatchlistEntrySignals /></ErrorBoundary>
+              <ErrorBoundary label="WatchlistEntrySignals">
+                <WatchlistEntrySignals />
+              </ErrorBoundary>
             </div>
           </div>
           <div key="summary" className="h-full overflow-hidden rounded-md">
@@ -152,7 +166,9 @@ export function FinanceHome(): React.JSX.Element {
               <span>AI market summary</span>
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
-              <ErrorBoundary label="MarketSummary"><MarketSummary /></ErrorBoundary>
+              <ErrorBoundary label="MarketSummary">
+                <MarketSummary />
+              </ErrorBoundary>
             </div>
           </div>
         </ResponsiveGrid>

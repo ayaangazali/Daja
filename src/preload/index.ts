@@ -85,8 +85,16 @@ const daja = {
       ipcRenderer.invoke(IPC_CHANNELS.financePeers, { ticker })
   },
   pdf: {
-    merge: (paths: string[], outPath: string): Promise<{ ok: boolean; path: string }> =>
-      ipcRenderer.invoke(IPC_CHANNELS.pdfMerge, { paths, outPath }),
+    merge: (
+      paths: string[],
+      outPath: string
+    ): Promise<{
+      ok: boolean
+      path: string
+      mergedCount: number
+      pageCount: number
+      rejected: { path: string; reason: string }[]
+    }> => ipcRenderer.invoke(IPC_CHANNELS.pdfMerge, { paths, outPath }),
     split: (
       path: string,
       outDir: string,
@@ -95,7 +103,12 @@ const daja = {
       ipcRenderer.invoke(IPC_CHANNELS.pdfSplit, { path, outDir, ranges }),
     info: (path: string): Promise<{ pages: number; title: string | null; author: string | null }> =>
       ipcRenderer.invoke(IPC_CHANNELS.pdfInfo, { path }),
-    open: (): Promise<string[]> => ipcRenderer.invoke(IPC_CHANNELS.pdfOpen)
+    open: (): Promise<string[]> => ipcRenderer.invoke(IPC_CHANNELS.pdfOpen),
+    saveDialog: (defaultName?: string): Promise<string> =>
+      ipcRenderer.invoke(IPC_CHANNELS.pdfSaveDialog, { defaultName }),
+    pickDir: (): Promise<string> => ipcRenderer.invoke(IPC_CHANNELS.pdfPickDir),
+    reveal: (path: string): Promise<{ ok: boolean }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.pdfRevealInFinder, { path })
   },
   sports: {
     scoreboard: (league: string): Promise<unknown> =>
