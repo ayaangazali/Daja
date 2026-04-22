@@ -63,12 +63,14 @@ export function TradeForm(): React.JSX.Element {
           className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-[11px]"
         />
         <input
+          data-testid="trade-qty-input"
           value={qty}
           onChange={(e) => setQty(e.target.value)}
           placeholder="Qty"
           className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-[11px]"
         />
         <input
+          data-testid="trade-price-input"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           placeholder="Price"
@@ -95,6 +97,7 @@ export function TradeForm(): React.JSX.Element {
           className="flex-1 rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 text-[11px]"
         />
         <button
+          data-testid="trade-save-btn"
           onClick={submit}
           disabled={!ticker || !qty || !price || addMut.isPending}
           className="rounded bg-[var(--color-info)] px-3 py-1 text-[11px] font-medium text-white disabled:opacity-40"

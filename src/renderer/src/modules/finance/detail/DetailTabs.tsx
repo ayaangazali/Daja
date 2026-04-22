@@ -30,6 +30,7 @@ export function DetailTabs({
           key={t}
           onClick={() => onChange(t)}
           title={`${t} (press ${i + 1})`}
+          aria-label={t}
           className={cn(
             'flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium transition-colors',
             tab === t

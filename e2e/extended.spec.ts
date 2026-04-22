@@ -136,11 +136,10 @@ test.describe('Daja extended interactions', () => {
       .catch(() => false)
     console.log(`[PORTFOLIO] Empty state before trade: ${noPositions}`)
 
-    // Fill in the trade form
-    // Side is a select; default is "buy" so skip
-    const tickerInput = page.getByPlaceholder('AAPL').first()
-    const qtyInput = page.getByPlaceholder('Qty').first()
-    const priceInput = page.getByPlaceholder('Price').first()
+    // Fill in the trade form using data-testids to target the exact inputs
+    const tickerInput = page.locator('[data-testid="trade-ticker-input"]')
+    const qtyInput = page.locator('[data-testid="trade-qty-input"]')
+    const priceInput = page.locator('[data-testid="trade-price-input"]')
 
     await tickerInput.fill('AAPL')
     await qtyInput.fill('10')
@@ -153,8 +152,8 @@ test.describe('Daja extended interactions', () => {
 
     await snap(page, '05-portfolio-form-filled')
 
-    // Click Save — wait up to 5s for it to become enabled then click with force fallback
-    const saveBtn = page.getByRole('button', { name: 'Save' }).first()
+    // Click Save via data-testid (unique)
+    const saveBtn = page.locator('[data-testid="trade-save-btn"]')
     await page.waitForTimeout(300)
     const saveEnabled = await saveBtn.isEnabled()
     console.log(`[PORTFOLIO] Save button enabled: ${saveEnabled}`)
@@ -256,7 +255,7 @@ test.describe('Daja extended interactions', () => {
     await page.waitForTimeout(500)
 
     const paletteVisible = await page
-      .locator('[placeholder="Type a command or search…"]')
+      .locator('[placeholder="Ticker, command, or action…"]')
       .isVisible()
       .catch(() => false)
     console.log(`[CMDK] Palette opened: ${paletteVisible}`)
