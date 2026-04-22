@@ -8,6 +8,7 @@ import { EquityCurve } from './EquityCurve'
 import { WatchlistImport } from './WatchlistImport'
 import { RiskDashboard } from './RiskDashboard'
 import { DividendTracker } from './DividendTracker'
+import { TaxLotView } from './TaxLotView'
 import { useTrades } from '../../../hooks/useTrades'
 import { downloadCsv, toCsv } from '../../../lib/csv'
 
@@ -60,6 +61,7 @@ export function PortfolioPage(): React.JSX.Element {
         <DividendTracker />
         <AllocationBar />
         <PositionsList />
+        <TaxLotView />
         <TradeForm />
         <TradesTable />
         <WatchlistImport />
