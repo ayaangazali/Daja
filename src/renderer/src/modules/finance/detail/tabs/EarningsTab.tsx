@@ -1,6 +1,7 @@
 import { useFundamentals } from '../../../../hooks/useFundamentals'
 import { fmtPct, signColor } from '../../../../lib/format'
 import { cn } from '../../../../lib/cn'
+import { EarningsReactionPanel } from '../panels/EarningsReactionPanel'
 
 export function EarningsTab({ ticker }: { ticker: string }): React.JSX.Element {
   const { data, isLoading } = useFundamentals(ticker)
@@ -24,6 +25,7 @@ export function EarningsTab({ ticker }: { ticker: string }): React.JSX.Element {
 
   return (
     <div className="space-y-3 p-3">
+      <EarningsReactionPanel ticker={ticker} />
       {withSurprise.length > 0 && (
         <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)] p-3">
           <div className="mb-2 flex items-center justify-between text-[10px] font-semibold uppercase tracking-wide text-[var(--color-fg-muted)]">
