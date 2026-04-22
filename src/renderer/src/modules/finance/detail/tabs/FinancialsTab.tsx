@@ -6,6 +6,7 @@ import {
   type IncomeRow
 } from '../../../../hooks/useStatements'
 import { fmtLargeNum } from '../../../../lib/format'
+import { MarginTrend } from '../panels/MarginTrend'
 import { cn } from '../../../../lib/cn'
 
 type Period = 'annual' | 'quarterly'
@@ -70,6 +71,7 @@ export function FinancialsTab({ ticker }: { ticker: string }): React.JSX.Element
       {data && stmt === 'cashflow' && (
         <CashflowTable rows={period === 'annual' ? data.cashAnnual : data.cashQuarterly} />
       )}
+      {data && stmt === 'income' && period === 'annual' && <MarginTrend ticker={ticker} />}
     </div>
   )
 }
