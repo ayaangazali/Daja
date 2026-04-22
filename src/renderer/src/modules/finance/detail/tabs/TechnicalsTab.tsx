@@ -10,6 +10,7 @@ import { PivotPointsPanel } from '../panels/PivotPointsPanel'
 import { VolumeProfilePanel } from '../panels/VolumeProfilePanel'
 import { DivergencePanel } from '../panels/DivergencePanel'
 import { GapAndLevelsPanel } from '../panels/GapAndLevelsPanel'
+import { HeikinAshiPanel } from '../panels/HeikinAshiPanel'
 
 function sma(arr: number[], p: number): number | null {
   if (arr.length < p) return null
@@ -179,6 +180,7 @@ export function TechnicalsTab({ ticker }: { ticker: string }): React.JSX.Element
       <PivotPointsPanel ticker={ticker} />
       <VolumeProfilePanel ticker={ticker} />
       <GapAndLevelsPanel ticker={ticker} />
+      <HeikinAshiPanel ticker={ticker} />
       <DivergencePanel ticker={ticker} />
       <CrossSignals ticker={ticker} />
       <SeasonalityPanel ticker={ticker} />
