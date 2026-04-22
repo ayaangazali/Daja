@@ -13,15 +13,16 @@ Inspired by Bloomberg Terminal, Finviz, TradingView and Google Finance Beta. Bui
 - **Tailwind v4** + shadcn/ui primitives
 - **react-grid-layout** draggable dashboards · **lightweight-charts** interactive charts
 - **cmdk** command palette · **Zustand** state · **@tanstack/react-query** server state
-- **Vitest** unit tests (161+) · **@playwright/test** E2E
+- **Vitest** unit tests (307) · **@playwright/test** E2E
 
 ## Features
 
 ### Finance War Room (flagship)
 
 - **Home** — Google-Finance-Beta-style overview: 5-region market index grid w/ sparklines (US, Europe, Asia, Crypto, Futures), SPDR sector heatmap, AI-generated market summary, earnings banner, draggable/resizable panels w/ persistence.
-- **Stock Detail** (9 tabs, hotkeys 1–9) — lightweight-charts candlestick/area w/ 9 timeframes + volume, Finviz fundamentals grid, technicals gauge (8 MAs, RSI/MACD/Stoch/Williams/ATR, classic + Fibonacci pivots), full statements (income/balance/cashflow, annual + quarterly) via Yahoo fundamentals-timeseries, EPS est vs actual w/ surprise %, options chain near-ATM + IV + P/C ratio, insider txns + 13F holders, news + SEC EDGAR 10-K/Q/8-K/Form 4 + AI digest, Reddit sentiment + Grok X scan, Monte Carlo + SMA crossover backtest. Break-even + P&L scenario calculator on Overview.
-- **Portfolio** — Avg-cost positions, equity curve vs SPY, risk dashboard (portfolio β, Sharpe, max drawdown, correlation matrix, concentration), dividend tracker (rate, yield, YoC, annual income, payment sparkline), allocation bar, trade log + CSV export, watchlist bulk import.
+- **Stock Detail** (10 tabs, hotkeys 1–9) — lightweight-charts candlestick/area w/ 9 timeframes + volume, Finviz fundamentals grid, technicals gauge (8 MAs, RSI/MACD/Stoch/Williams/ATR, classic + Fibonacci pivots), full statements (income/balance/cashflow, annual + quarterly) via Yahoo fundamentals-timeseries, EPS est vs actual w/ surprise %, options chain near-ATM + IV + **Black-Scholes Greeks (Δ, Θ/day)** + P/C ratio, insider txns + 13F holders + **90d insider signal (bullish/bearish/mixed)**, news + SEC EDGAR 10-K/Q/8-K/Form 4 + AI digest, Reddit sentiment + Grok X scan, Monte Carlo + SMA crossover backtest. Break-even + P&L scenario calculator on Overview.
+- **Analyst tab** (annual/quarterly toggle w/ TTM FCF) — DCF intrinsic value + margin of safety, **Piotroski F-score** (9-point financial strength breakdown), **Altman Z-score** (bankruptcy zone), **ROIC** (NOPAT / invested capital), Graham Number, FCF Yield, FCF Conversion, Sustainable Growth, Magic Formula Earnings Yield, Interest Coverage, 3y Revenue/Earnings CAGR.
+- **Portfolio** — Avg-cost positions, equity curve vs SPY, risk dashboard (portfolio β, Sharpe, max drawdown, correlation matrix, concentration), **tax lots (FIFO/LIFO/HIFO toggle)** w/ ST/LT gain split, dividend tracker (rate, yield, YoC, annual income, payment sparkline), allocation bar, trade log + CSV export, watchlist bulk import.
 - **Strategy Builder** — Natural-language → AI-parse → JSON rules. 6 templates (Buffett value, Lynch GARP, Dividend income, High-growth tech, Short-squeeze, Deep value). Every stock scored against your rules.
 - **Journal** — Log entries w/ conviction (1–10), target/stop, tags, emotions. AI analyzer finds patterns across last 30 entries.
 - **Compare** — Split-screen A vs B w/ winner-highlighted table across 11 fundamentals.
@@ -54,7 +55,7 @@ Inspired by Bloomberg Terminal, Finviz, TradingView and Google Finance Beta. Bui
 pnpm install
 pnpm dev          # Electron + Vite HMR
 pnpm build        # production bundle
-pnpm test         # Vitest — 161+ unit tests
+pnpm test         # Vitest — 307 unit tests
 pnpm e2e          # Playwright — smoke + extended
 ```
 
