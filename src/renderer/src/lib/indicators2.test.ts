@@ -242,3 +242,51 @@ describe('mfi', () => {
     expect(mfi(highs, lows, closes, vols, 14)).toBe(100)
   })
 })
+
+describe('series variants', () => {
+  it('stochasticSeries same length as input', async () => {
+    const { stochasticSeries } = await import('./indicators2')
+    const n = 30
+    const h = Array.from({ length: n }, (_, i) => 100 + Math.sin(i) * 5)
+    const l = h.map((v) => v - 2)
+    const c = h.map((v) => v - 1)
+    expect(stochasticSeries(h, l, c, 14)).toHaveLength(n)
+  })
+  it('williamsRSeries bounded [-100, 0]', async () => {
+    const { williamsRSeries } = await import('./indicators2')
+    const n = 30
+    const h = Array.from({ length: n }, (_, i) => 100 + Math.sin(i) * 5)
+    const l = h.map((v) => v - 2)
+    const c = h.map((v) => v - 1)
+    const s = williamsRSeries(h, l, c, 14)
+    for (const v of s) {
+      if (v == null) continue
+      expect(v).toBeLessThanOrEqual(0)
+      expect(v).toBeGreaterThanOrEqual(-100)
+    }
+  })
+  it('cciSeries non-null after warm-up', async () => {
+    const { cciSeries } = await import('./indicators2')
+    const n = 30
+    const h = Array.from({ length: n }, (_, i) => 100 + i)
+    const l = h.map((v) => v - 2)
+    const c = h.map((v) => v - 1)
+    const s = cciSeries(h, l, c, 20)
+    expect(s[s.length - 1]).not.toBeNull()
+  })
+  it('atrSeries non-null after warm-up', async () => {
+    const { atrSeries } = await import('./indicators2')
+    const n = 30
+    const h = Array.from({ length: n }, (_, i) => 100 + (i % 3))
+    const l = h.map((v) => v - 2)
+    const c = h.map((v) => v - 1)
+    const s = atrSeries(h, l, c, 14)
+    expect(s[s.length - 1]).not.toBeNull()
+  })
+  it('rocSeries correct for linear trend', async () => {
+    const { rocSeries } = await import('./indicators2')
+    const arr = Array.from({ length: 20 }, (_, i) => 100 + i)
+    const s = rocSeries(arr, 10)
+    expect(s[10]).toBeCloseTo(10, 1)
+  })
+})

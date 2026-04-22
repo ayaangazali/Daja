@@ -404,6 +404,92 @@ export function roc(arr: number[], p = 12): number | null {
   return ((arr[arr.length - 1] - past) / past) * 100
 }
 
+/** Stochastic K series for charting. */
+export function stochasticSeries(
+  highs: number[],
+  lows: number[],
+  closes: number[],
+  p = 14
+): (number | null)[] {
+  const out: (number | null)[] = Array(closes.length).fill(null)
+  for (let i = p - 1; i < closes.length; i++) {
+    const hh = Math.max(...highs.slice(i - p + 1, i + 1))
+    const ll = Math.min(...lows.slice(i - p + 1, i + 1))
+    out[i] = hh === ll ? 50 : ((closes[i] - ll) / (hh - ll)) * 100
+  }
+  return out
+}
+
+/** Williams %R series. */
+export function williamsRSeries(
+  highs: number[],
+  lows: number[],
+  closes: number[],
+  p = 14
+): (number | null)[] {
+  const out: (number | null)[] = Array(closes.length).fill(null)
+  for (let i = p - 1; i < closes.length; i++) {
+    const hh = Math.max(...highs.slice(i - p + 1, i + 1))
+    const ll = Math.min(...lows.slice(i - p + 1, i + 1))
+    out[i] = hh === ll ? 0 : ((hh - closes[i]) / (hh - ll)) * -100
+  }
+  return out
+}
+
+/** CCI series. */
+export function cciSeries(
+  highs: number[],
+  lows: number[],
+  closes: number[],
+  p = 20
+): (number | null)[] {
+  const out: (number | null)[] = Array(closes.length).fill(null)
+  const typical = highs.map((_, i) => (highs[i] + lows[i] + closes[i]) / 3)
+  for (let i = p - 1; i < closes.length; i++) {
+    const window = typical.slice(i - p + 1, i + 1)
+    const avg = window.reduce((a, b) => a + b, 0) / p
+    const meanDev = window.reduce((a, b) => a + Math.abs(b - avg), 0) / p
+    out[i] = meanDev === 0 ? 0 : (typical[i] - avg) / (0.015 * meanDev)
+  }
+  return out
+}
+
+/** ATR series. */
+export function atrSeries(
+  highs: number[],
+  lows: number[],
+  closes: number[],
+  p = 14
+): (number | null)[] {
+  const out: (number | null)[] = Array(closes.length).fill(null)
+  if (closes.length < p + 1) return out
+  const trs: number[] = [0]
+  for (let i = 1; i < closes.length; i++) {
+    const h = highs[i]
+    const l = lows[i]
+    const prev = closes[i - 1]
+    trs.push(Math.max(h - l, Math.abs(h - prev), Math.abs(l - prev)))
+  }
+  let at = trs.slice(1, p + 1).reduce((a, b) => a + b, 0) / p
+  out[p] = at
+  for (let i = p + 1; i < trs.length; i++) {
+    at = (at * (p - 1) + trs[i]) / p
+    out[i] = at
+  }
+  return out
+}
+
+/** ROC series. */
+export function rocSeries(arr: number[], p = 12): (number | null)[] {
+  const out: (number | null)[] = Array(arr.length).fill(null)
+  for (let i = p; i < arr.length; i++) {
+    const past = arr[i - p]
+    if (past === 0) continue
+    out[i] = ((arr[i] - past) / past) * 100
+  }
+  return out
+}
+
 /** Money Flow Index — volume-weighted RSI (0..100). */
 export function mfi(
   highs: number[],
