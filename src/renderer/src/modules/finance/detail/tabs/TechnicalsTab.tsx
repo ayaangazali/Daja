@@ -8,6 +8,7 @@ import { OscillatorsPanel } from '../panels/OscillatorsPanel'
 import { CandlePatternsPanel } from '../panels/CandlePatternsPanel'
 import { PivotPointsPanel } from '../panels/PivotPointsPanel'
 import { VolumeProfilePanel } from '../panels/VolumeProfilePanel'
+import { DivergencePanel } from '../panels/DivergencePanel'
 
 function sma(arr: number[], p: number): number | null {
   if (arr.length < p) return null
@@ -176,6 +177,7 @@ export function TechnicalsTab({ ticker }: { ticker: string }): React.JSX.Element
       <CandlePatternsPanel ticker={ticker} />
       <PivotPointsPanel ticker={ticker} />
       <VolumeProfilePanel ticker={ticker} />
+      <DivergencePanel ticker={ticker} />
       <CrossSignals ticker={ticker} />
       <SeasonalityPanel ticker={ticker} />
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
