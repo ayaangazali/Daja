@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useHistorical } from '../../../../hooks/useFinance'
 import { cn } from '../../../../lib/cn'
+import { SeasonalityPanel } from '../panels/SeasonalityPanel'
 
 function sma(arr: number[], p: number): number | null {
   if (arr.length < p) return null
@@ -164,6 +165,7 @@ export function TechnicalsTab({ ticker }: { ticker: string }): React.JSX.Element
 
   return (
     <div className="space-y-3 p-3">
+      <SeasonalityPanel ticker={ticker} />
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <Card title="Moving Averages">
           <table className="w-full text-[11px]">
