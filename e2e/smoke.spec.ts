@@ -68,6 +68,7 @@ test.describe('NexusHub end-to-end', () => {
 
     // 4. Detail tabs — click each
     const tabs = [
+      'Analyst',
       'Financials',
       'Technicals',
       'Earnings',
@@ -78,7 +79,7 @@ test.describe('NexusHub end-to-end', () => {
       'Simulation'
     ]
     for (const tab of tabs) {
-      const btn = page.getByRole('button', { name: tab, exact: true })
+      const btn = page.getByRole('button', { name: new RegExp(`^${tab}`, 'i') })
       await btn
         .first()
         .click({ timeout: 5000 })
