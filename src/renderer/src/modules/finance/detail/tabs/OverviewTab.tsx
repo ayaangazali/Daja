@@ -6,6 +6,7 @@ import { AnalystRatings } from '../panels/AnalystRatings'
 import { NewsPanel } from '../panels/NewsPanel'
 import { BreakEvenCalc } from '../panels/BreakEvenCalc'
 import { DividendPanel } from '../panels/DividendPanel'
+import { RelativePerformance } from '../panels/RelativePerformance'
 import type { Fundamentals } from '../../../../hooks/useFundamentals'
 
 export function OverviewTab({
@@ -29,6 +30,7 @@ export function OverviewTab({
         {fundamentals && <AnalystRatings data={fundamentals} />}
         <BreakEvenCalc ticker={ticker} />
       </div>
+      <RelativePerformance ticker={ticker} />
       <DividendPanel ticker={ticker} />
       <NewsPanel ticker={ticker} />
       {fundamentals?.description && (
