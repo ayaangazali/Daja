@@ -60,6 +60,25 @@ export function useRemoveHealthLog(): ReturnType<typeof useMutation<unknown, Err
   })
 }
 
+export function useUpdateHealthLog(): ReturnType<
+  typeof useMutation<
+    HealthLog,
+    Error,
+    { id: number; patch: Partial<Omit<HealthLog, 'id' | 'created_at'>> }
+  >
+> {
+  const qc = useQueryClient()
+  return useMutation<
+    HealthLog,
+    Error,
+    { id: number; patch: Partial<Omit<HealthLog, 'id' | 'created_at'>> }
+  >({
+    mutationFn: ({ id, patch }) =>
+      window.daja.db.call<HealthLog>('health', 'update', [id, patch]),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['health_logs'] })
+  })
+}
+
 export interface Medication {
   id: number
   name: string
@@ -111,6 +130,25 @@ export function useRemoveMedication(): ReturnType<typeof useMutation<unknown, Er
   const qc = useQueryClient()
   return useMutation<unknown, Error, number>({
     mutationFn: (id) => window.daja.db.call('medications', 'remove', [id]),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['medications'] })
+  })
+}
+
+export function useUpdateMedication(): ReturnType<
+  typeof useMutation<
+    Medication,
+    Error,
+    { id: number; patch: Partial<Omit<Medication, 'id' | 'created_at'>> }
+  >
+> {
+  const qc = useQueryClient()
+  return useMutation<
+    Medication,
+    Error,
+    { id: number; patch: Partial<Omit<Medication, 'id' | 'created_at'>> }
+  >({
+    mutationFn: ({ id, patch }) =>
+      window.daja.db.call<Medication>('medications', 'update', [id, patch]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['medications'] })
   })
 }

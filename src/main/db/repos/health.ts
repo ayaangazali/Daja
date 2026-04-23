@@ -72,5 +72,49 @@ export const healthRepo = {
   },
   remove(id: number): void {
     getDb().prepare('DELETE FROM health_logs WHERE id = ?').run(id)
+  },
+  update(id: number, patch: Partial<Omit<HealthLog, 'id' | 'created_at'>>): HealthLog {
+    // Whitelist updatable columns to prevent caller-injected SQL identifiers.
+    const updatable = new Set([
+      'date',
+      'symptoms',
+      'severity',
+      'temperature',
+      'temperature_unit',
+      'blood_pressure_systolic',
+      'blood_pressure_diastolic',
+      'heart_rate',
+      'weight',
+      'weight_unit',
+      'sleep_hours',
+      'sleep_quality',
+      'mood',
+      'energy',
+      'water_intake_oz',
+      'notes'
+    ])
+    const cols: string[] = []
+    const vals: unknown[] = []
+    for (const [k, v] of Object.entries(patch)) {
+      if (!updatable.has(k)) continue
+      cols.push(`${k} = ?`)
+      vals.push(v)
+    }
+    if (cols.length === 0) {
+      const row = getDb()
+        .prepare('SELECT * FROM health_logs WHERE id = ?')
+        .get(id) as HealthLog | undefined
+      if (!row) throw new Error(`health_log ${id} not found`)
+      return row
+    }
+    vals.push(id)
+    getDb()
+      .prepare(`UPDATE health_logs SET ${cols.join(', ')} WHERE id = ?`)
+      .run(...vals)
+    const row = getDb()
+      .prepare('SELECT * FROM health_logs WHERE id = ?')
+      .get(id) as HealthLog | undefined
+    if (!row) throw new Error(`health_log ${id} not found after update`)
+    return row
   }
 }

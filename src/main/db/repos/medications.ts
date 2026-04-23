@@ -46,5 +46,41 @@ export const medicationsRepo = {
   },
   remove(id: number): void {
     getDb().prepare('DELETE FROM medications WHERE id = ?').run(id)
+  },
+  update(id: number, patch: Partial<Omit<Medication, 'id' | 'created_at'>>): Medication {
+    const updatable = new Set([
+      'name',
+      'dosage',
+      'frequency',
+      'purpose',
+      'start_date',
+      'end_date',
+      'side_effects',
+      'notes',
+      'is_active'
+    ])
+    const cols: string[] = []
+    const vals: unknown[] = []
+    for (const [k, v] of Object.entries(patch)) {
+      if (!updatable.has(k)) continue
+      cols.push(`${k} = ?`)
+      vals.push(v)
+    }
+    if (cols.length === 0) {
+      const row = getDb()
+        .prepare('SELECT * FROM medications WHERE id = ?')
+        .get(id) as Medication | undefined
+      if (!row) throw new Error(`medication ${id} not found`)
+      return row
+    }
+    vals.push(id)
+    getDb()
+      .prepare(`UPDATE medications SET ${cols.join(', ')} WHERE id = ?`)
+      .run(...vals)
+    const row = getDb()
+      .prepare('SELECT * FROM medications WHERE id = ?')
+      .get(id) as Medication | undefined
+    if (!row) throw new Error(`medication ${id} not found after update`)
+    return row
   }
 }
