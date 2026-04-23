@@ -172,17 +172,31 @@ export function RiskDashboard({ trades }: { trades: Trade[] }): React.JSX.Elemen
     )
   }
 
-  // Correlation matrix
+  // Correlation matrix — memoized. O(N²) in position count × O(T) series length.
+  // With 50+ positions, unmemoized recompute on every render caused layout thrash.
+  // Also exploit symmetry: corr(a,b) == corr(b,a), so we compute upper triangle
+  // and mirror.
   const tickerPairs: string[] = positions.map((p) => p.ticker)
-  const corrMatrix = tickerPairs.map((tA) =>
-    tickerPairs.map((tB) => {
-      if (tA === tB) return 1
-      const a = hist.assetReturns.get(tA)
-      const b = hist.assetReturns.get(tB)
-      if (!a || !b) return null
-      return correlation(a, b)
-    })
-  )
+  const corrMatrix = useMemo(() => {
+    const n = tickerPairs.length
+    const matrix: (number | null)[][] = Array.from({ length: n }, () => Array(n).fill(null))
+    for (let i = 0; i < n; i++) {
+      matrix[i][i] = 1
+      for (let j = i + 1; j < n; j++) {
+        const a = hist.assetReturns.get(tickerPairs[i])
+        const b = hist.assetReturns.get(tickerPairs[j])
+        if (a && b) {
+          const c = correlation(a, b)
+          matrix[i][j] = c
+          matrix[j][i] = c
+        }
+      }
+    }
+    return matrix
+    // tickerPairs is derived from positions each render but stable by content;
+    // use join() as a stable dep string.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tickerPairs.join(','), hist.assetReturns])
 
   return (
     <div className="space-y-3">

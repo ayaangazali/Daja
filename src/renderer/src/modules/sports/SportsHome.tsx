@@ -3,19 +3,41 @@ import { Calendar, ListOrdered, Play, Tv2 } from 'lucide-react'
 import { useScoreboard, useStandings } from '../../hooks/useSports'
 import { cn } from '../../lib/cn'
 
+/**
+ * Leagues supported by the ESPN scoreboard backend. Grouped for the picker.
+ * League ids map to ESPN's sport + league slug internally in src/main/services/sports.
+ * When adding a new league, ensure the main-process handler understands the id.
+ */
 const LEAGUES = [
-  { id: 'nfl', name: 'NFL' },
-  { id: 'nba', name: 'NBA' },
-  { id: 'mlb', name: 'MLB' },
-  { id: 'nhl', name: 'NHL' },
-  { id: 'cfb', name: 'CFB' },
-  { id: 'cbb', name: 'CBB' },
-  { id: 'mls', name: 'MLS' },
-  { id: 'epl', name: 'EPL' },
-  { id: 'laliga', name: 'La Liga' },
-  { id: 'wnba', name: 'WNBA' },
-  { id: 'f1', name: 'F1' },
-  { id: 'ufc', name: 'UFC' }
+  // US major
+  { id: 'nfl', name: 'NFL', group: 'US' },
+  { id: 'nba', name: 'NBA', group: 'US' },
+  { id: 'mlb', name: 'MLB', group: 'US' },
+  { id: 'nhl', name: 'NHL', group: 'US' },
+  // US college
+  { id: 'cfb', name: 'CFB', group: 'NCAA' },
+  { id: 'cbb', name: 'CBB', group: 'NCAA' },
+  // Women's
+  { id: 'wnba', name: 'WNBA', group: "Women's" },
+  { id: 'nwsl', name: 'NWSL', group: "Women's" },
+  // International soccer
+  { id: 'mls', name: 'MLS', group: 'Soccer' },
+  { id: 'epl', name: 'EPL', group: 'Soccer' },
+  { id: 'laliga', name: 'La Liga', group: 'Soccer' },
+  { id: 'bundesliga', name: 'Bundesliga', group: 'Soccer' },
+  { id: 'seriea', name: 'Serie A', group: 'Soccer' },
+  { id: 'ligue1', name: 'Ligue 1', group: 'Soccer' },
+  { id: 'ucl', name: 'UCL', group: 'Soccer' },
+  { id: 'wcu', name: 'World Cup', group: 'Soccer' },
+  // Motor + combat
+  { id: 'f1', name: 'F1', group: 'Other' },
+  { id: 'nascar', name: 'NASCAR', group: 'Other' },
+  { id: 'ufc', name: 'UFC', group: 'Other' },
+  { id: 'boxing', name: 'Boxing', group: 'Other' },
+  // Golf + tennis
+  { id: 'pga', name: 'PGA', group: 'Other' },
+  { id: 'atp', name: 'ATP', group: 'Other' },
+  { id: 'wta', name: 'WTA', group: 'Other' }
 ]
 
 type Tab = 'scoreboard' | 'standings' | 'live'

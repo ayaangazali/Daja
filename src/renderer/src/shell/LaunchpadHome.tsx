@@ -245,6 +245,25 @@ export function LaunchpadHome(): React.JSX.Element {
 
   useEffect(() => {
     const h = (e: KeyboardEvent): void => {
+      // Bail if focus is in a form control so we don't steal typing.
+      const el = document.activeElement as HTMLElement | null
+      const tag = el?.tagName.toLowerCase()
+      const inForm = tag === 'input' || tag === 'textarea' || el?.isContentEditable === true
+      if (e.key === 'Escape') {
+        // Escape clears the search + returns focus to the search input.
+        if (query) {
+          e.preventDefault()
+          setQuery('')
+          setFocusIdx(0)
+          inputRef.current?.focus()
+        } else if (!inForm) {
+          // No active search — Escape returns focus to search field.
+          e.preventDefault()
+          inputRef.current?.focus()
+        }
+        return
+      }
+      if (inForm) return // don't handle arrow/enter when typing
       if (e.key === 'ArrowRight') {
         e.preventDefault()
         setFocusIdx((i) => Math.min(i + 1, orderedApps.length - 1))
@@ -260,11 +279,17 @@ export function LaunchpadHome(): React.JSX.Element {
       } else if (e.key === 'Enter') {
         const app = orderedApps[focusIdx]
         if (app) launch(app)
+      } else if (e.key === 'Home') {
+        e.preventDefault()
+        setFocusIdx(0)
+      } else if (e.key === 'End') {
+        e.preventDefault()
+        setFocusIdx(orderedApps.length - 1)
       }
     }
     window.addEventListener('keydown', h)
     return () => window.removeEventListener('keydown', h)
-  }, [orderedApps, focusIdx])
+  }, [orderedApps, focusIdx, query])
 
   useEffect(() => {
     if (focusIdx >= orderedApps.length) setFocusIdx(0)
