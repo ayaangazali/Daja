@@ -1,6 +1,60 @@
 import { useState } from 'react'
 import { useAddHealthLog } from '../../hooks/useHealth'
 
+/**
+ * Physiological plausibility ranges. These are *warn* thresholds — we permit
+ * entry but surface a clinical-safety banner. Values outside these ranges
+ * usually indicate a typo (e.g., °C entered in °F field).
+ */
+const RANGES = {
+  temperatureF: { min: 95, max: 108, name: 'Temperature (°F)' },
+  temperatureC: { min: 35, max: 42, name: 'Temperature (°C)' },
+  heart_rate: { min: 30, max: 220, name: 'Heart rate' },
+  bp_systolic: { min: 60, max: 250, name: 'BP systolic' },
+  bp_diastolic: { min: 30, max: 150, name: 'BP diastolic' },
+  weightLbs: { min: 40, max: 700, name: 'Weight (lbs)' },
+  weightKg: { min: 18, max: 320, name: 'Weight (kg)' }
+}
+
+function validate(form: {
+  temperature: number
+  temperature_unit: string
+  heart_rate: number
+  blood_pressure_systolic: number
+  blood_pressure_diastolic: number
+  weight: number
+  weight_unit: string
+}): string[] {
+  const errs: string[] = []
+  const tempRange = form.temperature_unit === 'C' ? RANGES.temperatureC : RANGES.temperatureF
+  if (form.temperature < tempRange.min || form.temperature > tempRange.max) {
+    errs.push(`${tempRange.name} ${form.temperature} is outside ${tempRange.min}–${tempRange.max}`)
+  }
+  if (form.heart_rate < RANGES.heart_rate.min || form.heart_rate > RANGES.heart_rate.max) {
+    errs.push(`Heart rate ${form.heart_rate} bpm is outside ${RANGES.heart_rate.min}–${RANGES.heart_rate.max}`)
+  }
+  if (
+    form.blood_pressure_systolic < RANGES.bp_systolic.min ||
+    form.blood_pressure_systolic > RANGES.bp_systolic.max
+  ) {
+    errs.push(`BP systolic ${form.blood_pressure_systolic} is outside ${RANGES.bp_systolic.min}–${RANGES.bp_systolic.max}`)
+  }
+  if (
+    form.blood_pressure_diastolic < RANGES.bp_diastolic.min ||
+    form.blood_pressure_diastolic > RANGES.bp_diastolic.max
+  ) {
+    errs.push(`BP diastolic ${form.blood_pressure_diastolic} is outside ${RANGES.bp_diastolic.min}–${RANGES.bp_diastolic.max}`)
+  }
+  if (form.blood_pressure_systolic <= form.blood_pressure_diastolic) {
+    errs.push(`Systolic must be greater than diastolic (got ${form.blood_pressure_systolic}/${form.blood_pressure_diastolic})`)
+  }
+  const wRange = form.weight_unit === 'kg' ? RANGES.weightKg : RANGES.weightLbs
+  if (form.weight < wRange.min || form.weight > wRange.max) {
+    errs.push(`${wRange.name} ${form.weight} is outside ${wRange.min}–${wRange.max}`)
+  }
+  return errs
+}
+
 export function VitalsTracker(): React.JSX.Element {
   const add = useAddHealthLog()
   const [form, setForm] = useState({
@@ -14,8 +68,17 @@ export function VitalsTracker(): React.JSX.Element {
     weight_unit: 'lbs'
   })
   const [saved, setSaved] = useState(false)
+  const [warnings, setWarnings] = useState<string[]>([])
+  const [confirmOverride, setConfirmOverride] = useState(false)
 
   const submit = (): void => {
+    const errs = validate(form)
+    if (errs.length > 0 && !confirmOverride) {
+      setWarnings(errs)
+      return
+    }
+    setWarnings([])
+    setConfirmOverride(false)
     add.mutate(
       {
         date: form.date,
@@ -111,9 +174,37 @@ export function VitalsTracker(): React.JSX.Element {
           </div>
         </Field>
       </div>
+      {warnings.length > 0 && (
+        <div className="rounded-md border border-[var(--color-warn)]/40 bg-[var(--color-warn)]/10 p-3 text-[11px] text-[var(--color-warn)]">
+          <div className="mb-1 font-semibold">These values look out of the usual range:</div>
+          <ul className="ml-4 list-disc space-y-0.5">
+            {warnings.map((w) => (
+              <li key={w}>{w}</li>
+            ))}
+          </ul>
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={() => {
+                setConfirmOverride(true)
+                setTimeout(submit, 0)
+              }}
+              className="rounded bg-[var(--color-warn)] px-2 py-1 text-[10px] font-medium text-white"
+            >
+              Save anyway
+            </button>
+            <button
+              onClick={() => setWarnings([])}
+              className="rounded border border-[var(--color-border)] px-2 py-1 text-[10px]"
+            >
+              Go back + edit
+            </button>
+          </div>
+        </div>
+      )}
       <button
         onClick={submit}
         disabled={add.isPending}
+        aria-busy={add.isPending}
         className="rounded bg-[var(--color-info)] px-4 py-2 text-[11px] font-medium text-white disabled:opacity-40"
       >
         {add.isPending ? 'Saving…' : 'Save Vitals'}

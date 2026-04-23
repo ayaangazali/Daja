@@ -28,22 +28,50 @@ export function OverviewTab({
             <InteractiveChart ticker={ticker} />
           </div>
         </PanelBoundary>
-        <PanelBoundary label="Technicals gauge"><TechnicalsGauge ticker={ticker} /></PanelBoundary>
+        <PanelBoundary label="Technicals gauge">
+          <TechnicalsGauge ticker={ticker} />
+        </PanelBoundary>
       </div>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <PanelBoundary label="Entry signals"><EntrySignalsPanel ticker={ticker} /></PanelBoundary>
-        <PanelBoundary label="Exit signals"><ExitSignalsPanel ticker={ticker} /></PanelBoundary>
+        <PanelBoundary label="Entry signals">
+          <EntrySignalsPanel ticker={ticker} />
+        </PanelBoundary>
+        <PanelBoundary label="Exit signals">
+          <ExitSignalsPanel ticker={ticker} />
+        </PanelBoundary>
       </div>
-      <PanelBoundary label="Trend score"><TrendScorePanel ticker={ticker} /></PanelBoundary>
-      {fundamentals && <PanelBoundary label="Fundamentals"><FundamentalsGrid data={fundamentals} /></PanelBoundary>}
-      {fundamentals && <PanelBoundary label="Mini bar charts"><MiniBarCharts data={fundamentals} /></PanelBoundary>}
+      <PanelBoundary label="Trend score">
+        <TrendScorePanel ticker={ticker} />
+      </PanelBoundary>
+      {fundamentals && (
+        <PanelBoundary label="Fundamentals">
+          <FundamentalsGrid data={fundamentals} />
+        </PanelBoundary>
+      )}
+      {fundamentals && (
+        <PanelBoundary label="Mini bar charts">
+          <MiniBarCharts data={fundamentals} />
+        </PanelBoundary>
+      )}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        {fundamentals && <PanelBoundary label="Analyst ratings"><AnalystRatings data={fundamentals} /></PanelBoundary>}
-        <PanelBoundary label="Break-even calc"><BreakEvenCalc ticker={ticker} /></PanelBoundary>
+        {fundamentals && (
+          <PanelBoundary label="Analyst ratings">
+            <AnalystRatings data={fundamentals} />
+          </PanelBoundary>
+        )}
+        <PanelBoundary label="Break-even calc">
+          <BreakEvenCalc ticker={ticker} />
+        </PanelBoundary>
       </div>
-      <PanelBoundary label="Relative performance"><RelativePerformance ticker={ticker} /></PanelBoundary>
-      <PanelBoundary label="Dividends"><DividendPanel ticker={ticker} /></PanelBoundary>
-      <PanelBoundary label="News"><NewsPanel ticker={ticker} /></PanelBoundary>
+      <PanelBoundary label="Relative performance">
+        <RelativePerformance ticker={ticker} />
+      </PanelBoundary>
+      <PanelBoundary label="Dividends">
+        <DividendPanel ticker={ticker} />
+      </PanelBoundary>
+      <PanelBoundary label="News">
+        <NewsPanel ticker={ticker} />
+      </PanelBoundary>
       {fundamentals?.description && (
         <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)] p-3 text-[11px] leading-relaxed text-[var(--color-fg-muted)]">
           {fundamentals.description}

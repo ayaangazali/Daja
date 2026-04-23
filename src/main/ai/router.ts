@@ -45,10 +45,7 @@ export const DEFAULT_MODELS: Record<AIProviderId, string> = {
  * Returns null if no more fallbacks remain.
  */
 export function nextFallback(provider: AIProviderId, currentModel: string): string | null {
-  const chain = [
-    MODEL_PREFERENCES[provider].primary,
-    ...MODEL_PREFERENCES[provider].fallbacks
-  ]
+  const chain = [MODEL_PREFERENCES[provider].primary, ...MODEL_PREFERENCES[provider].fallbacks]
   const idx = chain.indexOf(currentModel)
   if (idx < 0) return chain[0] ?? null
   return chain[idx + 1] ?? null

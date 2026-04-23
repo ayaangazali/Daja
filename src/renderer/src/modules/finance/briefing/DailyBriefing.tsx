@@ -1,18 +1,32 @@
 import { Copy, Sparkles, Square, Volume2 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useAI } from '../../../hooks/useAI'
 import { useWatchlist } from '../../../hooks/useWatchlist'
 import { useQuotes } from '../../../hooks/useFinance'
 import { PageHeader } from '../../../shared/PageHeader'
 import { cn } from '../../../lib/cn'
 
+const MIN_REGEN_MS = 5 * 60_000 // throttle: no more than once per 5 minutes
+
 export function DailyBriefing(): React.JSX.Element {
   const { data: items = [] } = useWatchlist()
   const quotes = useQuotes(items.map((i) => i.ticker))
   const { state, start, cancel } = useAI()
   const [copied, setCopied] = useState(false)
+  const [throttleMsg, setThrottleMsg] = useState<string | null>(null)
+  const lastGenAtRef = useRef<number>(0)
 
   const generate = (): void => {
+    const now = Date.now()
+    const elapsed = now - lastGenAtRef.current
+    if (lastGenAtRef.current > 0 && elapsed < MIN_REGEN_MS) {
+      const remaining = Math.ceil((MIN_REGEN_MS - elapsed) / 1000)
+      setThrottleMsg(`Briefing was generated ${Math.floor(elapsed / 1000)}s ago — wait ${remaining}s before regenerating.`)
+      setTimeout(() => setThrottleMsg(null), 3000)
+      return
+    }
+    lastGenAtRef.current = now
+    setThrottleMsg(null)
     const rows = items.map((item, i) => {
       const q = quotes[i]?.data
       return `${item.ticker}: $${q?.price?.toFixed(2) ?? '—'} (${q?.changePercent != null ? (q.changePercent > 0 ? '+' : '') + q.changePercent.toFixed(2) + '%' : '—'})`
@@ -72,6 +86,11 @@ ${rows.join('\n')}`
         }
       />
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 p-4">
+        {throttleMsg && (
+          <div className="rounded-md border border-[var(--color-warn)]/40 bg-[var(--color-warn)]/10 px-3 py-2 text-[11px] text-[var(--color-warn)]">
+            {throttleMsg}
+          </div>
+        )}
         <div
           className={cn(
             'flex-1 rounded-md border p-4 text-[12px] leading-relaxed',

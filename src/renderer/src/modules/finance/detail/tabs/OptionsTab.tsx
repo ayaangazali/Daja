@@ -15,11 +15,7 @@ type GreeksResult =
   | { status: 'ok'; delta: number; gamma: number; theta: number; vega: number }
   | { status: 'expired' | 'no-iv' }
 
-function computeGreeks(
-  c: OptionsContract,
-  type: 'call' | 'put',
-  underlying: number
-): GreeksResult {
+function computeGreeks(c: OptionsContract, type: 'call' | 'put', underlying: number): GreeksResult {
   if (c.impliedVolatility == null || c.impliedVolatility <= 0) return { status: 'no-iv' }
   const nowSec = Math.floor(Date.now() / 1000)
   const T = (c.expiration - nowSec) / (365.25 * 86400)
@@ -47,7 +43,8 @@ function greekCell(g: GreeksResult, pick: 'delta' | 'theta'): { value: string; t
   }
   return {
     value: '—',
-    title: g.status === 'expired' ? 'Contract expired — greeks unavailable' : 'No IV data from provider'
+    title:
+      g.status === 'expired' ? 'Contract expired — greeks unavailable' : 'No IV data from provider'
   }
 }
 
@@ -285,17 +282,13 @@ function ChainTable({
                 <td className="px-1 py-0.5 text-right">
                   {(() => {
                     const cell = greekCell(computeGreeks(c, type, underlying), 'delta')
-                    return (
-                      <span title={cell.title || undefined}>{cell.value}</span>
-                    )
+                    return <span title={cell.title || undefined}>{cell.value}</span>
                   })()}
                 </td>
                 <td className="px-1 py-0.5 text-right">
                   {(() => {
                     const cell = greekCell(computeGreeks(c, type, underlying), 'theta')
-                    return (
-                      <span title={cell.title || undefined}>{cell.value}</span>
-                    )
+                    return <span title={cell.title || undefined}>{cell.value}</span>
                   })()}
                 </td>
               </tr>

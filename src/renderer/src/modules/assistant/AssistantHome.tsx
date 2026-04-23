@@ -27,6 +27,9 @@ export function AssistantHome(): React.JSX.Element {
   const [input, setInput] = useState('')
   const { state, start, cancel } = useAI()
   const bottomRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [atBottom, setAtBottom] = useState(true)
+  const [newMsgPending, setNewMsgPending] = useState(false)
 
   const active = useMemo<AIConversation | null>(
     () => conversations.find((c) => c.id === activeId) ?? null,
@@ -59,9 +62,25 @@ export function AssistantHome(): React.JSX.Element {
     }
   }, [active])
 
+  // Only auto-scroll when user is near the bottom. If they scrolled up to read,
+  // respect their position and surface a "new messages" pill instead.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, state.text])
+    if (atBottom) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+      setNewMsgPending(false)
+    } else {
+      setNewMsgPending(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages.length, state.text])
+
+  // Track whether user is within 100px of the bottom of the scroll container.
+  const handleScroll = (): void => {
+    const el = scrollRef.current
+    if (!el) return
+    const distance = el.scrollHeight - el.scrollTop - el.clientHeight
+    setAtBottom(distance < 100)
+  }
 
   const newConversation = (): void => {
     setActiveId(null)
@@ -182,8 +201,8 @@ export function AssistantHome(): React.JSX.Element {
           ))}
         </div>
       </aside>
-      <main className="flex min-h-0 flex-1 flex-col">
-        <div className="flex-1 overflow-y-auto p-4">
+      <main className="relative flex min-h-0 flex-1 flex-col">
+        <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto p-4">
           <div className="mx-auto max-w-3xl space-y-4">
             {messages.length === 0 && !state.streaming && (
               <div className="rounded-md border border-dashed border-[var(--color-border)] p-6 text-center text-[var(--color-fg-muted)]">
@@ -208,6 +227,18 @@ export function AssistantHome(): React.JSX.Element {
             <div ref={bottomRef} />
           </div>
         </div>
+        {newMsgPending && !atBottom && (
+          <button
+            onClick={() => {
+              bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+              setNewMsgPending(false)
+            }}
+            aria-label="Jump to newest message"
+            className="absolute bottom-20 left-1/2 -translate-x-1/2 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-elev)] px-3 py-1.5 text-[11px] font-medium text-[var(--color-fg)] shadow-md hover:bg-[var(--color-bg-tint)]"
+          >
+            ↓ New messages
+          </button>
+        )}
         <div className="border-t border-[var(--color-border)] p-3">
           <div className="mx-auto flex max-w-3xl items-end gap-2">
             <textarea

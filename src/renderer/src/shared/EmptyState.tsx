@@ -45,16 +45,9 @@ export function EmptyState({
       role="status"
       aria-live="polite"
     >
-      <Icon
-        className={compact ? 'h-4 w-4 opacity-60' : 'h-8 w-8 opacity-60'}
-        aria-hidden="true"
-      />
-      <div className={compact ? 'text-[11px] font-medium' : 'text-[13px] font-medium'}>
-        {title}
-      </div>
-      {hint && (
-        <div className={compact ? 'text-[10px]' : 'text-[11px] max-w-sm'}>{hint}</div>
-      )}
+      <Icon className={compact ? 'h-4 w-4 opacity-60' : 'h-8 w-8 opacity-60'} aria-hidden="true" />
+      <div className={compact ? 'text-[11px] font-medium' : 'text-[13px] font-medium'}>{title}</div>
+      {hint && <div className={compact ? 'text-[10px]' : 'text-[11px] max-w-sm'}>{hint}</div>}
       {action && <div className={compact ? 'mt-1' : 'mt-2'}>{action}</div>}
     </div>
   )

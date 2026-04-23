@@ -23,8 +23,7 @@ export function StockDetail(): React.JSX.Element {
   const upper = ticker.toUpperCase()
   const [searchParams, setSearchParams] = useSearchParams()
   const urlTab = searchParams.get('tab') as DetailTab | null
-  const initialTab: DetailTab =
-    urlTab && DETAIL_TABS.includes(urlTab) ? urlTab : 'Overview'
+  const initialTab: DetailTab = urlTab && DETAIL_TABS.includes(urlTab) ? urlTab : 'Overview'
   const [tab, setTabState] = useState<DetailTab>(initialTab)
 
   const setTab = (next: DetailTab): void => {
