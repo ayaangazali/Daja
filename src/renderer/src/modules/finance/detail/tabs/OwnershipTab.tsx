@@ -3,6 +3,7 @@ import { useOwnership } from '../../../../hooks/useStatements'
 import { fmtLargeNum, fmtPct } from '../../../../lib/format'
 import { analyzeInsiderActivity } from '../../../../lib/insiderSignal'
 import { cn } from '../../../../lib/cn'
+import { ShortSqueezePanel } from '../panels/ShortSqueezePanel'
 
 export function OwnershipTab({ ticker }: { ticker: string }): React.JSX.Element {
   const { data, isLoading, error } = useOwnership(ticker)
@@ -19,6 +20,7 @@ export function OwnershipTab({ ticker }: { ticker: string }): React.JSX.Element 
 
   return (
     <div className="space-y-3 p-3">
+      <ShortSqueezePanel ticker={ticker} />
       <div
         className={cn(
           'rounded-md border p-3',

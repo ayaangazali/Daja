@@ -38,6 +38,9 @@ export interface Fundamentals {
   insiderPercent: number | null
   institutionalPercent: number | null
   shortPercent: number | null
+  sharesShort: number | null
+  sharesShortPriorMonth: number | null
+  shortRatio: number | null
   targetHigh: number | null
   targetLow: number | null
   targetMean: number | null

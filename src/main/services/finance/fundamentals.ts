@@ -44,6 +44,9 @@ export interface Fundamentals {
   insiderPercent: number | null
   institutionalPercent: number | null
   shortPercent: number | null
+  sharesShort: number | null
+  sharesShortPriorMonth: number | null
+  shortRatio: number | null
   // analyst
   targetHigh: number | null
   targetLow: number | null
@@ -209,6 +212,9 @@ export async function fetchFundamentals(symbol: string): Promise<Fundamentals> {
     insiderPercent: num(ks.heldPercentInsiders),
     institutionalPercent: num(ks.heldPercentInstitutions),
     shortPercent: num(ks.shortPercentOfFloat),
+    sharesShort: num(ks.sharesShort),
+    sharesShortPriorMonth: num(ks.sharesShortPriorMonth),
+    shortRatio: num(ks.shortRatio),
     targetHigh: num(fd.targetHighPrice),
     targetLow: num(fd.targetLowPrice),
     targetMean: num(fd.targetMeanPrice),
