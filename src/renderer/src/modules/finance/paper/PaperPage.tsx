@@ -118,9 +118,17 @@ export function PaperPage(): React.JSX.Element {
         actions={
           <button
             onClick={() => {
-              if (confirm('Reset paper portfolio to $100,000 starting cash?')) {
-                reset.mutate()
+              const tradeCount = trades.length
+              const msg =
+                tradeCount === 0
+                  ? 'Reset paper portfolio to $100,000 starting cash?'
+                  : `Reset paper portfolio? This will PERMANENTLY DELETE ${tradeCount} order${tradeCount === 1 ? '' : 's'} — no undo. Type RESET to confirm.`
+              if (tradeCount === 0) {
+                if (confirm(msg)) reset.mutate()
+                return
               }
+              const typed = prompt(msg)
+              if (typed === 'RESET') reset.mutate()
             }}
             className="flex items-center gap-1 rounded-md border border-[var(--color-border)] px-3 py-1.5 text-[11px] hover:bg-[var(--color-bg-tint)]"
           >

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Activity } from 'lucide-react'
 import { useHistorical } from '../../../../hooks/useFinance'
+import { useTechnicalsRange, type TechnicalsRange } from '../../../../stores/technicalsRangeStore'
 import {
   bollingerSeries,
   donchianChannels,
@@ -46,7 +47,11 @@ const OVERLAYS: { key: Overlay; label: string; color: string }[] = [
 ]
 
 export function IndicatorsPanel({ ticker }: { ticker: string }): React.JSX.Element {
-  const [range, setRange] = useState<'3mo' | '6mo' | '1y' | '2y'>('6mo')
+  // Shared Technicals range — synced across all panels on this tab.
+  const rangeStore = useTechnicalsRange()
+  const range = rangeStore.range as '3mo' | '6mo' | '1y' | '2y'
+  const setRange = (r: '3mo' | '6mo' | '1y' | '2y'): void =>
+    rangeStore.setRange(r as TechnicalsRange)
   const { data: bars = [], isLoading } = useHistorical(ticker, range)
   const [active, setActive] = useState<Set<Overlay>>(new Set(['sma20', 'sma50', 'bollinger']))
 

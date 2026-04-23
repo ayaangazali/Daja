@@ -21,6 +21,32 @@ function ratioCell(label: string, v: number | null): Cell {
 }
 
 export function FundamentalsGrid({ data }: { data: Fundamentals }): React.JSX.Element {
+  // Flag when most fields are missing so user knows it's a provider data
+  // gap, not a rendering bug. Yahoo commonly returns partial/empty data
+  // for penny stocks, recent IPOs, delisted names.
+  const numericKeys: (keyof Fundamentals)[] = [
+    'marketCap',
+    'enterpriseValue',
+    'trailingPE',
+    'forwardPE',
+    'pegRatio',
+    'priceToSales',
+    'priceToBook',
+    'revenueGrowth',
+    'earningsGrowth',
+    'profitMargins',
+    'operatingMargins',
+    'grossMargins',
+    'debtToEquity',
+    'returnOnEquity',
+    'returnOnAssets',
+    'dividendYield'
+  ]
+  const missingCount = numericKeys.filter((k) => data[k] == null).length
+  const totalCount = numericKeys.length
+  const fullyMissing = missingCount === totalCount
+  const mostlyMissing = !fullyMissing && missingCount > totalCount * 0.6
+
   const cells: Cell[] = [
     { label: 'Mkt Cap', value: fmtLargeNum(data.marketCap) ?? '—' },
     { label: 'EV', value: fmtLargeNum(data.enterpriseValue) ?? '—' },
@@ -54,7 +80,24 @@ export function FundamentalsGrid({ data }: { data: Fundamentals }): React.JSX.El
     { label: 'Employees', value: fmtLargeNum(data.employees) }
   ]
 
+  if (fullyMissing) {
+    return (
+      <div className="rounded-md border border-[var(--color-warn)]/40 bg-[var(--color-warn)]/10 p-3 text-[11px] text-[var(--color-warn)]">
+        <span className="font-semibold">No fundamentals available</span> for this ticker from
+        Yahoo. Common for recent IPOs, penny stocks, ADRs, and delisted names. Try again in a
+        minute or verify the symbol.
+      </div>
+    )
+  }
+
   return (
+    <div className="space-y-2">
+      {mostlyMissing && (
+        <div className="rounded-md border border-[var(--color-warn)]/40 bg-[var(--color-warn)]/10 px-3 py-1.5 text-[10px] text-[var(--color-warn)]">
+          Fundamentals partially missing ({missingCount} of {totalCount} fields). Provider data
+          may be incomplete for this ticker.
+        </div>
+      )}
     <div
       className={cn(
         'grid grid-cols-5 overflow-hidden rounded-md border text-[11px]',
@@ -81,6 +124,7 @@ export function FundamentalsGrid({ data }: { data: Fundamentals }): React.JSX.El
           </span>
         </div>
       ))}
+    </div>
     </div>
   )
 }

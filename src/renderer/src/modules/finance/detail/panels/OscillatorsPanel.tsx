@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Waves } from 'lucide-react'
 import { useHistorical } from '../../../../hooks/useFinance'
 import {
@@ -9,10 +9,14 @@ import {
   williamsRSeries
 } from '../../../../lib/indicators2'
 import { MultiLineChart } from '../../../../components/charts/ChartPrimitives'
+import { useTechnicalsRange, type TechnicalsRange } from '../../../../stores/technicalsRangeStore'
 import { cn } from '../../../../lib/cn'
 
 export function OscillatorsPanel({ ticker }: { ticker: string }): React.JSX.Element {
-  const [range, setRange] = useState<'3mo' | '6mo' | '1y' | '2y'>('6mo')
+  const rangeStore = useTechnicalsRange()
+  const range = rangeStore.range as '3mo' | '6mo' | '1y' | '2y'
+  const setRange = (r: '3mo' | '6mo' | '1y' | '2y'): void =>
+    rangeStore.setRange(r as TechnicalsRange)
   const { data: bars = [], isLoading } = useHistorical(ticker, range)
 
   const { stoch, will, cci14, atr, roc } = useMemo(() => {
