@@ -76,11 +76,12 @@ export async function yahooFetch(
     }
   })
   if (res.status === 401 || res.status === 403) {
-    // retry once with fresh crumb
+    // Invalidate cache + retry once with fresh crumb
+    cachedCrumb = null
     auth = await getYahooAuth(true).catch(() => null)
     if (auth) {
       u.searchParams.set('crumb', auth.crumb)
-      return fetch(u.toString(), {
+      const retry = await fetch(u.toString(), {
         headers: {
           'User-Agent': UA,
           Accept: 'application/json',
@@ -88,7 +89,29 @@ export async function yahooFetch(
           ...extraHeaders
         }
       })
+      // If still unauthorized after a fresh auth round-trip, surface a
+      // diagnostic that's friendly for the renderer to show to the user.
+      if (retry.status === 401 || retry.status === 403) {
+        throw new YahooAuthError(
+          `Yahoo Finance session expired and could not be renewed (status ${retry.status}). Check your network or try again in a moment.`,
+          retry.status
+        )
+      }
+      return retry
     }
+    throw new YahooAuthError(
+      `Yahoo Finance authentication failed (status ${res.status}). The session could not be refreshed.`,
+      res.status
+    )
   }
   return res
+}
+
+export class YahooAuthError extends Error {
+  readonly status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'YahooAuthError'
+    this.status = status
+  }
 }

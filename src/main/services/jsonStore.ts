@@ -1,5 +1,5 @@
 import { app } from 'electron'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
 export interface JsonStore<T extends Record<string, unknown>> {
@@ -32,14 +32,30 @@ export function createJsonStore<T extends Record<string, unknown>>(
     return cache
   }
 
+  // Serialize concurrent writes via an in-flight promise chain. Combined with
+  // write-then-atomic-rename, this eliminates torn writes when the Electron
+  // main process fans out multiple setters on the same tick (e.g. user flips
+  // two prefs in adjacent handlers).
+  let writeChain: Promise<void> = Promise.resolve()
+
   const persist = (data: T): void => {
-    try {
-      if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
-      writeFileSync(file, JSON.stringify(data, null, 2), 'utf8')
-      cache = data
-    } catch (err) {
-      console.error(`JsonStore persist failed for ${name}:`, err)
-    }
+    writeChain = writeChain
+      .catch(() => {
+        /* swallow previous errors so chain stays alive */
+      })
+      .then(() => {
+        try {
+          if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
+          const tmp = `${file}.${process.pid}.${Date.now()}.tmp`
+          writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8')
+          // Atomic rename — POSIX guarantees readers see either old or new,
+          // never partial. Cache update only after the rename succeeds.
+          renameSync(tmp, file)
+          cache = data
+        } catch (err) {
+          console.error(`JsonStore persist failed for ${name}:`, err)
+        }
+      })
   }
 
   return {
