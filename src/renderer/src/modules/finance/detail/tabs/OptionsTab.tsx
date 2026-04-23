@@ -6,6 +6,7 @@ import { blackScholes } from '../../../../lib/blackScholes'
 import { findUnusualActivity, flowBias } from '../../../../lib/optionsFlow'
 import { OptionsPayoffPanel } from '../panels/OptionsPayoffPanel'
 import { MaxPainPanel } from '../panels/MaxPainPanel'
+import { IvSkewPanel } from '../panels/IvSkewPanel'
 import { cn } from '../../../../lib/cn'
 
 const RISK_FREE_RATE = 0.045 // approximation — fetch from FRED in Phase 2
@@ -82,6 +83,7 @@ export function OptionsTab({ ticker }: { ticker: string }): React.JSX.Element {
         </div>
       </div>
 
+      <IvSkewPanel ticker={ticker} />
       <MaxPainPanel ticker={ticker} />
       <OptionsPayoffPanel ticker={ticker} />
 
