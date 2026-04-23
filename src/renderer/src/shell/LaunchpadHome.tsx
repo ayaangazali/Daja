@@ -26,6 +26,7 @@ import { cn } from '../lib/cn'
 import { useUIStore } from '../stores/uiStore'
 import { useSetTheme } from '../hooks/usePrefs'
 import { useRecentTickers } from '../stores/recentTickersStore'
+import { MarketTickerStrip } from './MarketTickerStrip'
 
 type Hue = 'accent' | 'blue' | 'green' | 'amber' | 'rose' | 'violet' | 'teal' | 'slate'
 
@@ -291,6 +292,9 @@ export function LaunchpadHome(): React.JSX.Element {
       <div className="mx-auto flex w-full max-w-5xl flex-col px-6 pt-8 pb-14">
         {/* Hero */}
         <LaunchpadHero />
+
+        {/* Live market strip */}
+        <MarketTickerStrip />
 
         {/* Search */}
         <div className="mx-auto mb-8 w-full max-w-md">
