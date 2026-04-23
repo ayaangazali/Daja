@@ -7,6 +7,7 @@ import {
   type StrategyRule
 } from '../../../hooks/useStrategies'
 import { useAI } from '../../../hooks/useAI'
+import { PageHeader } from '../../../shared/PageHeader'
 import { cn } from '../../../lib/cn'
 
 const OPERATORS: StrategyRule['operator'][] = ['>', '>=', '<', '<=', '==', '!=', 'between']
@@ -113,6 +114,10 @@ ${naturalLang}`
 
   return (
     <div className="flex h-full min-h-0 flex-col">
+      <PageHeader
+        title="Strategies"
+        subtitle="Build, tag, and backtest trading rules."
+      />
       <div className="flex-1 overflow-y-auto p-4">
         <div className="mx-auto max-w-3xl space-y-3">
           <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)] p-3">

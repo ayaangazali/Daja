@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
-import { AlertTriangle, Calculator, TrendingDown, TrendingUp } from 'lucide-react'
+import { AlertTriangle, TrendingDown, TrendingUp } from 'lucide-react'
 import { useQuote } from '../../../hooks/useFinance'
 import { positionSize, rMultiple } from '../../../lib/indicators'
 import { fmtLargeNum, fmtPrice } from '../../../lib/format'
+import { PageHeader } from '../../../shared/PageHeader'
 import { cn } from '../../../lib/cn'
 
 export function PositionSizeCalculator(): React.JSX.Element {
@@ -50,16 +51,13 @@ export function PositionSizeCalculator(): React.JSX.Element {
   if (result.portfolioPct > 50) warnings.push('Position > 50% of account — concentration risk')
 
   return (
-    <div className="h-full overflow-y-auto p-4">
-      <div className="mx-auto max-w-3xl space-y-3">
-        <h1 className="flex items-center gap-2 text-lg font-semibold">
-          <Calculator className="h-5 w-5 text-[var(--color-info)]" />
-          Position Size Calculator
-        </h1>
-        <div className="text-[11px] text-[var(--color-fg-muted)]">
-          Fixed-fractional risk model: risk a fixed % of account per trade, size shares so a
-          stop-loss hit equals that dollar risk.
-        </div>
+    <div className="flex h-full flex-col">
+      <PageHeader
+        title="Position size calculator"
+        subtitle="Fixed-fractional risk model: size shares so a stop-loss hit equals your target dollar risk."
+      />
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="mx-auto max-w-3xl space-y-3">
 
         <div
           className={cn(
@@ -235,6 +233,7 @@ export function PositionSizeCalculator(): React.JSX.Element {
             A 20% max drawdown at 1% risk per trade survives 20 consecutive losses — the math that
             keeps accounts alive.
           </div>
+        </div>
         </div>
       </div>
     </div>

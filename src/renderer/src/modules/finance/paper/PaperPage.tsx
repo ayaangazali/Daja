@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Beaker, RotateCcw, Trash2 } from 'lucide-react'
+import { RotateCcw, Trash2 } from 'lucide-react'
 import {
   useAddPaperTrade,
   usePaperTrades,
@@ -10,6 +10,7 @@ import {
 import { useQuote } from '../../../hooks/useFinance'
 import { useQuotes } from '../../../hooks/useFinance'
 import { fmtLargeNum, fmtPct, fmtPrice, signColor } from '../../../lib/format'
+import { PageHeader } from '../../../shared/PageHeader'
 import { cn } from '../../../lib/cn'
 
 const STARTING_CASH = 100000
@@ -110,24 +111,25 @@ export function PaperPage(): React.JSX.Element {
   }
 
   return (
-    <div className="h-full overflow-y-auto p-4">
-      <div className="mx-auto max-w-5xl space-y-3">
-        <div className="flex items-baseline justify-between">
-          <h1 className="flex items-center gap-2 text-lg font-semibold">
-            <Beaker className="h-4 w-4 text-[var(--color-warn)]" /> Paper trading
-          </h1>
+    <div className="flex h-full flex-col">
+      <PageHeader
+        title="Paper trading"
+        subtitle="Practice orders with virtual capital — live quotes, no risk."
+        actions={
           <button
             onClick={() => {
               if (confirm('Reset paper portfolio to $100,000 starting cash?')) {
                 reset.mutate()
               }
             }}
-            className="flex items-center gap-1 rounded border border-[var(--color-border)] px-2 py-1 text-[10px] hover:bg-[var(--color-bg-elev)]"
+            className="flex items-center gap-1 rounded-md border border-[var(--color-border)] px-3 py-1.5 text-[11px] hover:bg-[var(--color-bg-tint)]"
           >
             <RotateCcw className="h-3 w-3" /> Reset
           </button>
-        </div>
-
+        }
+      />
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="mx-auto max-w-5xl space-y-3">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <Stat label="Total Equity" value={`$${fmtLargeNum(totalEquity)}`} />
           <Stat label="Cash" value={`$${fmtLargeNum(cash)}`} />
@@ -297,6 +299,7 @@ export function PaperPage(): React.JSX.Element {
               ))}
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>

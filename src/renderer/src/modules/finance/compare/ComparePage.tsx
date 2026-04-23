@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Swords } from 'lucide-react'
 import { useQuote } from '../../../hooks/useFinance'
 import { useFundamentals, type Fundamentals } from '../../../hooks/useFundamentals'
 import { fmtLargeNum, fmtPct, fmtPrice, signColor } from '../../../lib/format'
 import { Sparkline } from '../../../shared/Sparkline'
+import { PageHeader } from '../../../shared/PageHeader'
 import { cn } from '../../../lib/cn'
 
 export function ComparePage(): React.JSX.Element {
@@ -14,17 +14,17 @@ export function ComparePage(): React.JSX.Element {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-[var(--color-border)] bg-[var(--color-bg-elev)] p-3">
-        <div className="flex items-center gap-3">
-          <Swords className="h-4 w-4 text-[var(--color-info)]" />
-          <span className="text-sm font-semibold">Compare</span>
+      <PageHeader
+        title="Compare"
+        subtitle="Side-by-side fundamentals, technicals, and scorecards for any two tickers."
+        actions={
           <div className="flex items-center gap-2">
             <input
               value={inputA}
               onChange={(e) => setInputA(e.target.value.toUpperCase())}
               onBlur={() => setA(inputA)}
               onKeyDown={(e) => e.key === 'Enter' && setA(inputA)}
-              className="w-24 rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-[11px]"
+              className="w-24 rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-[11px]"
             />
             <span className="text-[var(--color-fg-muted)]">vs</span>
             <input
@@ -32,11 +32,11 @@ export function ComparePage(): React.JSX.Element {
               onChange={(e) => setInputB(e.target.value.toUpperCase())}
               onBlur={() => setB(inputB)}
               onKeyDown={(e) => e.key === 'Enter' && setB(inputB)}
-              className="w-24 rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-[11px]"
+              className="w-24 rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-[11px]"
             />
           </div>
-        </div>
-      </div>
+        }
+      />
       <div className="flex flex-1 min-h-0 divide-x divide-[var(--color-border)]">
         <div className="min-h-0 w-1/2 overflow-y-auto">
           <Panel ticker={a} />

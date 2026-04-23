@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Sparkles, Square, Trash2 } from 'lucide-react'
 import { useAddJournal, useJournal, useRemoveJournal } from '../../../hooks/useJournal'
 import { useAI } from '../../../hooks/useAI'
+import { PageHeader } from '../../../shared/PageHeader'
 import { cn } from '../../../lib/cn'
 
 export function JournalPage(): React.JSX.Element {
@@ -85,6 +86,10 @@ export function JournalPage(): React.JSX.Element {
 
   return (
     <div className="flex h-full flex-col">
+      <PageHeader
+        title="Trade journal"
+        subtitle="Log entries, tag strategies, let AI find patterns and mistakes."
+      />
       <div className="flex-1 overflow-y-auto p-4">
         <div className="mx-auto max-w-3xl space-y-3">
           <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)] p-3">

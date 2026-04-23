@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useAI } from '../../../hooks/useAI'
 import { useWatchlist } from '../../../hooks/useWatchlist'
 import { useQuotes } from '../../../hooks/useFinance'
+import { PageHeader } from '../../../shared/PageHeader'
 import { cn } from '../../../lib/cn'
 
 export function DailyBriefing(): React.JSX.Element {
@@ -47,14 +48,15 @@ ${rows.join('\n')}`
   }
 
   return (
-    <div className="flex h-full flex-col p-4">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold">Daily briefing</h1>
-          {state.streaming ? (
+    <div className="flex h-full flex-col">
+      <PageHeader
+        title="Daily briefing"
+        subtitle="One-minute AI recap across your watchlist, audio-ready."
+        actions={
+          state.streaming ? (
             <button
               onClick={cancel}
-              className="flex items-center gap-1 rounded bg-[var(--color-neg)] px-3 py-1.5 text-[11px] font-medium text-white"
+              className="flex items-center gap-1 rounded-md bg-[var(--color-neg)] px-3 py-1.5 text-[11px] font-medium text-white"
             >
               <Square className="h-3 w-3" /> Stop
             </button>
@@ -62,12 +64,14 @@ ${rows.join('\n')}`
             <button
               onClick={generate}
               disabled={items.length === 0}
-              className="flex items-center gap-1 rounded bg-[var(--color-info)] px-3 py-1.5 text-[11px] font-medium text-white disabled:opacity-40"
+              className="flex items-center gap-1 rounded-md bg-[var(--color-accent)] px-3 py-1.5 text-[11px] font-medium text-white disabled:opacity-40"
             >
               <Sparkles className="h-3 w-3" /> Generate
             </button>
-          )}
-        </div>
+          )
+        }
+      />
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 p-4">
         <div
           className={cn(
             'flex-1 rounded-md border p-4 text-[12px] leading-relaxed',
