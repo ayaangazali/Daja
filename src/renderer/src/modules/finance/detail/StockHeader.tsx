@@ -40,17 +40,19 @@ export function StockHeader({
   const unreal = pos && quote ? (quote.price - pos.avg) * pos.qty : null
 
   return (
-    <div className="border-b border-[var(--color-border)] px-4 py-3">
+    <div className="border-b border-[var(--color-border)] bg-[var(--color-bg-elev)] px-5 py-4">
       <div className="flex items-baseline gap-3">
-        <div className="font-mono text-2xl font-bold">{ticker}</div>
-        {fundamentals?.name && <div className="text-sm">{fundamentals.name}</div>}
+        <div className="serif text-3xl font-semibold tracking-tight">{ticker}</div>
+        {fundamentals?.name && (
+          <div className="text-[13px] text-[var(--color-fg-muted)]">{fundamentals.name}</div>
+        )}
         {quote?.exchange && (
-          <span className="rounded bg-[var(--color-bg-elev)] px-1.5 py-0.5 text-[10px] text-[var(--color-fg-muted)]">
+          <span className="rounded-full bg-[var(--color-bg-tint)] px-2 py-0.5 text-[10px] text-[var(--color-fg-muted)]">
             {quote.exchange}
           </span>
         )}
         {fundamentals?.sector && (
-          <span className="rounded bg-[var(--color-info)]/20 px-1.5 py-0.5 text-[10px] text-[var(--color-info)]">
+          <span className="rounded-full bg-[var(--color-accent)]/15 px-2 py-0.5 text-[10px] font-medium text-[var(--color-accent)]">
             {fundamentals.sector}
           </span>
         )}
@@ -74,12 +76,12 @@ export function StockHeader({
           {pos && (
             <div
               className={cn(
-                'rounded px-2 py-1 font-mono text-[10px]',
-                'bg-[var(--color-info)]/15 text-[var(--color-info)]'
+                'rounded-full px-3 py-1 font-mono text-[10px]',
+                'bg-[var(--color-accent)]/12 text-[var(--color-accent)]'
               )}
               title={`Avg cost $${pos.avg.toFixed(2)}`}
             >
-              Position: {pos.qty} @ ${pos.avg.toFixed(2)}{' '}
+              {pos.qty} @ ${pos.avg.toFixed(2)}{' '}
               <span className={signColor(unreal)}>
                 {unreal != null ? ` (${unreal >= 0 ? '+' : ''}$${unreal.toFixed(0)})` : ''}
               </span>

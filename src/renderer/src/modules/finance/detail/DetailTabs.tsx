@@ -34,7 +34,7 @@ export function DetailTabs({
           className={cn(
             'flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium transition-colors',
             tab === t
-              ? 'border-b-2 border-[var(--color-info)] text-[var(--color-fg)]'
+              ? 'border-b-2 border-[var(--color-accent)] text-[var(--color-fg)]'
               : 'text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]'
           )}
         >

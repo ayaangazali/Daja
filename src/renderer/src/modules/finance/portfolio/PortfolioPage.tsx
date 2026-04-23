@@ -19,6 +19,7 @@ import { PortfolioExitSignals } from './PortfolioExitSignals'
 import { useTrades } from '../../../hooks/useTrades'
 import { downloadCsv, toCsv } from '../../../lib/csv'
 import { ErrorBoundary } from '../../../shared/ErrorBoundary'
+import { PageHeader } from '../../../shared/PageHeader'
 
 function Panel({
   label,
@@ -56,24 +57,25 @@ export function PortfolioPage(): React.JSX.Element {
   }
 
   return (
-    <div className="h-full overflow-y-auto p-4">
-      <div className="mx-auto max-w-6xl space-y-3">
-        <div className="flex items-baseline justify-between">
-          <h1 className="text-lg font-semibold">Portfolio</h1>
-          <div className="flex items-center gap-3">
+    <div className="flex h-full flex-col">
+      <PageHeader
+        title="Portfolio"
+        subtitle="Avg-cost basis · Realized + Unrealized P&L · Live prices via Yahoo"
+        actions={
+          <>
             <button
               onClick={() => void exportCsv()}
               disabled={trades.length === 0}
-              className="flex items-center gap-1 rounded border border-[var(--color-border)] px-2 py-1 text-[10px] hover:bg-[var(--color-bg-elev)] disabled:opacity-40"
+              className="flex items-center gap-1 rounded-md border border-[var(--color-border)] px-3 py-1.5 text-[11px] hover:bg-[var(--color-bg-tint)] disabled:opacity-40"
             >
               <Download className="h-3 w-3" /> Export CSV
             </button>
             {csvErr && <span className="text-[10px] text-[var(--color-neg)]">{csvErr}</span>}
-            <div className="text-[10px] text-[var(--color-fg-muted)]">
-              Avg-cost basis · Realized+Unrealized P&amp;L · Live prices via Yahoo
-            </div>
-          </div>
-        </div>
+          </>
+        }
+      />
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="mx-auto max-w-6xl space-y-3">
         <Panel label="ExitSignals">
           <PortfolioExitSignals />
         </Panel>
@@ -122,6 +124,7 @@ export function PortfolioPage(): React.JSX.Element {
         <Panel label="WatchlistImport">
           <WatchlistImport />
         </Panel>
+        </div>
       </div>
     </div>
   )

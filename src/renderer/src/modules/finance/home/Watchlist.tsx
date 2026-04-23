@@ -81,7 +81,7 @@ export function Watchlist(): React.JSX.Element {
               cn(
                 'flex flex-1 items-center justify-center gap-1 py-1.5 text-[9px]',
                 isActive
-                  ? 'border-b-2 border-[var(--color-info)] text-[var(--color-fg)]'
+                  ? 'border-b-2 border-[var(--color-accent)] text-[var(--color-fg)]'
                   : 'text-[var(--color-fg-muted)]'
               )
             }
