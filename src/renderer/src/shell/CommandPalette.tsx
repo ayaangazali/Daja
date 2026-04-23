@@ -170,12 +170,12 @@ export function CommandPalette(): React.JSX.Element {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm pt-24"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 pt-24 backdrop-blur-md"
       onClick={close}
     >
       <div
         className={cn(
-          'w-[560px] overflow-hidden rounded-lg border shadow-2xl',
+          'w-[620px] overflow-hidden rounded-2xl border shadow-2xl',
           'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
         )}
         onClick={(e) => e.stopPropagation()}
@@ -258,7 +258,7 @@ function Item({ action }: { action: PaletteAction }): React.JSX.Element {
     <Command.Item
       value={`${action.id} ${action.label}`}
       onSelect={() => void action.run()}
-      className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm data-[selected=true]:bg-[var(--color-bg)]"
+      className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm data-[selected=true]:bg-[var(--color-accent)]/12 data-[selected=true]:text-[var(--color-fg)]"
     >
       <Icon className="h-4 w-4 text-[var(--color-fg-muted)]" />
       <span>{action.label}</span>

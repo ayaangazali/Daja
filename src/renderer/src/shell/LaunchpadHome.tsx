@@ -16,11 +16,15 @@ import {
   Newspaper,
   FlaskConical,
   Search,
-  Command
+  Command,
+  Moon,
+  Sun,
+  Settings2
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { useUIStore } from '../stores/uiStore'
+import { useSetTheme } from '../hooks/usePrefs'
 
 type Hue = 'accent' | 'blue' | 'green' | 'amber' | 'rose' | 'violet' | 'teal' | 'slate'
 
@@ -172,6 +176,14 @@ export function LaunchpadHome(): React.JSX.Element {
   const [focusIdx, setFocusIdx] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const setPalette = useUIStore((s) => s.setPalette)
+  const theme = useUIStore((s) => s.theme)
+  const setLocalTheme = useUIStore((s) => s.setTheme)
+  const setThemePref = useSetTheme()
+  const flipTheme = (): void => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setLocalTheme(next)
+    setThemePref.mutate(next)
+  }
 
   const [recent, setRecent] = useState<string[]>(() => {
     try {
@@ -248,7 +260,24 @@ export function LaunchpadHome(): React.JSX.Element {
   }, [orderedApps.length, focusIdx])
 
   return (
-    <div className="launchpad-bg flex h-full flex-col overflow-auto">
+    <div className="launchpad-bg relative flex h-full flex-col overflow-auto">
+      {/* Floating top-right controls */}
+      <div className="absolute right-4 top-4 z-10 flex items-center gap-1">
+        <button
+          onClick={flipTheme}
+          title="Toggle theme"
+          className="rounded-full border border-[var(--color-border)] bg-[var(--color-bg-elev)]/70 p-2 text-[var(--color-fg-muted)] backdrop-blur hover:text-[var(--color-fg)]"
+        >
+          {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </button>
+        <button
+          onClick={() => navigate('/settings')}
+          title="Settings"
+          className="rounded-full border border-[var(--color-border)] bg-[var(--color-bg-elev)]/70 p-2 text-[var(--color-fg-muted)] backdrop-blur hover:text-[var(--color-fg)]"
+        >
+          <Settings2 className="h-4 w-4" />
+        </button>
+      </div>
       <div className="mx-auto flex w-full max-w-5xl flex-col px-6 pt-10 pb-14">
         {/* Hero */}
         <div className="mb-8 text-center">
