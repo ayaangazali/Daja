@@ -7,8 +7,9 @@ import { fmtPct, fmtPrice, signColor } from '../../../lib/format'
 import { cn } from '../../../lib/cn'
 
 export function TopMovers(): React.JSX.Element | null {
-  const { data: items = [] } = useWatchlist()
+  const { data: items = [], isLoading: wlLoading, error: wlError } = useWatchlist()
   const quotes = useQuotes(items.map((i) => i.ticker))
+  const quotesError = quotes.find((q) => q.error)?.error ?? null
 
   const movers = useMemo(() => {
     const enriched = items
@@ -26,7 +27,28 @@ export function TopMovers(): React.JSX.Element | null {
     return { gainers, losers }
   }, [items, quotes])
 
+  if (wlError) {
+    return (
+      <div className="rounded-md border border-[var(--color-neg)]/30 bg-[var(--color-neg)]/5 p-3 text-[11px] text-[var(--color-neg)]">
+        Watchlist failed to load: {wlError.message}
+      </div>
+    )
+  }
+  if (wlLoading) {
+    return (
+      <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)] p-3 text-[11px] text-[var(--color-fg-muted)]">
+        Loading watchlist…
+      </div>
+    )
+  }
   if (items.length === 0) return null
+  if (quotesError && movers.gainers.length === 0 && movers.losers.length === 0) {
+    return (
+      <div className="rounded-md border border-[var(--color-warn)]/30 bg-[var(--color-warn)]/5 p-3 text-[11px] text-[var(--color-warn)]">
+        Quote fetch failed — {quotesError.message}. Retry: check network or Yahoo session.
+      </div>
+    )
+  }
 
   return (
     <div

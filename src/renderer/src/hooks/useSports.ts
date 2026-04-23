@@ -26,12 +26,27 @@ export interface Scoreboard {
   week: { number: number } | null
 }
 
+/**
+ * Scoreboard refresh cadence — adapts to whether games are live.
+ * - At least one live game → 30s refresh for near-real-time score updates.
+ * - All games scheduled or final → 5 min (no reason to hammer the API).
+ * The query callback mutates its own refetchInterval via react-query's
+ * function signature.
+ */
 export function useScoreboard(league: string): ReturnType<typeof useQuery<Scoreboard, Error>> {
   return useQuery<Scoreboard, Error>({
     queryKey: ['scoreboard', league],
     queryFn: () => window.daja.sports.scoreboard(league) as Promise<Scoreboard>,
     staleTime: 30_000,
-    refetchInterval: 60_000
+    refetchInterval: (q) => {
+      const data = q.state.data as Scoreboard | undefined
+      if (!data) return 60_000
+      const hasLive = data.games.some((g) => {
+        const s = (g.status || '').toLowerCase()
+        return s.includes('in progress') || s.includes('half') || s.includes('quarter') || s === 'in'
+      })
+      return hasLive ? 30_000 : 5 * 60_000
+    }
   })
 }
 
