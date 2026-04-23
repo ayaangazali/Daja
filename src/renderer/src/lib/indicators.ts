@@ -14,6 +14,9 @@ export function ema(arr: number[], p: number): number | null {
   return val
 }
 
+// Wilder's RSI: N periods requires N+1 prices → N differences.
+// Guard `arr.length <= p` requires at least p+1 prices. Loop of p iterations
+// touches indices [arr.length-p-1 … arr.length-1] — correct by spec.
 export function rsi(arr: number[], p = 14): number | null {
   if (arr.length <= p || p <= 0) return null
   let gains = 0
@@ -43,24 +46,38 @@ export function logReturns(close: number[]): number[] {
   return r
 }
 
+/**
+ * Max drawdown as a NEGATIVE percentage (convention: worse = more negative).
+ * Returns 0 at the peak, -25 for a 25% peak-to-trough loss, -100 for total wipeout.
+ * Callers comparing magnitude should use `Math.abs(dd)` or `dd <= -threshold`.
+ */
 export function maxDrawdown(equity: number[]): number {
   if (equity.length === 0) return 0
   let peak = equity[0]
   let dd = 0
   for (const e of equity) {
     if (e > peak) peak = e
+    if (peak <= 0) continue
     const d = (peak - e) / peak
     if (d > dd) dd = d
   }
   return dd === 0 ? 0 : -dd * 100
 }
 
+/**
+ * Annualized Sharpe ratio. ASSUMES:
+ * - `returns` are DAILY log-returns or DAILY simple returns (periodicity must match `rfDaily`)
+ * - 252 trading days per year (NYSE/Nasdaq convention)
+ * - `rfDaily` is the risk-free rate per day, NOT annual (e.g., 0.045/252 for ~4.5% annual)
+ *
+ * For weekly/monthly returns, scale differently or feed daily-equivalent data in.
+ * Returns 0 if series empty or stddev is 0 (no variability).
+ */
 export function sharpeRatio(returns: number[], rfDaily = 0): number {
   if (returns.length === 0) return 0
   const mean = returns.reduce((a, b) => a + b, 0) / returns.length
   const s = stddev(returns)
   if (s === 0) return 0
-  // Annualized assuming 252 trading days
   return ((mean - rfDaily) / s) * Math.sqrt(252)
 }
 

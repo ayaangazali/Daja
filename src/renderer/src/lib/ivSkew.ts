@@ -105,9 +105,7 @@ export function analyzeSkew(
   const atmCall = atmRow?.callIv ?? null
   const atmPut = atmRow?.putIv ?? null
   const atmIv =
-    atmCall != null && atmPut != null
-      ? (atmCall + atmPut) / 2
-      : (atmCall ?? atmPut ?? null)
+    atmCall != null && atmPut != null ? (atmCall + atmPut) / 2 : (atmCall ?? atmPut ?? null)
 
   const putPoints: IvPoint[] = putsV.map((p) => ({
     strike: p.strike,

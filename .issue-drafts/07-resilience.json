@@ -1,0 +1,108 @@
+[
+  {
+    "title": "ErrorBoundary missing for detail panels (crash risk)",
+    "body": "Several detail panels (NewsPanel, AnalystPanel subcomponents) are not wrapped with ErrorBoundary. If any panel component throws during render, the entire detail view crashes without recovery UI. ErrorBoundary.tsx (line 13-54) provides crash recovery, but is only applied at module level, not at individual panel level.\n\nCurrently exposed: NewsPanel (src/renderer/src/modules/finance/detail/panels/NewsPanel.tsx:3), AnalystPanel (line 26), FinancialRatios (line 9), FinancialsCharts (line 14). If any throws, user sees blank white screen with no error message or retry button.\n\nResilience impact: Panel crashes cascade to entire detail page, blocking user from accessing other tabs or data. User must reload app or navigate away.\n\nProposed: Wrap high-risk panels (those fetching external data, rendering dynamic charts) with ErrorBoundary and a fallback UI that surfaces the panel's error without killing siblings.\n\nSeverity: P1 - data-critical feature (stock detail) becomes inaccessible on any panel error.",
+    "labels": [
+      "p1",
+      "resilience",
+      "ui",
+      "audit-generated"
+    ],
+    "evidence": "src/renderer/src/modules/finance/detail/panels/NewsPanel.tsx:3-18 (no error boundary), src/renderer/src/modules/finance/detail/panels/AnalystPanel.tsx:26-450 (complex render logic, no boundary)"
+  },
+  {
+    "title": "Yahoo auth crumb expiry (401 response) user-visible failure",
+    "body": "YahooAuth.ts implements crumb caching (30-minute TTL) and 401 retry logic (line 78-91), but user never sees the auth failure message. When crumb expires mid-session and a 401 occurs:\n\n1. yahooFetch forces fresh crumb (line 80: getYahooAuth(true))\n2. Retry succeeds or fails silently\n3. If retry fails, response.ok is false but component just renders empty/null state\n4. User has no idea why data disappeared\n\nCurrently: catch blocks in service layer (line 80) swallow errors. Upstream UI (e.g., FinancialsCharts line 28-34) shows generic \"Loading financial charts\u2026\" with no error indication.\n\nProposed: Propagate auth errors to UI layer (return error in query.error instead of silent retry). Display user-visible message like \"Session expired\u2014refresh required\" with retry button.\n\nResilient apps: Degrade gracefully, inform user why data stopped arriving.",
+    "labels": [
+      "p1",
+      "resilience",
+      "audit-generated"
+    ],
+    "evidence": "src/main/services/finance/yahooAuth.ts:78-91 (silent 401 retry), src/renderer/src/modules/finance/detail/panels/FinancialsCharts.tsx:28-34 (no error state)"
+  },
+  {
+    "title": "Inconsistent loading UX across finance panels (spinner vs text vs none)",
+    "body": "Loading states are inconsistently handled across detail panels:\n\n1. FinancialRatios.tsx:105-110 - Plain text: \"Loading ratios\u2026\" (no spinner, blocks interaction)\n2. FinancialsCharts.tsx:28-34 - Plain text: \"Loading financial charts\u2026\" (no visual feedback)\n3. AnalystPanel.tsx:191-204 - Two states: verbose text \"Loading statements + fundamentals\u2026\" then \"Insufficient historical data\u2026\"\n4. SearchBar.tsx:27 - No loading UI at all (results appear instantly from cache or hang silently)\n5. TopMovers.tsx:9-92 - No loading state (component renders immediately with empty data)\n\nIssue: Users see different UX per panel. No skeleton loaders, spinners, or progress indicators. Panel rendering feels slow or broken.\n\nProposed: Standardize on skeleton loader component for financial data panels. Use consistent pattern: isLoading ? <Skeleton /> : <Content />.\n\nResilient apps: Provide immediate visual feedback that async work is in flight, not silence.",
+    "labels": [
+      "p2",
+      "resilience",
+      "ui",
+      "audit-generated"
+    ],
+    "evidence": "src/renderer/src/modules/finance/detail/panels/FinancialRatios.tsx:105-110, src/renderer/src/modules/finance/detail/panels/FinancialsCharts.tsx:28-34, src/renderer/src/modules/finance/home/SearchBar.tsx:27"
+  },
+  {
+    "title": "Position/quote array index mapping assumes parallel order (race condition)",
+    "body": "PositionsList.tsx (line 15-23) maps positions to quotes using array index:\n\n```typescript\nconst enriched = positions.map((p, i) => {\n  const q = quotes[i]?.data  // ASSUMES quotes[i] matches positions[i]\n  ...\n})\n```\n\nThis breaks if:\n1. Quotes arrive out-of-order from react-query (network delay per ticker)\n2. One quote request fails while others succeed (sparse array)\n3. Positions array reorders but quotes don't\n\nExample: positions = [AAPL, MSFT, GOOGL], quotes network returns [MSFT, null, GOOGL] \u2192 AAPL gets MSFT price, MSFT gets GOOGL price.\n\nProposed: Use object lookup: const quoteMap = quotes.reduce((m, q) => { m[q.queryKey[1]] = q; return m; }, {}); then enrich with quoteMap[p.ticker].data.\n\nSeverity: P2 - silently shows wrong prices in portfolio (financial accuracy bug).",
+    "labels": [
+      "p2",
+      "resilience",
+      "bug",
+      "audit-generated"
+    ],
+    "evidence": "src/renderer/src/modules/finance/portfolio/PositionsList.tsx:15-23, src/renderer/src/hooks/useFinance.ts:48-56 (useQuotes returns parallel array)"
+  },
+  {
+    "title": "Missing network offline detection (infinite loading)",
+    "body": "App has no offline detection or offline-aware fallback. When network drops:\n\n1. All queries (quote, statements, fundamentals) hang indefinitely\n2. Loading states never resolve (\"Loading ratios\u2026\" persists)\n3. User sees frozen UI, no indication that network is down\n4. No offline banner or \"retry\" button\n\nReact-query is configured without networkMode or retry policy (useQuote, useStatements, useFundamentals all use default settings). Queries retry forever on network failure without backoff.\n\nProposed: \n1. Add navigator.onOnline listener to global context\n2. Disable queries when offline, show offline banner\n3. Set explicit retry/staleTime: { retry: 1, retryDelay: 1000, networkMode: 'online' }\n4. Provide \"Retry\" button when offline recovers\n\nResilient apps: Degrade gracefully, inform user of network state.",
+    "labels": [
+      "p2",
+      "resilience",
+      "audit-generated"
+    ],
+    "evidence": "src/renderer/src/hooks/useFinance.ts:38-79 (no retry policy, no networkMode), src/renderer/src/hooks/useStatements.ts:48-106 (same pattern)"
+  },
+  {
+    "title": "Empty state copy lacks guidance (watchlist, search, positions)",
+    "body": "Multiple components show empty states with no actionable guidance:\n\n1. TopMovers.tsx:29 - Returns null if watchlist empty; user has no idea they need to add items\n2. TopMovers.tsx:47-48 - \"No data\" (unclear why, user doesn't know if it's loading or empty)\n3. SearchBar.tsx:60-66 - No results shown but no message like \"No matches found for '{query}'\"\n4. PositionsList.tsx:67-75 - \"No positions yet. Log a trade below.\" (good, but inconsistent tone vs others)\n5. NewsPanel.tsx:14-15 - \"News feed wires in Phase 2\u2026\" (placeholder, not an empty state)\n\nProposed: Standardize empty state copy with:\n- What's missing (e.g., \"Your watchlist is empty\")\n- Why (e.g., \"Add stocks to track price changes\")\n- Action (e.g., \"Search \u2192 Click heart icon\")\n\nResilient apps: Empty state is not an error; guide user to fill it.",
+    "labels": [
+      "p2",
+      "resilience",
+      "ui",
+      "audit-generated"
+    ],
+    "evidence": "src/renderer/src/modules/finance/home/TopMovers.tsx:29-92, src/renderer/src/modules/finance/home/SearchBar.tsx:60-86, src/renderer/src/modules/finance/portfolio/PositionsList.tsx:67-75"
+  },
+  {
+    "title": "Network retry policy missing (fixed vs exponential backoff)",
+    "body": "React-query hooks define no explicit retry or backoff strategy:\n\n- useQuote (line 39-45): no retry\n- useStatements (line 51-56): no retry\n- useFundamentals (line 74-79): no retry\n- useSearch (line 72-78): no retry\n- useHistorical (line 63-69): no retry\n\nDefault behavior: React-query retries 3 times with fixed delay (0ms). On Yahoo 429 (rate limit) or 503 (service unavailable), immediately retries with same cadence, hammering the already-overloaded endpoint.\n\nProposed:\n1. Implement exponential backoff: retry after 500ms, 1500ms, 4500ms with jitter\n2. Set per-hook: retry: (failureCount) => failureCount < 3, retryDelay: (count) => Math.min(1000 * 2 ** count, 10000) + Math.random() * 1000\n3. Avoid querying user actions (search) without user gesture\n\nResilient apps: Respect rate limits, don't amplify outages.",
+    "labels": [
+      "p2",
+      "resilience",
+      "audit-generated"
+    ],
+    "evidence": "src/renderer/src/hooks/useFinance.ts:38-79, src/renderer/src/hooks/useStatements.ts:48-106, src/renderer/src/hooks/useFundamentals.ts:71-80"
+  },
+  {
+    "title": "PDF merge/split missing disk-full and permission error handling",
+    "body": "src/main/services/pdf/ops.ts implements error catching for read/write/parse failures, but missing edge cases:\n\n1. mergePdfs (line 118-161): mkdir (line 113) can fail if:\n   - Disk is full (ENOSPC)\n   - Parent path is read-only (EACCES)\n   - Symlink to restricted directory\n   Error is not caught, crashes operation\n\n2. splitPdf (line 169-197): writeFile (line 193) fails silently if outDir doesn't exist but mkdir isn't called (user provides invalid path)\n\n3. Both functions: No check for available disk space before writing merged/split PDFs\n\n4. No user-visible error message (errors thrown but IPC handler in electron main may not surface to renderer)\n\nProposed:\n1. Wrap mkdir in try-catch, provide user feedback\n2. Check available disk before merge (use os.freemem or fs.statfs)\n3. Validate outDir writable before splitting\n4. Return { success, error } instead of throwing, let renderer display error\n\nResilient apps: Graceful failure on disk/permission errors, not crashes.",
+    "labels": [
+      "p2",
+      "resilience",
+      "audit-generated"
+    ],
+    "evidence": "src/main/services/pdf/ops.ts:112-115 (mkdir not wrapped), src/main/services/pdf/ops.ts:118-161 (no disk-full check)"
+  },
+  {
+    "title": "Quote price null-safety: wrong default (breaks YoY calc)",
+    "body": "FinancialsCharts.tsx uses quote data with unsafe defaults:\n\n1. Line 37-42: revenue = rows.income.map(r => r.revenue ?? null) \u2713 correct\n2. Line 87-92: yoy = (series) => series.map((v, i) => v == null || prev == null || prev === 0 ? null : ...) \u2713 correct\n3. BUT: Line 36 reads rows.income with no guard that it's non-empty\n4. Line 267: fmtLargeNum(revenue[revenue.length - 1] ?? 0) - If all revenue is null, defaults to 0, implying \"$0\" revenue\n\nStockHeader.tsx (line 61): quote?.price without fallback for undefined quote\n\nTopMovers.tsx (line 19): q?.price ?? null (good), but line 59 uses fmtPrice(m.price) where m.price is null (displays \"$\u2014\" or crashes)\n\nProposed:\n1. Validate data.incomeAnnual.length > 0 before rendering charts\n2. Never default numeric aggregates to 0 if data is sparse; use \"\u2014\" or N/A\n3. Guard quote?.price with explicit null-check before arithmetic\n\nSeverity: P3 - silently shows $0 revenue for zero-data companies, confusing users.",
+    "labels": [
+      "p3",
+      "resilience",
+      "bug",
+      "audit-generated"
+    ],
+    "evidence": "src/renderer/src/modules/finance/detail/panels/FinancialsCharts.tsx:267-270, src/renderer/src/modules/finance/detail/StockHeader.tsx:61, src/renderer/src/modules/finance/home/TopMovers.tsx:50-64"
+  },
+  {
+    "title": "Unhandled promise rejection in SearchBar debounce + missing error state",
+    "body": "SearchBar.tsx (line 14-25) debounces search query but doesn't handle useSearch hook errors:\n\n1. useSearch (useFinance.ts:72-78) defined with queryFn but no error handling in component\n2. If Yahoo search endpoint returns 400/500, error state never displayed\n3. Results show empty list (line 60: results.length > 0 renders dropdown) but user doesn't know it's an error vs empty\n4. Debounce setTimeout (line 15) is cleanup correctly, but if fetch rejects, component ignores error\n\nSecondary: Line 53 uses results[0] without null-check if results array is empty (would work, but fragile).\n\nProposed:\n1. Add error state display: if (error) return <div>Search failed: {error.message}</div>\n2. Distinguish \"no results\" from \"error\" from \"loading\"\n3. Provide retry button on error\n\nResilient apps: Show error states clearly, not silence.",
+    "labels": [
+      "p3",
+      "resilience",
+      "ui",
+      "audit-generated"
+    ],
+    "evidence": "src/renderer/src/modules/finance/home/SearchBar.tsx:27-86, src/renderer/src/hooks/useFinance.ts:72-78"
+  }
+]

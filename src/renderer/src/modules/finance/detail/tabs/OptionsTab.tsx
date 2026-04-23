@@ -11,15 +11,19 @@ import { cn } from '../../../../lib/cn'
 
 const RISK_FREE_RATE = 0.045 // approximation — fetch from FRED in Phase 2
 
+type GreeksResult =
+  | { status: 'ok'; delta: number; gamma: number; theta: number; vega: number }
+  | { status: 'expired' | 'no-iv' }
+
 function computeGreeks(
   c: OptionsContract,
   type: 'call' | 'put',
   underlying: number
-): { delta: number; gamma: number; theta: number; vega: number } | null {
-  if (c.impliedVolatility == null || c.impliedVolatility <= 0) return null
+): GreeksResult {
+  if (c.impliedVolatility == null || c.impliedVolatility <= 0) return { status: 'no-iv' }
   const nowSec = Math.floor(Date.now() / 1000)
   const T = (c.expiration - nowSec) / (365.25 * 86400)
-  if (T <= 0) return null
+  if (T <= 0) return { status: 'expired' }
   const g = blackScholes(type, {
     S: underlying,
     K: c.strike,
@@ -28,10 +32,22 @@ function computeGreeks(
     sigma: c.impliedVolatility
   })
   return {
+    status: 'ok',
     delta: g.delta,
     gamma: g.gamma,
-    theta: g.theta / 365, // per-day
-    vega: g.vega / 100 // per-1% vol
+    theta: g.theta / 365,
+    vega: g.vega / 100
+  }
+}
+
+function greekCell(g: GreeksResult, pick: 'delta' | 'theta'): { value: string; title: string } {
+  if (g.status === 'ok') {
+    const v = pick === 'delta' ? g.delta.toFixed(2) : g.theta.toFixed(3)
+    return { value: v, title: '' }
+  }
+  return {
+    value: '—',
+    title: g.status === 'expired' ? 'Contract expired — greeks unavailable' : 'No IV data from provider'
   }
 }
 
@@ -200,7 +216,9 @@ function ChainTable({
   tone: 'pos' | 'neg'
 }): React.JSX.Element {
   const nearATM = useMemo(() => {
+    const nowSec = Math.floor(Date.now() / 1000)
     return [...contracts]
+      .filter((c) => c.expiration > nowSec)
       .sort((a, b) => Math.abs(a.strike - underlying) - Math.abs(b.strike - underlying))
       .slice(0, 20)
       .sort((a, b) => a.strike - b.strike)
@@ -266,14 +284,18 @@ function ChainTable({
                 </td>
                 <td className="px-1 py-0.5 text-right">
                   {(() => {
-                    const g = computeGreeks(c, type, underlying)
-                    return g ? g.delta.toFixed(2) : '—'
+                    const cell = greekCell(computeGreeks(c, type, underlying), 'delta')
+                    return (
+                      <span title={cell.title || undefined}>{cell.value}</span>
+                    )
                   })()}
                 </td>
                 <td className="px-1 py-0.5 text-right">
                   {(() => {
-                    const g = computeGreeks(c, type, underlying)
-                    return g ? g.theta.toFixed(3) : '—'
+                    const cell = greekCell(computeGreeks(c, type, underlying), 'theta')
+                    return (
+                      <span title={cell.title || undefined}>{cell.value}</span>
+                    )
                   })()}
                 </td>
               </tr>

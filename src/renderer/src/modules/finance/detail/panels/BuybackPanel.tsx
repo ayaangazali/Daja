@@ -30,19 +30,17 @@ export function BuybackPanel({ ticker }: { ticker: string }): React.JSX.Element 
     const dividend = rows.reduce((s, r) => s + (r.dividend ?? 0), 0)
     const issuance = rows.reduce((s, r) => s + (r.issuance ?? 0), 0)
     const fcf = rows.reduce((s, r) => s + (r.fcf ?? 0), 0)
-    const shareholderYield = fund?.marketCap && fund.marketCap > 0
-      ? ((buyback + dividend - issuance) / fund.marketCap) * 100 / Math.max(1, rows.length)
-      : null
+    const shareholderYield =
+      fund?.marketCap && fund.marketCap > 0
+        ? (((buyback + dividend - issuance) / fund.marketCap) * 100) / Math.max(1, rows.length)
+        : null
     const payoutOfFcf = fcf > 0 ? ((buyback + dividend) / fcf) * 100 : null
     return { buyback, dividend, issuance, fcf, shareholderYield, payoutOfFcf }
   }, [rows, fund?.marketCap])
 
   if (rows.length === 0) return null
 
-  const maxVal = Math.max(
-    1,
-    ...rows.flatMap((r) => [r.buyback ?? 0, r.dividend ?? 0])
-  )
+  const maxVal = Math.max(1, ...rows.flatMap((r) => [r.buyback ?? 0, r.dividend ?? 0]))
 
   return (
     <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elev)] p-3">
@@ -65,9 +63,7 @@ export function BuybackPanel({ ticker }: { ticker: string }): React.JSX.Element 
               {totals.shareholderYield.toFixed(2)}%/y
             </span>
           )}
-          {totals.payoutOfFcf != null && (
-            <span>FCF payout {totals.payoutOfFcf.toFixed(0)}%</span>
-          )}
+          {totals.payoutOfFcf != null && <span>FCF payout {totals.payoutOfFcf.toFixed(0)}%</span>}
         </div>
       </div>
 

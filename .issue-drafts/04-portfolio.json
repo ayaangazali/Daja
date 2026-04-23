@@ -1,0 +1,100 @@
+[
+  {
+    "title": "TradeForm lacks duplicate prevention on rapid clicks",
+    "labels": [
+      "p1",
+      "ui",
+      "correctness",
+      "audit-generated"
+    ],
+    "body": "## Problem\nThe TradeForm component does not prevent users from submitting duplicate trades on rapid form submissions. A user clicking the Save button multiple times quickly will create multiple identical trade records.\n\n## Evidence\nTradeForm.tsx:15-37\nThe submit handler only checks form field validity but does not validate against recent trades. The mutation is called directly without debouncing or duplicate-check logic:\n```typescript\nconst submit = (): void => {\n  if (!ticker.trim() || !qty || !price) return\n  addMut.mutate({\n    ticker: ticker.toUpperCase(),\n    side,\n    quantity: Number(qty),\n    price: Number(price),\n    fees: Number(fees || 0),\n    date,\n    notes: notes || null\n  },\n  {\n    onSuccess: () => {\n      setTicker('')\n      setQty('')\n      setPrice('')\n      setFees('0')\n      setNotes('')\n    }\n  }\n)\n}\n```\nThe Save button is disabled only during `addMut.isPending` (line 102), but no optimistic locking or idempotency key prevents re-submission if the request fails or retries.\n\n## Expected\nDuplicate trades (same ticker, side, qty, price, date within 5 seconds) should be rejected with user feedback. Or trades should have idempotency keys that prevent re-posting.\n\n## Proposed fix\n1. Add mutation-level deduplication: hash recent trade attempts and reject if a duplicate is detected\n2. Or: use Form-level idempotency\u2014assign a UUID to the form submission and pass it to the backend\n3. Or: disable Save button until mutation completes AND reset fires (currently only disabled during pending)\n\n## Impact\nHigh\u2014users can accidentally create phantom duplicate trades, polluting audit trail and inflating position accounting. Tax-lot calculations will be incorrect if duplicates slip through."
+  },
+  {
+    "title": "FIFO lot assignment wrong on partial fractional fills",
+    "labels": [
+      "p1",
+      "correctness",
+      "finance-math",
+      "audit-generated"
+    ],
+    "body": "## Problem\nThe positionsFifo.ts implementation does not correctly handle partial lot consumption when dealing with fractional shares. The algorithm consumes lots based on exact qty matches, but if a sell order is 0.0001 shares smaller than a buy lot due to floating-point rounding, the residual lot is never cleaned up properly.\n\n## Evidence\nsrc/renderer/src/lib/positionsFifo.ts:82-110\nLine 108 removes lots with qty <= 0.0000001, but this threshold is arbitrary and the logic assumes lot.qty is already decreased. If a sell order qty has rounding error:\n```typescript\nlet remaining = t.quantity\nconst sellPrice = t.quantity > 0 ? (t.quantity * t.price - t.fees) / t.quantity : 0\nconst order = sortForMethod(openLots, method)\nfor (const lot of order) {\n  if (remaining <= 0) break\n  const consumeQty = Math.min(lot.qty, remaining)\n  if (consumeQty <= 0) continue\n  const gain = (sellPrice - lot.price) * consumeQty\n  // ...\n  lot.qty -= consumeQty\n  remaining -= consumeQty\n}\n// Remove fully-consumed lots\nfor (let i = openLots.length - 1; i >= 0; i--) {\n  if (openLots[i].qty <= 0.0000001) openLots.splice(i, 1)\n}\n```\nExample: if you buy 10.5 shares at $100, then sell 10.49999999 shares, the remaining 0.00000001 lot remains in openLots, creating a phantom position.\n\n## Expected\nLots should be consumed deterministically. Fractional residuals (<0.01 shares, configurable) should either round to zero or be flagged.\n\n## Proposed fix\n1. Use a fixed epsilon value (e.g., 1e-8) for all float comparisons\n2. Round openLots qty to nearest 0.0001 (cent-per-share precision) after each sell\n3. Add test case: buy 10.5, sell 10.49999999 \u2192 open lot should be 0\n\n## Impact\nHigh\u2014Tax-loss harvesting and FIFO cost-basis calculations will be incorrect. Positions will report fractional shares worth $0.0001 as open."
+  },
+  {
+    "title": "RiskDashboard beta calculation fails silently with <1y history",
+    "labels": [
+      "p2",
+      "correctness",
+      "finance-math",
+      "audit-generated"
+    ],
+    "body": "## Problem\nWhen a position lacks 1 year of price history, the RiskDashboard returns beta=null and sharpe=0 without user-facing warning. The component renders '\u2014' for beta, but the correlation matrix and other risk metrics proceed anyway, creating false confidence in diversification analysis.\n\n## Evidence\nRiskDashboard.tsx:41-160\nLines 118-132 check minLen < 2, but only when computing portfolio returns:\n```typescript\nconst minLen = Math.min(\n  ...[...hist.assetReturns.values()].map((a) => a.length),\n  hist.benchReturns.length || Infinity\n)\nif (!Number.isFinite(minLen) || minLen < 2) {\n  return {\n    beta: null,\n    sharpe: 0,\n    drawdown: 0,\n    top,\n    concentrationRisk,\n    totalValue,\n    hhi,\n    effectiveN\n  }\n}\n```\nBut the correlation matrix (lines 176-185) is computed independently and ignores asset history length:\n```typescript\nconst corrMatrix = tickerPairs.map((tA) =>\n  tickerPairs.map((tB) => {\n    if (tA === tB) return 1\n    const a = hist.assetReturns.get(tA)\n    const b = hist.assetReturns.get(tB)\n    if (!a || !b) return null\n    return correlation(a, b)\n  })\n)\n```\nIf asset A has 30 days of history and asset B has 364 days, the correlation is computed on 30 days, not 1 year, but no warning appears.\n\n## Expected\nDashboard should clearly indicate which assets have insufficient history (< 30 days, < 1y). Correlation matrix should show 'n/a' if minLen < 252 (1 trading year).\n\n## Proposed fix\n1. Add a `hasInsufficientHistory` flag to PortfolioRisk\n2. Display alert: \"Beta/Sharpe unavailable: 2 of 5 positions have <1y history\"\n3. In correlation matrix: skip rendering if resolvedTickers.length < tickers.length\n4. Add minLen threshold check: only compute corrMatrix if minLen >= 252\n\n## Impact\nMedium\u2014Users may make rebalancing or allocation decisions based on correlations computed on 30 days of data, thinking they're using 1-year data. Risk assessment is unreliable."
+  },
+  {
+    "title": "Tax lot short sales not handled; cover trades unmatched",
+    "labels": [
+      "p2",
+      "correctness",
+      "finance-math",
+      "audit-generated"
+    ],
+    "body": "## Problem\nThe useTrades hook and FIFO lot accounting only recognize 'buy' and 'sell' sides. 'short' and 'cover' side values are passed through but not consumed by computeTaxLotPositions, leaving short positions unmodeled and cover trades orphaned.\n\n## Evidence\nuseTrades.ts:3-7\n```typescript\nexport interface Trade {\n  id: number\n  ticker: string\n  asset_class: string\n  side: 'buy' | 'sell' | 'short' | 'cover'  // short & cover are ignored\n  // ...\n}\n```\npositionsFifo.ts:56-110\nLine 77 only handles 'buy' side; line 81 only handles 'sell' side. 'short' and 'cover' are never matched:\n```typescript\nfor (const t of sorted) {\n  if (t.side === 'buy') {\n    // Per-share cost includes proportional fees\n    const perShareCost = t.quantity > 0 ? (t.quantity * t.price + t.fees) / t.quantity : 0\n    openLots.push({ date: t.date, qty: t.quantity, price: perShareCost })\n  } else if (t.side === 'sell') {  // NO ELSE-IF FOR SHORT/COVER\n    // ...\n  }\n}\n```\n\n## Expected\nShort sales should create negative lots; cover trades should close them. Short-term vs long-term gains must be tracked for short sales (different holding-period rules).\n\n## Proposed fix\n1. Extend Lot interface with `isShort: boolean` flag\n2. Handle 'short' trades: add lot with qty < 0\n3. Handle 'cover' trades: consume short lots (most recent first for short FIFO)\n4. Compute hold days for short lots: date of cover - date of short\n5. Add test: short 100 AAPL @ $150, cover 100 @ $140 \u2192 realized gain = $1000\n\n## Impact\nHigh\u2014any portfolio with short positions or covered calls will have incomplete tax accounting and wrong position totals."
+  },
+  {
+    "title": "RebalancePanel targets can sum >100% without drift warning",
+    "labels": [
+      "p2",
+      "correctness",
+      "finance-math",
+      "audit-generated"
+    ],
+    "body": "## Problem\nRebalancePanel allows users to enter target allocation weights that sum to >100% or <100%, but only warns if the unallocated weight exceeds 0.1%. The drift tolerance is not configurable and hard-coded thresholds don't match typical portfolio drift (usually 5-10%).\n\n## Evidence\nRebalancePanel.tsx:159-174\n```typescript\n<div className=\"mt-2 flex items-center justify-between text-[10px] text-[var(--color-fg-muted)]\">\n  <span>\n    {result.totalTrades} trades \u00b7 ${fmtLargeNum(result.totalVolume)} volume \u00b7 max drift{' '}\n    {(result.outOfWhackMax * 100).toFixed(1)}%\n  </span>\n  {Math.abs(result.unallocatedWeight) > 0.001 && (\n    <span\n      className={\n        result.unallocatedWeight > 0 ? 'text-[var(--color-warn)]' : 'text-[var(--color-neg)]'\n      }\n    >\n      Targets sum to {((1 - result.unallocatedWeight) * 100).toFixed(1)}%\n      {result.unallocatedWeight > 0 ? ' (under 100%)' : ' (over 100%)'}\n    </span>\n  )}\n</div>\n```\nLine 164: the threshold is 0.001 (0.1%), but if user sets targets to 95% total, the warning appears only if unallocated < 0.001. The message is confusing\u2014\"Targets sum to 95%\" is more clear than \"Targets sum to 105% (over 100%)\".\n\n## Expected\nClear messaging when targets diverge from 100%. Warn prominently if >5% or <95%. Allow user to set a custom tolerance. Show the exact sum, not a derived percentage.\n\n## Proposed fix\n1. Display: \"Target weights sum to {sum}% (need 100%)\" in red if \u2260100%\n2. Add threshold setting: drift tolerance selector (1%, 5%, 10%)\n3. Only compute trades if targets sum to within tolerance\n4. Disable \"Rebalance\" button if out of tolerance\n\n## Impact\nMedium\u2014Users may calculate incorrect rebalance trades if targets don't sum to 100%, wasting cash or over-allocating."
+  },
+  {
+    "title": "HHI concentration thresholds hard-coded; not configurable",
+    "labels": [
+      "p2",
+      "ui",
+      "finance-math",
+      "audit-generated"
+    ],
+    "body": "## Problem\nRiskDashboard hard-codes HHI (Herfindahl-Hirschman Index) thresholds (>0.25 = highly concentrated, >0.15 = moderate), but these should be configurable per user risk tolerance and regulatory intent (e.g., some brokers allow >30% in single positions).\n\n## Evidence\nRiskDashboard.tsx:240-250\n```typescript\n<Stat\n  label=\"HHI\"\n  value={risk.hhi > 0 ? risk.hhi.toFixed(3) : '\u2014'}\n  tone={risk.hhi > 0.25 ? 'neg' : risk.hhi > 0.15 ? 'warn' : 'pos'}\n  sub={\n    risk.hhi > 0.25\n      ? 'Highly concentrated (>0.25)'\n      : risk.hhi > 0.15\n        ? 'Moderately concentrated'\n        : 'Diversified (<0.15)'\n  }\n/>\n```\nLine 228-236 also hard-codes top-3 concentration thresholds:\n```typescript\n<Stat\n  label=\"Top-3 concentration\"\n  value={fmtPct(risk.concentrationRisk)}\n  tone={risk.concentrationRisk > 80 ? 'neg' : risk.concentrationRisk > 60 ? 'warn' : null}\n  sub={\n    risk.concentrationRisk > 80\n      ? 'Highly concentrated'\n      : risk.concentrationRisk > 60\n        ? 'Concentrated'\n        : 'Diversified'\n  }\n/>\n```\n\n## Expected\nThresholds should be settable via app settings or portfolio-level preferences. Default HHI thresholds should match academic consensus (0.1 = diversified, 0.2 = concentrated, 0.4+ = highly concentrated).\n\n## Proposed fix\n1. Add PortfolioSettings with `hhi_thresholds: {diversified: 0.1, concentrated: 0.2, warning: 0.3}`\n2. Read from context/hook in RiskDashboard\n3. Add UI panel in Portfolio settings tab\n4. Persist to localStorage or database\n\n## Impact\nLow\u2014mostly UX/configurability. Does not affect calculations, only alerts."
+  },
+  {
+    "title": "CSV export header order mismatches import expectations",
+    "labels": [
+      "p2",
+      "correctness",
+      "dx",
+      "audit-generated"
+    ],
+    "body": "## Problem\nPortfolioPage exports trades CSV with specific column order (line 55-65), but no corresponding import function validates that order. If a user exports, edits externally, and re-imports, column misalignment will silently corrupt data.\n\n## Evidence\nPortfolioPage.tsx:52-71\n```typescript\nconst csv = toCsv(trades as unknown as Record<string, unknown>[], [\n  'date',\n  'ticker',\n  'side',\n  'quantity',\n  'price',\n  'fees',\n  'currency',\n  'exchange',\n  'notes'\n])\n```\nThere is no corresponding import function in the codebase. WatchlistImport handles bulk ticker import (WatchlistImport.tsx), but does not handle full trade re-import.\n\n## Expected\nExport should include headers (line 1). Import function should validate headers match or re-map columns. Quotes in notes should be escaped.\n\n## Proposed fix\n1. Add header row to toCsv: prepend column names\n2. Create TradeImport.tsx component with CSV parser:\n   - Read header row\n   - Validate required columns\n   - Show preview before inserting\n   - Reject if >1 duplicate (ticker, date, price, qty)\n3. Add to Tools tab\n4. Test round-trip: export \u2192 edit \u2192 import\n\n## Impact\nMedium\u2014users may attempt to import edited CSVs and corrupt position accounting. Data loss / audit trail corruption."
+  },
+  {
+    "title": "CorrelationMatrix N\u00b2 performance degradation >50 tickers",
+    "labels": [
+      "p3",
+      "perf",
+      "audit-generated"
+    ],
+    "body": "## Problem\nCorrelationMatrix computes all pairwise correlations without memoization. With 50 tickers, that's 2500 correlations. Each correlation computation is O(n) on 252 trading days. With shallow re-renders, performance degrades significantly.\n\n## Evidence\nCorrelationMatrix.tsx:49-61\n```typescript\nconst { matrix, avg, resolvedTickers } = useMemo(() => {\n  const series: Record<string, number[]> = {}\n  tickers.forEach((t, i) => {\n    const bars = historical[i]?.data\n    if (bars) {\n      series[t] = bars\n        .map((b) => b.close)\n        .filter((v): v is number => v != null && Number.isFinite(v))\n    }\n  })\n  const { tickers: rt, matrix: m } = correlationMatrix(series)\n  return { matrix: m, avg: avgOffDiagonal(m), resolvedTickers: rt }\n}, [tickers, historical])\n```\nThe useMemo depends on entire `historical` array, causing re-compute on any single historical update. No caching of correlation values.\n\n## Expected\nFor 100+ position portfolios, correlation matrix should not re-compute on every price tick. Memoize pairwise correlations keyed by (ticker_a, ticker_b, date_range). Cache historical data separately.\n\n## Proposed fix\n1. Add caching layer: `useCorrelationCache(ticker1, ticker2) -> correlation`\n2. Split useMemo: separate historical loading from correlation compute\n3. Lazy-render correlation matrix: only compute visible rows (intersection observer)\n4. Add `skipLargeCorrelation` flag: skip rendering if > 30 tickers\n5. Benchmark: measure render time with 100 tickers\n\n## Impact\nLow-medium\u2014UX degrades for portfolios >30 tickers, but not broken. Mostly affects performance-conscious power users."
+  },
+  {
+    "title": "DividendTracker YoC calculation uses cost basis instead of market value",
+    "labels": [
+      "p3",
+      "correctness",
+      "finance-math",
+      "audit-generated"
+    ],
+    "body": "## Problem\nDividendTracker calculates yield-on-cost (YoC) using the cost basis (avgCost), which is correct. However, the \"Est. annual income\" aggregates across all positions and then computes a portfolio-level YoC using total costBasis (line 42), not the current market value. This is mathematically inconsistent.\n\n## Evidence\nDividendTracker.tsx:32-43\n```typescript\nconst rows = positions.map((p, i) => {\n  const info = divQueries[i]?.data as DividendInfo | undefined\n  const annualPerShare = info?.rate ?? 0\n  const annualIncome = annualPerShare * p.qty\n  const yieldOnCost = p.avgCost > 0 && annualPerShare > 0 ? (annualPerShare / p.avgCost) * 100 : 0\n  return { ...p, info, annualPerShare, annualIncome, yieldOnCost }\n})\n\nconst payers = rows.filter((r) => r.annualPerShare > 0)\nconst totalIncome = rows.reduce((s, r) => s + r.annualIncome, 0)\nconst totalYieldOnCost = rows.reduce((s, r) => s + r.costBasis, 0)\nconst avgYoC = totalYieldOnCost > 0 ? (totalIncome / totalYieldOnCost) * 100 : 0\n```\nLine 42: `totalYieldOnCost` is actually the sum of costBasis, not cost-basis-weighted YoC. The variable name is misleading. The calculation should be `totalIncome / totalCostBasis`.\n\n## Expected\nYield-on-cost should always be: annual_dividend_per_share / cost_per_share * 100. Portfolio YoC = total_annual_income / total_cost_basis.\n\n## Proposed fix\n1. Rename `totalYieldOnCost` to `totalCostBasis` for clarity\n2. Formula is actually correct (totalIncome / totalCostBasis), just poorly named\n3. Consider adding market-yield (yield on current market value) as separate metric\n4. Add test: position with $100 cost basis, $200 market value, $5/yr dividend \u2192 YoC = 5%\n\n## Impact\nLow\u2014the math is correct, but the variable naming is confusing and might mislead on code review or future refactoring."
+  },
+  {
+    "title": "TaxHarvestPanel wash-sale detection doesn't check > 30 days",
+    "labels": [
+      "p3",
+      "correctness",
+      "audit-generated"
+    ],
+    "body": "## Problem\nTaxHarvestPanel indicates wash-sale risk if a ticker was bought \"within the last 30 days\" (line 149), but doesn't check the 30-day forward period (you can't buy the same security within 30 days AFTER a loss harvest). Additionally, the check does not verify if the user already completed a harvest\u2014it only warns about future wash risk.\n\n## Evidence\nTaxHarvestPanel.tsx:148-151\n```typescript\n<div className=\"mt-2 text-[9px] text-[var(--color-fg-muted)]\">\n  Wash-sale risk = you bought this ticker within the last 30 days. Selling now would\n  trigger IRS \u00a71091 and defer the loss. Rates default: ST 32% \u00b7 LT 15%. Adjust above.\n</div>\n```\nThe logic is in `findHarvestCandidates` (not shown in scope), but the UI suggests it only checks past buys, not future buys.\n\n## Expected\nWash-sale detection should:\n1. Flag if ticker was bought within 30 days BEFORE harvest date\n2. Flag if ticker was bought within 30 days AFTER harvest date\n3. Track completed harvests to prevent wash-sale re-entry\n\n## Proposed fix\n1. Add `harvestHistory` to trades (harvest_id, harvest_date)\n2. In wash-sale check: look forward 30 days for any buys\n3. Show: \"Wash risk: bought 15 days ago. Cannot rebuy until [date].\"\n4. Add BUY blocker in TradeForm if date falls within wash-sale window\n5. Test: harvest loss on day 0, attempt buy on day 15 \u2192 block with warning\n\n## Impact\nMedium\u2014incorrect wash-sale tracking can result in disallowed loss deductions on tax return. IRS penalty: recapture loss and interest."
+  }
+]

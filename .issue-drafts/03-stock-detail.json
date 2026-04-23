@@ -1,0 +1,120 @@
+[
+  {
+    "title": "Tab state lost on URL navigation back/forward",
+    "body": "## Problem\nWhen navigating away from a stock detail page and returning via browser back button, the selected tab reverts to 'Overview' instead of restoring the tab that was active. This breaks user flow in workflows involving multiple stocks.\n\n## Evidence\n- StockDetail.tsx line 24: tab state is useState('Overview') with no URL-based persistence\n- DetailTabs.tsx line 19-24: onChange callback updates component state only\n- No useEffect syncing tab state to URL query parameter\n- Keyboard shortcut handler (line 36-49) works in-session but doesn't persist across navigation\n\n## Expected\n- Switching to 'Technicals' tab (press 4) on stock A\n- Navigate to stock B\n- Navigate back \u2192 stock A tab should remain 'Technicals'\n- Browser forward/back should restore tab selection\n\n## Proposed fix\n1. Parse `?tab=Technicals` from URL using useSearchParams\n2. Sync tab state bidirectionally via replaceState in useEffect\n3. Fallback to 'Overview' if invalid tab param\n4. Test with react-router navigation + browser controls\n\n## Impact\n- High UX friction in multi-stock analysis workflows\n- Users must manually re-select tabs after navigation\n- Desktop app (Electron) should preserve UI state on history navigation\n",
+    "labels": [
+      "p1",
+      "ui",
+      "stock-detail",
+      "audit-generated"
+    ],
+    "evidence": "StockDetail.tsx:24, DetailTabs.tsx:19"
+  },
+  {
+    "title": "Greeks fail silently when T<=0 (expired options)",
+    "body": "## Problem\nThe computeGreeks function returns null for expired options contracts (T <= 0), but no UI feedback is provided to users. Clicking on an ITM option chain row shows '\u2014' for all greeks, which is indistinguishable from missing IV data. This is a silent data loss case.\n\n## Evidence\n- OptionsTab.tsx line 14-36: computeGreeks checks T <= 0 at line 22, returns null\n- Line 269: greeks?.delta.toFixed(2) shows '\u2014' for both null IV and expired contracts\n- No tooltip or legend explaining why greeks disappeared\n- ChainTable renders 20 nearest ATM strikes but expired contracts may be included\n\n## Expected\n- Expired option rows should be visually distinct (grayed out, strikethrough, or labeled)\n- Greeks cell should show tooltip: \"Greeks unavailable: contract expired\"\n- Or filter out contracts where T <= 0 from the chain table\n\n## Proposed fix\n1. Add expiration date check before rendering ChainTable\n2. Filter contracts: .filter(c => (c.expiration - Date.now()/1000) > 0)\n3. Add visual cue (tooltip) to cells where greeks returned null\n4. In computeGreeks, return { delta: null, gamma: null, theta: null, vega: null } instead of null\n5. Update ChainTable to render null greeks with title=\"Expired or no IV\"\n\n## Impact\n- P1: Risk of using stale greeks for expired contracts\n- User confusion in options chain analysis\n- Potential for incorrect hedging decisions\n",
+    "labels": [
+      "p1",
+      "correctness",
+      "options",
+      "audit-generated"
+    ],
+    "evidence": "OptionsTab.tsx:22, OptionsTab.tsx:269"
+  },
+  {
+    "title": "Panel loading spinners vary inconsistently",
+    "body": "## Problem\nDifferent panels use different loading UI patterns:\n- Some return 'Loading ...' text (TechnicalsTab line 163, OscillatorsPanel line 34)\n- Some show 'Loading \u2026' (OptionsTab line 49)\n- Some don't show loading at all, just render when ready (MaxPainPanel line 16)\n- ErrorBoundary catches crashes but panels have no unified loading skeleton\n\nThis creates visual jank and inconsistent perceived performance.\n\n## Evidence\n- EarningsTab.tsx:9 returns plain text \"Loading\u2026\"\n- OscillatorsPanel.tsx:34 returns plain border box with text\n- IndicatorsPanel.tsx:50 has no isLoading check, silently renders empty\n- InteractiveChart.tsx: no loading state during bar fetch\n- FinancialsTab.tsx:67 shows plain \"Loading\u2026\"\n\n## Expected\n- All panels show consistent skeleton UI during fetch\n- Tab body doesn't resize/layout-shift as panels load\n- Unified spinner component with dark mode support\n\n## Proposed fix\n1. Create shared Skeleton component (SkeletonBar, SkeletonChart)\n2. Create LoadingPanel wrapper that shows spinner + label\n3. Update all tabs to use: {isLoading ? <LoadingPanel /> : <Content />}\n4. Measure CLS (Cumulative Layout Shift) before/after\n5. Document loading skeleton guidelines in DX guide\n\n## Impact\n- P2: UX polish issue\n- Affects perceived app responsiveness\n- Poor signal-to-noise ratio on slow networks\n",
+    "labels": [
+      "p2",
+      "ui",
+      "perf",
+      "stock-detail",
+      "audit-generated"
+    ],
+    "evidence": "TechnicalsTab.tsx:163, OscillatorsPanel.tsx:34, OptionsTab.tsx:49"
+  },
+  {
+    "title": "FundamentalsGrid renders null metrics with no null-safety",
+    "body": "## Problem\nFundamentalsGrid displays 30+ metrics from Fundamentals hook. When Yahoo Finance returns partial data (common for penny stocks, delisted, or new IPOs), many fields are null. The grid doesn't validate data before rendering:\n- All nulls render as '\u2014' but no indication which metrics failed\n- No fallback explanation (e.g., \"Data unavailable for this ticker\")\n- AnalystPanel depends on fund data but doesn't gracefully degrade\n- pctCell() and ratioCell() silently convert nulls to '\u2014'\n\n## Evidence\n- FundamentalsGrid.tsx line 24-54: 30 cells, many can be null\n- Lines 11-20: pctCell and ratioCell convert null \u2192 '\u2014'\n- useFundamentals staleTime = 15min, but no validation of returned object structure\n- AnalystPanel.tsx line 50: returns null if any statement row is missing (no partial fallback)\n\n## Expected\n- Show data completeness score (\"25/30 metrics available\")\n- Group available vs unavailable metrics\n- AnalystPanel shows degraded UI for partial data instead of returning null\n\n## Proposed fix\n1. Add Fundamentals validator: checkNull fields, count available metrics\n2. Create DataQuality component showing % complete\n3. Update AnalystPanel to render even with 1 recent statement\n4. Add error boundary catch for fundamentals schema mismatches\n5. Add stale time variance: retry if too many nulls\n\n## Impact\n- P2: Loss of analysis capability for thinly-covered stocks\n- Silent data gaps are worst UX failure mode\n- Affects institutional use cases (research, screening)\n",
+    "labels": [
+      "p2",
+      "correctness",
+      "resilience",
+      "stock-detail",
+      "audit-generated"
+    ],
+    "evidence": "FundamentalsGrid.tsx:24, AnalystPanel.tsx:50"
+  },
+  {
+    "title": "OptionsPayoffPanel & MaxPainPanel show overlapping analysis",
+    "body": "## Problem\nBoth OptionsPayoffPanel and MaxPainPanel appear in OptionsTab (line 87-88) and both analyze strike prices + expiration. They compute similar derived data (P/C ratios, distance calculations) but with different heuristics. This creates:\n- Cognitive load (users see two \"strike\" visualizations)\n- Redundant computation (both call useOptions, analyze open interest)\n- Inconsistent styling (different icons, color schemes)\n- No interaction between panels (selecting strike in one doesn't highlight in other)\n\n## Evidence\n- OptionsTab.tsx line 87-88: both panels render side-by-side\n- MaxPainPanel.tsx line 9: useOptions(ticker) with default expiration\n- OptionsPayoffPanel imports useOptions separately\n- Line 40-75 of MaxPainPanel: grid layout wastes screen real estate\n- No selection state shared across panels\n\n## Expected\n- Single consolidated \"Options Analysis\" panel\n- Strike price shown on axis of payoff diagram with max pain annotation\n- User can toggle between payoff chart and max pain grid view\n\n## Proposed fix\n1. Refactor MaxPain + Payoff as single ComprehensiveStrikeAnalysisPanel\n2. Create shared state for strike selection + expiration\n3. Combine computations (useOptions call once, both analyses share data)\n4. Payoff diagram: overlay max pain line on strike axis\n5. Add toggle: \"View\" dropdown [Payoff Chart, Max Pain Table, Greeks Heatmap]\n\n## Impact\n- P2: UX redundancy, unnecessary visual complexity\n- Wasted screen real estate on mobile/tablet\n- Opportunity to create more powerful unified strike analysis\n",
+    "labels": [
+      "p2",
+      "ui",
+      "stock-detail",
+      "options",
+      "audit-generated"
+    ],
+    "evidence": "OptionsTab.tsx:87-88, MaxPainPanel.tsx:9"
+  },
+  {
+    "title": "Keyboard shortcuts 1-9 don't disable in modals",
+    "body": "## Problem\nKeyboard shortcuts 1-9 jump between tabs (StockDetail.tsx line 35-49). However:\n- Shortcuts fire even when a dialog/modal is open (trades, research links)\n- Focus trap not respected (input field, textarea still let shortcut fire via e.preventDefault check)\n- No visual indication that shortcuts are active (users must remember)\n- Accessibility: VoiceOver/NVDA don't announce shortcut capability\n- Title attributes on buttons (line 32 DetailTabs.tsx) are rarely read by screen readers\n\n## Evidence\n- StockDetail.tsx line 35-49: keydown listener on window, checks document.activeElement\n- Line 39: returns early for input/textarea but not for contentEditable on RichText panels\n- DetailTabs.tsx line 32: title=\"${t} (press ${i + 1})\" is not announced\n- No focus state indicator when shortcuts work\n\n## Expected\n- Shortcuts disabled when modal/dialog is open (use React Portal detection)\n- Visually disabled tab when focus inside modal\n- Keyboard legend (Shift+? shows \"Press 1-9 for tabs\")\n- Screen reader announces: \"Press 1 for Overview tab, 2 for Analyst, etc.\"\n\n## Proposed fix\n1. Create useKeyboardShortcuts hook with modal context awareness\n2. Check for open modals via context (e.g., ModalStackContext)\n3. Add aria-label to tab buttons: `Press ${i+1} to activate`\n4. Add <kbd> legend below tab bar (Ctrl+? or Cmd+?)\n5. Update title to aria-describedby pointing to legend\n6. Test with axe-core, WAVE, screen readers\n\n## Impact\n- P2: Accessibility issue (WCAG 2.1 Level AA)\n- Power users expect shortcuts to work universally\n- Modal handling prevents unintended tab switches\n",
+    "labels": [
+      "p2",
+      "a11y",
+      "ui",
+      "stock-detail",
+      "audit-generated"
+    ],
+    "evidence": "StockDetail.tsx:35-49, DetailTabs.tsx:32"
+  },
+  {
+    "title": "IndicatorsPanel & OscillatorsPanel range selectors unsync",
+    "body": "## Problem\nTechnicalsTab (line 127) fetches 1y historical data, but child panels have independent range selectors:\n- IndicatorsPanel.tsx line 49: useState('6mo') with independent useHistorical call\n- OscillatorsPanel.tsx line 15: useState('6mo') with separate fetch\n- InteractiveChart.tsx line 29: useState('1Y') with MAP translation\n\nWhen user selects '2y' in OscillatorsPanel, InteractiveChart still shows 1y. This causes:\n- Misaligned technical signals (Stoch from 2y data, SMA from 1y)\n- UX confusion (range picker seems broken)\n- Multiple redundant API calls (3 panels \u00d7 4 range options = 12 potential requests)\n\n## Evidence\n- TechnicalsTab.tsx line 127: hardcoded '1y' fetch, no range prop passed\n- IndicatorsPanel.tsx line 50: useHistorical(ticker, range) independent state\n- OscillatorsPanel.tsx line 16: useHistorical with separate range\n- No shared range context or state lifting\n\n## Expected\n- All panels on Technicals tab share single range selection\n- TechnicalsTab has range picker at top; all children inherit it\n- Single historical data fetch, reused by all panels\n\n## Proposed fix\n1. Lift range state to TechnicalsTab (useState('1y'), pass down)\n2. Create TechnicalsContext with { range, setRange, bars, isLoading }\n3. Remove useHistorical from IndicatorsPanel, OscillatorsPanel, etc.\n4. Replace with useContext(TechnicalsContext)\n5. Move range picker to TechnicalsTab header, labels: 3mo, 6mo, 1y, 2y, 5y\n6. Memoize bars fetch to prevent child re-renders\n\n## Impact\n- P2: Data consistency + performance\n- Users expect correlated analysis\n- Reduces API calls by 70% for Technicals tab\n",
+    "labels": [
+      "p2",
+      "perf",
+      "correctness",
+      "technicals",
+      "audit-generated"
+    ],
+    "evidence": "TechnicalsTab.tsx:127, IndicatorsPanel.tsx:49-50, OscillatorsPanel.tsx:15"
+  },
+  {
+    "title": "Tab-level ErrorBoundary hides individual panel crashes",
+    "body": "## Problem\nStockDetail.tsx line 56 wraps entire tab content in single ErrorBoundary. When one panel in OverviewTab crashes (e.g., InteractiveChart), the entire tab shows error state. Users lose:\n- 10 other working panels on Overview\n- Ability to switch tabs (must reload)\n- Context of what they were analyzing\n\nPanel-level crashes should not crash the entire tab.\n\n## Evidence\n- StockDetail.tsx line 56: single ErrorBoundary at tab level\n- OverviewTab.tsx: 12+ independent panels, no granular error handling\n- InteractiveChart.tsx: no error boundary of own (can crash chart, breaks entire Overview)\n- ErrorBoundary.tsx line 36: shows crash message + retry, resets entire tab state\n\n## Expected\n- InteractiveChart crashes \u2192 shows small error box, other panels render\n- Retry button only affects crashed panel\n- Tab remains navigable\n- Session continues (user doesn't lose context)\n\n## Proposed fix\n1. Keep tab-level ErrorBoundary as safety net\n2. Wrap each panel in individual ErrorBoundary with small error UI\n3. Create PanelErrorFallback: compact error box vs full-screen crash\n4. Pass resetKey to panel for remounting on retry\n5. Log panel crashes separately in telemetry\n6. Test: crash InteractiveChart \u2192 other panels render\n\n## Impact\n- P2: Resilience / user experience\n- Single point of failure affects 10+ components\n- Desktop app should handle errors gracefully\n",
+    "labels": [
+      "resilience",
+      "stock-detail",
+      "audit-generated",
+      "p3"
+    ],
+    "evidence": "StockDetail.tsx:56, OverviewTab.tsx:23, ErrorBoundary.tsx:36"
+  },
+  {
+    "title": "Options expiration selection lost when tab switches",
+    "body": "## Problem\nWhen user selects a strike + expiration in OptionsTab (line 38-62), that selection is lost if they:\n- Switch to another tab (Technicals, Earnings)\n- Return to OptionsTab \u2192 reset to default expiration\n\nOptionsTab.tsx line 39: `const [expiration, setExpiration] = useState<number | undefined>(undefined)` with no persistence.\n\nThis breaks workflows like:\n1. User analyzes OTM calls at Jan expiration\n2. Clicks \"Technicals\" to see support levels\n3. Returns to Options \u2192 lost Jan selection, back to current expiration\n\n## Evidence\n- OptionsTab.tsx line 39: expiration state is local-only\n- No useEffect syncing to URL or global state\n- useOptions(ticker, expiration) refetches new expiration on every return\n- DetailTabs.tsx: tab state lives in parent, but panel state doesn't\n\n## Expected\n- User selection survives tab navigation\n- URL query: `/stock/AAPL?tab=Options&expiration=1704067200`\n- localStorage fallback for session persistence\n\n## Proposed fix\n1. Create OptionsContext: { expiration, setExpiration, isLoading }\n2. Sync to URL: useSearchParams updates context, context updates URL\n3. Fallback: read from localStorage.getItem('lastOptionsExpiration')\n4. Wrap OptionsTab in OptionsProvider\n5. All option panels (MaxPain, Payoff, IvSkew) read from context\n\n## Impact\n- P2: UX workflow friction\n- Users lose analysis context on tab navigation\n- Common pattern for financial analysis tools (ThinkorSwim, Tastyworks)\n",
+    "labels": [
+      "ui",
+      "stock-detail",
+      "options",
+      "audit-generated",
+      "p3"
+    ],
+    "evidence": "OptionsTab.tsx:39, DetailTabs.tsx:19"
+  },
+  {
+    "title": "Missing insider flow visualization (competitor gap)",
+    "body": "## Problem\nOwnershipTab shows raw lists (insiders, institutions, funds) but lacks:\n- Visualization of insider buying/selling patterns (net flow chart)\n- Cluster analysis: how many insiders buying vs selling in last 90d\n- Heatmap: timing of insider transactions relative to stock price\n- Comparison: is insider activity bullish or bearish vs historical baseline\n\nThinkorSwim, FINVIZ Pro, Seeking Alpha all show insider flow visualizations. This is a significant feature gap vs competitors.\n\n## Evidence\n- OwnershipTab.tsx scope includes Ownership panel\n- useOwnership hook returns insiderTransactions array\n- No transaction visualization, only table dump\n- FundamentalsGrid shows insiderPercent as single metric, not flow dynamics\n\n## Expected\n- Insider flow bar chart: \"Buys vs Sells (90d)\"\n- Timeline: insider activity overlaid on price chart\n- Sentiment: heatmap color-coded insider vs institutional ownership changes\n- Summary: \"Insiders net bought $2.3M in last 30d (bullish signal)\"\n\n## Proposed fix\n1. Add InsiderFlowPanel component in detail/panels/\n2. Parse insiderTransactions: map(txn => { date, type: 'buy'|'sell', shares, value })\n3. Aggregate by date: daily net flow = (sum buys) - (sum sells)\n4. Create BarChart: buys (green), sells (red), net (accent)\n5. Add timeline overlay on InteractiveChart\n6. Add sentiment badge: \"Bullish\" if net 90d > 0 and growing\n7. Add to OwnershipTab or dedicated Insider Flow tab\n\n## Impact\n- P3: Enhancement / competitive feature parity\n- Insider flow is strong predictive signal (used by institutions)\n- Differentiates Daja from stock charts (TradingView, Yahoo)\n",
+    "labels": [
+      "p3",
+      "enhancement",
+      "ui",
+      "stock-detail",
+      "audit-generated",
+      "p3"
+    ],
+    "evidence": "OwnershipTab scope"
+  }
+]

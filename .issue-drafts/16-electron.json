@@ -1,0 +1,52 @@
+[
+  {
+    "title": "Missing window state persistence (size, position, maximized)",
+    "labels": ["p1", "electron", "audit-generated", "enhancement"],
+    "body": "## Problem\nThe BrowserWindow in `src/main/index.ts:14-30` is initialized with hardcoded dimensions (1440x900) every launch. Daja does not persist or restore window bounds, maximized state, or multi-monitor position. Users reset to default size/position every session.\n\n## Evidence\n- `src/main/index.ts:14-30` — hardcoded width/height, no restoration logic\n\n## Expected\nApp serializes window bounds (x, y, width, height) + maximized state on close/before-quit, restores on startup, handles missing-monitor gracefully.\n\n## Proposed fix\n1. Persist bounds to JSON in userData dir on `window-all-closed` / `before-quit`\n2. Validate restored coords are still on an available display before applying\n3. Consider `electron-window-state` package for battle-tested implementation\n4. Fall back to centered default if persisted state is corrupt\n\n## Impact\nEvery launch feels like a fresh install; power users lose their preferred layout."
+  },
+  {
+    "title": "No application menu bar — macOS feels broken",
+    "labels": ["p1", "electron", "audit-generated", "ui"],
+    "body": "## Problem\nNo `Menu.setApplicationMenu()` call exists. `autoHideMenuBar: true` (`src/main/index.ts:21`) hides what doesn't exist anyway. On macOS, missing File/Edit/View/Window/Help menus makes the app feel like a half-baked web wrapper. Windows/Linux users can't discover standard actions (Quit, Preferences, About).\n\n## Evidence\n- `src/main/index.ts:21` — autoHideMenuBar flag, no menu template\n- No `src/main/menu.ts` file\n\n## Expected\nPlatform-aware menu template with standard items + custom Daja actions (New Trade, Import CSV, etc.) wired to keyboard shortcuts.\n\n## Proposed fix\nCreate `src/main/menu.ts` with platform-sensitive template. On macOS include app menu (About, Preferences, Services, Hide, Quit). Cross-platform File/Edit/View/Window/Help. Wire shortcuts (Cmd/Ctrl+Q, Cmd/Ctrl+,). Send IPC events to renderer for app actions.\n\n## Impact\nmacOS users perceive the app as unprofessional; discoverability of power features is zero."
+  },
+  {
+    "title": "Single-instance lock not enforced — DB corruption risk",
+    "labels": ["p2", "electron", "audit-generated", "resilience"],
+    "body": "## Problem\n`src/main/index.ts` never calls `app.requestSingleInstanceLock()`. Users can launch multiple instances, each holding a better-sqlite3 handle to `daja.db`. SQLite serialized-mode works on single connection only; concurrent processes writing cause corruption or missed writes.\n\n## Evidence\n- `src/main/index.ts:46-66` — app.on('ready') with no lock check\n- better-sqlite3 used in `src/main/db/client.ts`\n\n## Expected\nSecond-launch focuses existing window; only one process holds the DB.\n\n## Proposed fix\n```ts\nconst ok = app.requestSingleInstanceLock()\nif (!ok) { app.quit(); process.exit(0) }\napp.on('second-instance', () => { mainWindow?.isMinimized() && mainWindow.restore(); mainWindow?.focus() })\n```\nPlace before `app.whenReady()`.\n\n## Impact\nDouble-click or Spotlight re-launch can silently corrupt trade history."
+  },
+  {
+    "title": "No custom protocol handler (daja://) for deep links",
+    "labels": ["p2", "electron", "audit-generated", "enhancement"],
+    "body": "## Problem\nDaja does not register a custom protocol. External deep links (email, briefing, notifications) cannot open a specific ticker / watchlist / trade.\n\n## Evidence\n- `src/main/index.ts` — no `app.setAsDefaultProtocolClient` call\n- No `open-url` handler\n\n## Expected\n`daja://ticker/AAPL` focuses main window on AAPL detail; `daja://watchlist/tech` opens that watchlist.\n\n## Proposed fix\n1. Register protocol in main\n2. Handle `open-url` (macOS) + `second-instance` argv (Win/Linux)\n3. Parse URL with a shared router and send IPC event to renderer\n4. Update electron-builder.yml protocols section for installer registration\n\n## Impact\nEmail briefings and system notifications can't deep-link into app — every click dumps user at home."
+  },
+  {
+    "title": "Auto-update not configured (placeholder publish URL)",
+    "labels": ["p2", "electron", "audit-generated", "security"],
+    "body": "## Problem\n`electron-builder.yml:41-43` references `https://example.com/auto-updates` as the publish endpoint. No `electron-updater` integration in main process. Users have no path to receive security fixes.\n\n## Evidence\n- `electron-builder.yml:41-43` — placeholder URL\n- No `autoUpdater` import anywhere in `src/main/`\n\n## Expected\nApp checks for updates on startup (with opt-out), downloads in background, prompts install on restart.\n\n## Proposed fix\n1. Publish to GitHub Releases via electron-builder publish config\n2. `import { autoUpdater } from 'electron-updater'`, call `autoUpdater.checkForUpdatesAndNotify()` after `whenReady`\n3. Handle `update-downloaded` to prompt user\n4. Settings toggle for auto-install behavior\n5. Required: code-signing certificate for signed delta updates\n\n## Impact\nUsers stuck on initial version; critical CVE in Electron runtime can't be pushed."
+  },
+  {
+    "title": "macOS notarize disabled — Gatekeeper blocks downloads",
+    "labels": ["p2", "security", "audit-generated", "build", "electron"],
+    "body": "## Problem\n`electron-builder.yml:28` has `notarize: false`. Unsigned/unnotarized .app triggers Gatekeeper warning on macOS 10.15+; users must right-click → Open and acknowledge security prompt.\n\n## Evidence\n- `electron-builder.yml:28` — notarize: false\n- No code-signing identity configured\n\n## Expected\nReleases are signed with Apple Developer ID and notarized. Download + open works with zero security prompts.\n\n## Proposed fix\n1. Apple Developer Program membership\n2. Store certificate + notarization credentials in CI secrets\n3. Set `notarize: true` + provide `APPLE_ID`, `APPLE_ID_PASS`, `APPLE_TEAM_ID` env\n4. Sign Windows installer with code-signing cert\n5. CI workflow runs `electron-builder --mac --publish always`\n\n## Impact\nFirst-time users encounter scary warning → low conversion; auto-update also depends on signing."
+  },
+  {
+    "title": "Notifications lack action buttons and rich metadata",
+    "labels": ["p2", "electron", "audit-generated", "enhancement"],
+    "body": "## Problem\n`src/main/ipc/systemIpc.ts:19-31` creates bare `Notification({title, body})`. No action buttons, icon, sound, urgency, or reply affordance. For a trading app where notifications cover price alerts, earnings, trade fills — this is thin.\n\n## Evidence\n- `src/main/ipc/systemIpc.ts:19-31` — minimal construction\n\n## Expected\nActions (View Trade / Dismiss / Snooze), ticker icon or app logo, sound toggle per category, click handler routes to correct screen.\n\n## Proposed fix\nExtend IPC payload: `{title, body, icon?, actions?: {label, id}[], urgency?: 'low'|'normal'|'critical'}`. Wire `n.on('action', (ev, idx) => mainWindow.webContents.send('notification:action', actionId))`. Renderer listens + navigates via hash router.\n\n## Impact\nNotifications are info-only; user can't triage from the tray."
+  },
+  {
+    "title": "No before-quit / will-quit / window-close lifecycle hooks",
+    "labels": ["p2", "electron", "audit-generated", "resilience"],
+    "body": "## Problem\n`src/main/index.ts:68-71` only handles `window-all-closed`. No `before-quit`, no `will-quit`, no per-window `close` intercept. Background AI streams + DB-flushing work can be cut mid-flight.\n\n## Evidence\n- `src/main/index.ts:68-71` — only window-all-closed + closeDatabase\n- No SIGTERM / SIGINT handlers\n\n## Expected\nGraceful shutdown flushes DB, aborts pending AI streams, persists window state, optionally prompts on unsaved journal edits.\n\n## Proposed fix\n1. `app.on('before-quit', async (e) => { await flushPending(); })` with e.preventDefault() until done\n2. `mainWindow.on('close', (e) => persistWindowState())`\n3. SIGTERM/SIGINT → graceful app.quit\n4. Ensure `closeDatabase()` is idempotent\n\n## Impact\nForce-quit during streaming journal autosave can leave JSON store half-written; DB WAL may not checkpoint cleanly."
+  },
+  {
+    "title": "npmRebuild disabled breaks better-sqlite3 across archs",
+    "labels": ["p3", "build", "audit-generated", "electron"],
+    "body": "## Problem\n`electron-builder.yml:40` sets `npmRebuild: false`. better-sqlite3 ships precompiled ABI; packaging on ARM and distributing to x64 Mac users produces `dlopen … wrong architecture` crash on startup.\n\n## Evidence\n- `electron-builder.yml:40` — npmRebuild: false\n- `package.json` pnpm.onlyBuiltDependencies includes better-sqlite3 (acknowledges rebuild need)\n\n## Expected\nEach target arch packages with matching native binary; optionally build universal binary on macOS.\n\n## Proposed fix\nEither flip `npmRebuild: true` (slower CI but correct), or explicit `electron-rebuild -f -w better-sqlite3` step in build script. Consider matrix build (macos-13 x64, macos-14 arm64) in CI.\n\n## Impact\nAny non-matching-arch install crashes on first DB access."
+  },
+  {
+    "title": "Linux desktop integration incomplete (no MimeType, generic maintainer)",
+    "labels": ["p3", "build", "audit-generated", "electron"],
+    "body": "## Problem\n`electron-builder.yml:31-39` declares AppImage/snap/deb targets but maintainer is `electronjs.org` placeholder, no `desktop:` metadata, no MimeType registration for .pdf → PDF module won't appear as a handler in file managers.\n\n## Evidence\n- `electron-builder.yml:31-39` — minimal linux section\n- No icon files referenced for Linux app menu entries\n\n## Expected\nFull .desktop entry with Name/Comment/Categories/Keywords/MimeType; snapcraft.yml for snap channel; icons at 16/32/64/128/256/512.\n\n## Proposed fix\nAdd `linux.desktop: { Name, Comment, Categories: 'Utility;Finance;Office', MimeType: 'application/pdf;' }`, real maintainer email, provide `build/icon.png` + PNG pyramid. Test on Ubuntu + Fedora + Arch.\n\n## Impact\nLinux users install but app doesn't show in launcher or handle PDFs — poor first impression."
+  }
+]

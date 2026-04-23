@@ -24,9 +24,7 @@ export function MarketTickerStrip(): React.JSX.Element {
         return (
           <div key={s.symbol} className="flex items-center gap-1.5 font-mono tabular">
             <span className="text-[var(--color-fg-muted)]">{s.label}</span>
-            <span className="text-[var(--color-fg)]">
-              {price != null ? price.toFixed(2) : '—'}
-            </span>
+            <span className="text-[var(--color-fg)]">{price != null ? price.toFixed(2) : '—'}</span>
             <span
               className={cn(
                 'text-[10px]',

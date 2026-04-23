@@ -1,0 +1,107 @@
+[
+  {
+    "title": "Disable sandbox in BrowserWindow webPreferences",
+    "labels": [
+      "p1",
+      "security",
+      "audit-generated"
+    ],
+    "body": "## Security Issue\n\nThe Electron BrowserWindow sandbox is explicitly disabled in src/main/index.ts:26:\n\n```typescript\nsandbox: false,\ncontextIsolation: true,\nnodeIntegration: false\n```\n\n## Risk\nWith sandbox disabled, malicious renderer code (via XSS) gains direct access to OS resources without Electron's process isolation layer, even with contextIsolation enabled. Sandbox is a critical defense-in-depth control.\n\n## Impact\n- Compromised renderer can fork child processes\n- Access to filesystem without dialog barriers\n- Potential privilege escalation\n\n## Recommendation\nEnable sandbox: `sandbox: true`. All IPC is already properly bridged via preload, so disabling sandbox is unnecessary. Verify that:\n1. PDF operations (readFile, writeFile) properly use dialog + IPC\n2. Finance data fetches are in main process (they are)\n3. No renderer-direct Node.js calls exist (contextIsolation + preload prevent this)\n\n## Evidence\nsrc/main/index.ts:26",
+    "body_length": 450
+  },
+  {
+    "title": "CSP connect-src restricted to 'self' but main fetches external APIs",
+    "labels": [
+      "p1",
+      "security",
+      "audit-generated"
+    ],
+    "body": "## Content Security Policy Misconfiguration\n\nThe CSP meta tag in src/renderer/index.html:8 specifies:\n\n```html\nconnect-src 'self'\n```\n\nHowever, fetches to external APIs happen in the main process (Yahoo, SEC, ESPN, AI providers), which bypasses the renderer's CSP. The renderer doesn't directly fetch these URLs, so the CSP is neither helping nor preventing attacks. This creates confusion about the app's actual security boundary.\n\n## Risk\n- False sense of security: CSP suggests 'self' origin only, but app communicates with many external APIs\n- Future renderer developers may think external fetches are blocked by CSP\n- Inconsistent security documentation\n\n## Recommendation\nDocumentation: Add comment in CSP and README clarifying that:\n1. CSP is renderer-focused (inline styles are unsafe but acceptable for Electron app)\n2. External API security is enforced by main-process API key validation + Zod schemas, not by CSP\n3. All fetch calls originate from main, not renderer\n\nConsider adding `frame-src 'self'` restriction or document why youtube.com is allowed.\n\n## Evidence\nsrc/renderer/index.html:8, multiple fetch calls in src/main/services/finance/*.ts, src/main/services/sports/*.ts, src/main/ai/providers/*.ts",
+    "body_length": 480
+  },
+  {
+    "title": "No unit tests for main process IPC handlers and core services",
+    "labels": [
+      "p1",
+      "testing",
+      "audit-generated"
+    ],
+    "body": "## Test Coverage Gap\n\nThe main process contains critical IPC handlers and business logic with zero unit tests:\n- src/main/ipc/registerIpc.ts (key vault, prefs) \u2014 0 tests\n- src/main/ipc/aiIpc.ts (AI streaming, context injection) \u2014 0 tests\n- src/main/ipc/financeIpc.ts (finance data fetching) \u2014 0 tests\n- src/main/ipc/systemIpc.ts (file saving, notifications, shell.openExternal) \u2014 0 tests\n- src/main/services/keyVault.ts (encryption, safeStorage fallback) \u2014 0 tests\n- src/main/services/prefs.ts (user preferences storage) \u2014 0 tests\n- src/main/services/jsonStore.ts (persistence layer) \u2014 0 tests\n\nOnly src/main/services/pdf/ops.ts has unit tests (ops.test.ts).\n\n## Risk\n- No regression detection when refactoring IPC layer\n- Untested failure modes (e.g., safeStorage unavailable on Linux)\n- No validation that Zod schemas catch malformed input\n- Input validation gaps go undetected\n\n## Recommendation\nAdd Vitest unit tests covering:\n1. Key vault: encryption/decryption, safeStorage error handling, missing keys\n2. IPC handlers: valid/invalid payloads, Zod rejection, response shape\n3. JSON store: file I/O errors, malformed JSON recovery\n4. System IPC: shell.openExternal with various URL formats, notification edge cases\n5. AI IPC: concurrent requests, cancellation, error propagation\n\nTarget: \u226580% coverage for main/ipc and main/services.\n\n## Evidence\nsrc/main/ipc/registerIpc.ts, src/main/ipc/aiIpc.ts, src/main/ipc/financeIpc.ts, src/main/ipc/systemIpc.ts, src/main/services/ \u2014 no .test.ts files",
+    "body_length": 530
+  },
+  {
+    "title": "safeStorage fails without OS keychain; Linux users blocked",
+    "labels": [
+      "p2",
+      "security",
+      "bug",
+      "audit-generated"
+    ],
+    "body": "## Encryption Dependency Issue\n\nThe keyVault implementation in src/main/services/keyVault.ts calls `assertEncryptionAvailable()` which throws if `safeStorage.isEncryptionAvailable()` is false:\n\n```typescript\nfunction assertEncryptionAvailable(): void {\n  if (!safeStorage.isEncryptionAvailable()) {\n    throw new Error(\n      'safeStorage unavailable \u2014 no OS keychain. Linux may need libsecret / gnome-keyring.'\n    )\n  }\n}\n```\n\nThis is called by `setKey()` and `getKeyPlaintext()`. On Linux without libsecret, users cannot store or retrieve API keys at all\u2014the app is unusable.\n\n## Risk\n- Linux users cannot use the app without system keyring setup\n- No graceful degradation\n- Poor UX: unhelpful error message for non-technical users\n- User onboarding friction\n\n## Recommendation\n1. Implement fallback: if safeStorage unavailable, offer plaintext storage (with warning) or encrypted file-based store\n2. Check at startup and present UI message guiding user to install libsecret\n3. Allow user to export/import keys securely\n4. Document Linux setup in README.md\n5. Test on Linux CI (add GitHub Actions workflow)\n\n## Evidence\nsrc/main/services/keyVault.ts:32\u201337",
+    "body_length": 400
+  },
+  {
+    "title": "Missing CI/CD pipeline: no GitHub Actions workflows",
+    "labels": [
+      "p2",
+      "build",
+      "dx",
+      "audit-generated"
+    ],
+    "body": "## Missing CI/CD Pipeline\n\nThe repository lacks GitHub Actions workflows. No automated:\n- TypeScript compilation / type checking\n- Unit test execution (vitest)\n- E2E test execution (Playwright)\n- Dependency vulnerability scanning (npm audit, Snyk)\n- Electron security checks\n- Build reproducibility verification\n\n## Risk\n- Breaking changes merged without test feedback\n- Security dependencies not tracked\n- No assurance that builds are reproducible\n- No prerelease testing across platforms\n- Contributor uncertainty about expected checks\n\n## Recommendation\nCreate .github/workflows/:\n1. test.yml: Run on PR/push\n   - `npm ci` (use lockfile)\n   - `npm run typecheck`\n   - `npm run test`\n   - `npm run e2e`\n   - `npm audit` (report, allow failures for now)\n2. build.yml: Test full build on macOS, Windows, Linux\n3. security.yml: Dependency scanning (Dependabot, npm audit)\n\nAlso add:\n- pnpm-lock.yaml committed (enforce via CI)\n- Node version pinned in .nvmrc or package.json engines\n- Build output reproducibility check\n\n## Evidence\nNo .github/workflows/ directory exists. package.json has no engines field.",
+    "body_length": 380
+  },
+  {
+    "title": "shell.openExternal lacks URL validation",
+    "labels": [
+      "p2",
+      "security",
+      "ipc",
+      "audit-generated"
+    ],
+    "body": "## Insecure External URL Handling\n\nTwo locations call shell.openExternal without validating URLs:\n\n1. src/main/index.ts:35 (window open handler):\n```typescript\nmainWindow.webContents.setWindowOpenHandler((details) => {\n  shell.openExternal(details.url)\n  return { action: 'deny' }\n})\n```\n\n2. src/main/ipc/systemIpc.ts:28 (notification click handler):\n```typescript\nif (openUrl) n.on('click', () => void shell.openExternal(openUrl))\n```\n\n## Risk\n- Malicious renderer or compromised data source could trigger file:// URIs, leading to local file access\n- Data:// URIs with embedded scripts\n- Electron/node protocols in some versions\n- If openUrl derives from unsanitized user input (e.g., API response), attacker controls navigation\n\n## Recommendation\n1. Whitelist protocol: only allow http:// and https://\n2. Validate URL syntax (try URL constructor)\n3. Add test cases for malformed/dangerous URLs\n\n```typescript\nfunction isSafeUrl(url: string): boolean {\n  try {\n    const parsed = new URL(url)\n    return ['http:', 'https:'].includes(parsed.protocol)\n  } catch {\n    return false\n  }\n}\n```\n\nApply before every shell.openExternal call.\n\n## Evidence\nsrc/main/index.ts:35, src/main/ipc/systemIpc.ts:28",
+    "body_length": 410
+  },
+  {
+    "title": "IPC input validation too permissive (z.unknown)",
+    "labels": [
+      "p2",
+      "ipc",
+      "audit-generated"
+    ],
+    "body": "## Incomplete Input Validation\n\nSeveral IPC handlers use overly permissive Zod schemas:\n\n1. src/main/ipc/aiIpc.ts:22 \u2014 messages field allows any content:\n```typescript\nmessages: z.array(MessageSchema).min(1)\n```\nWith no max array size or message length limit.\n\n2. src/main/ipc/dbIpc.ts:8 \u2014 args is z.array(z.unknown()):\n```typescript\nargs: z.array(z.unknown()).default([])\n```\nNo validation of individual argument types. Relies only on ALLOWED method whitelist.\n\n3. src/preload/index.ts:28 \u2014 ai.start payload is `unknown`:\n```typescript\nstart: (payload: unknown): Promise<{ requestId: string }> =>\n  ipcRenderer.invoke(IPC_CHANNELS.aiChatStart, payload),\n```\n\n## Risk\n- Oversized message arrays could cause DoS\n- Whitelist bypass or logic error allows arbitrary method calls\n- Lack of schema clarity makes auditing harder\n\n## Recommendation\n1. Add max array/string lengths to Zod schemas\n2. Type messages more strictly (role, content, context limits)\n3. Document ALLOWED whitelist in comments\n4. Replace z.unknown() with specific field schemas\n5. Add integration test: send malformed payloads, verify rejection\n\n```typescript\nconst MessageSchema = z.object({\n  role: z.enum(['user', 'assistant', 'system']),\n  content: z.string().min(1).max(16384)\n})\nconst ChatStartPayload = z.object({\n  messages: z.array(MessageSchema).min(1).max(100),\n  ...\n})\n```\n\n## Evidence\nsrc/main/ipc/aiIpc.ts:22, src/main/ipc/dbIpc.ts:8, src/preload/index.ts:28",
+    "body_length": 420
+  },
+  {
+    "title": "No E2E tests for IPC security or input validation; only smoke tests",
+    "labels": [
+      "p2",
+      "testing",
+      "audit-generated"
+    ],
+    "body": "## E2E Test Coverage Gaps\n\nThe Playwright E2E suite (e2e/smoke.spec.ts, e2e/extended.spec.ts) covers:\n- Route navigation\n- UI rendering\n- Finance detail tabs\n- Assistant and PDF modules\n\nBut completely lacks:\n- IPC error handling (what happens when main throws?)\n- Zod validation rejection (send malformed payloads from renderer)\n- Concurrent IPC requests\n- File I/O error scenarios (PDF merge, JSON store)\n- API key validation (keysTest happy/error paths)\n- Long-running IPC (AI streaming cancellation)\n- safeStorage unavailable scenario\n\n## Risk\n- Integration bugs in IPC go undetected\n- Error handling untested (users see raw error messages)\n- Failure modes unknown until production\n\n## Recommendation\nAdd e2e/ipc-security.spec.ts with tests:\n1. Send oversized payloads (> max array size)\n2. Malformed JSON payloads\n3. Missing required fields\n4. Concurrent AI chat requests + cancellation\n5. PDF merge with nonexistent files\n6. Invalid ticker symbols\n7. Notification with malicious URL\n8. File save to read-only directory\n\nVerify main process responds with error, not crash.\n\n## Evidence\ne2e/smoke.spec.ts:1\u2013175 (only navigation), e2e/extended.spec.ts (only happy path)",
+    "body_length": 390
+  },
+  {
+    "title": "No lockfile or Node version pin; build not reproducible",
+    "labels": [
+      "p3",
+      "build",
+      "dx",
+      "audit-generated"
+    ],
+    "body": "## Build Reproducibility Gaps\n\n1. **Lockfile not committed**: pnpm-lock.yaml should be in Git. Currently no mention in .gitignore check, but typical pnpm setup excludes it.\n2. **Node version not pinned**: package.json lacks `engines` field.\n3. **electron-builder config**: electron-builder.config.js or electronBuilder in package.json not visible (likely uses defaults).\n\n## Risk\n- Different developers/CI may build with different pnpm/Node versions\n- Dependency versions not locked; `pnpm install` may install minor/patch updates\n- Distribution builds may differ between environments\n- Security patches not coordinated\n\n## Recommendation\n1. Commit pnpm-lock.yaml and verify .gitignore allows it\n2. Add to package.json:\n```json\n\"engines\": {\n  \"node\": \">=20.0.0 <22.0.0\",\n  \"pnpm\": \">=9.0.0\"\n}\n```\n3. Add .nvmrc: `20.14.0` (match your CI)\n4. In CI, use: `pnpm ci` (not `pnpm install`)\n5. Document build environment in CONTRIBUTING.md\n6. Test builds are reproducible (hash output binary)\n\n## Evidence\npackage.json lacks engines, .nvmrc missing, no CONTRIBUTING.md, lockfile status unclear",
+    "body_length": 350
+  },
+  {
+    "title": "README and CONTRIBUTING docs insufficient; no security or build guide",
+    "labels": [
+      "p3",
+      "docs",
+      "dx",
+      "audit-generated"
+    ],
+    "body": "## Documentation Gaps\n\nCurrent README.md covers features and stack well, but lacks:\n1. **Build setup**: No detailed steps for contributors (Node version, pnpm version)\n2. **Security model**: No explanation of keyVault, safeStorage, CSP strategy\n3. **IPC design**: No guide to adding new IPC handlers or testing them\n4. **Linux setup**: No mention of libsecret requirement for encryption\n5. **Contributing guide**: No CONTRIBUTING.md (GitHub suggests one on PR)\n6. **API key management**: Users must discover Settings \u2192 keys from UI; no quick-start\n7. **Development workflow**: No mention of npm run typecheck, test watching\n8. **Electron hardening**: No explanation of sandbox, contextIsolation, nodeIntegration choices\n\n## Risk\n- Contributor friction; unclear how to build/test\n- New developers may unknowingly weaken security\n- Linux users unaware of keyring requirement\n- Maintainer burden answering setup questions\n\n## Recommendation\nCreate/update:\n1. **CONTRIBUTING.md**: Prerequisites (Node 20+, pnpm 9+), build steps, test running, PR checklist\n2. **SECURITY.md**: Threat model, key management, IPC validation strategy, reporting vulnerabilities\n3. **docs/IPC.md**: How to add handlers, Zod validation patterns, testing IPC changes\n4. **docs/LINUX.md**: libsecret setup, troubleshooting encryption failures\n5. Update README.md: Add Linux setup note, link to security model\n\n## Evidence\nNo CONTRIBUTING.md or SECURITY.md. README.md:62 mentions \"Settings \u2699\" but no detail. No IPC documentation.",
+    "body_length": 410
+  }
+]

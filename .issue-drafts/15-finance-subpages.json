@@ -1,0 +1,62 @@
+[
+  {
+    "title": "DailyBriefing: no caching or re-fetch throttling",
+    "body": "The DailyBriefing component generates a new briefing on every click without any mechanism to prevent duplicate API calls or cache recent generations. Users can spam \"Generate\" and trigger multiple identical AI requests, consuming tokens and creating confusing UX. There is no cooldown, deduplication, or freshness check.\n\nCurrently (lines 15-32), the `generate()` function directly calls `useAI().start()` without checking when the last generation was or if watchlist data has changed. Add:\n\n1. Request deduplication: track request hash + prevent duplicate in-flight requests\n2. Client-side cache: store last N generations with timestamps (queryKey-style)\n3. Watchlist change detection: invalidate cache only when items change\n4. Cooldown UI: show remaining time before user can request again (5–15s)\n\nThis is critical for cost control and perceived snappiness in a desktop app where users repeatedly test features.\n\nEstimated effort: 2–3 hours\nAudit-generated",
+    "labels": ["p1", "briefing", "perf", "resilience", "audit-generated"],
+    "file": "src/renderer/src/modules/finance/briefing/DailyBriefing.tsx:15"
+  },
+  {
+    "title": "DailyBriefing: AI prompt lacks factual grounding and fails on empty watchlist edge case",
+    "body": "The AI briefing prompt (line 26) asks for a daily briefing but does not instruct the AI to cite sources or ground assertions in the provided data. The model may hallucinate sector correlations, macro narratives, or technical drivers unmoored from the watchlist snapshot. Additionally, if a user has 0 items in their watchlist, the prompt still fires (no validation), sending an empty or near-empty rows array, causing the AI to refuse or produce generic filler.\n\nImpact: Users receive ungrounded financial commentary that could mislead trading decisions. Empty watchlist generates wasted token spend and poor UX.\n\nFixes:\n1. Add validation: `if (items.length === 0)` show empty state, block Generate button\n2. Enhance prompt: instruct AI to cite specific tickers and price points only from the provided snapshot, refuse speculation beyond data\n3. Add a disclaimer in the output: \"Based on current watchlist data; not investment advice\"\n\nEstimated effort: 1–2 hours\nAudit-generated",
+    "labels": ["p1", "briefing", "correctness", "audit-generated"],
+    "file": "src/renderer/src/modules/finance/briefing/DailyBriefing.tsx:26"
+  },
+  {
+    "title": "PaperPage: P&L calculations lack fee handling on partial fills and short positions",
+    "body": "The `computePaperPositions()` function (lines 26–55) calculates realized P&L but has inconsistencies with fee application. For sell orders, fees are deducted from P&L (line 46), but the logic assumes all sell quantity exactly matches purchased lots. In reality, sells can be partial or shorts.\n\nCritical gaps:\n1. **Partial fills not modeled**: function assumes qty matches exactly; doesn't handle fractional shares or sell-more-than-held scenarios\n2. **Short positions**: no short cost basis tracking; shorts are treated as negative qty but fees are applied inconsistently\n3. **FIFO vs LIFO**: no spec on which lots are sold first; could affect tax reports\n4. **Total realized P&L**: cache computation result to avoid O(n) recalculation on every render\n\nFix:\n- Use proper lot tracking (FIFO or LIFO)\n- Add comprehensive tests for shorts, partial sells, and commissions\n- Document the exact accounting method in code\n\nEstimated effort: 4–5 hours\nAudit-generated",
+    "labels": ["p2", "paper", "finance-math", "correctness", "audit-generated"],
+    "file": "src/renderer/src/modules/finance/paper/PaperPage.tsx:26"
+  },
+  {
+    "title": "PaperPage: no slippage model; fills always at live price",
+    "body": "The submit handler (lines 90–111) fills all simulated orders at the current live quote price with zero slippage. This is unrealistic and hides execution risk. Real traders face:\n\n- Bid-ask spread on execution\n- Market impact on large orders\n- Latency skew (live price fetched async, not at order time)\n\nPaper trading should optionally model slippage to build realistic P&L expectations. Current approach inflates performance on back-of-envelope calcs.\n\nAdd:\n1. Configurable slippage model (basis points or %)\n2. For buys: add spread/slippage, for sells: subtract\n3. Option to randomize slippage within a range (±5–15 bps)\n4. Document assumptions in UI\n\nEstimated effort: 2–3 hours\nAudit-generated",
+    "labels": ["p2", "paper", "finance-math", "enhancement", "audit-generated"],
+    "file": "src/renderer/src/modules/finance/paper/PaperPage.tsx:90"
+  },
+  {
+    "title": "JournalPage: AI analyzer prompt is vague; lacks outcome tracking schema",
+    "body": "The analyze function (lines 68–85) sends the last 30 entries to AI but the prompt (lines 81) asks for \"patterns\" and \"mistakes\" without defining what constitutes a win, loss, or mistake. There's no explicit outcome field (entry vs exit, profit/loss) connected to each entry, so the AI is asked to reverse-engineer intent and outcome from thesis + conviction alone.\n\nThe journal form accepts conviction (1–10) and target/stop, but there's no outcome field to log:\n- Entry price vs exit price\n- Win/loss amount\n- Why the position closed\n- Actual conviction accuracy (did high-conviction trades win?)\n\nWithout this data, the AI analysis is weak.\n\nFix:\n1. Add an \"Outcome\" entry type that logs exit price, exit reason, P&L\n2. Link trades (from paper trading) to journal entries for auto-population\n3. Enhance AI prompt to explicitly ask: \"What is the win rate by tag? Which conviction levels align with wins?\"\n4. Export journal with calculated metrics (win %, avg R multiple, conviction accuracy)\n\nEstimated effort: 3–4 hours\nAudit-generated",
+    "labels": ["p2", "journal", "correctness", "enhancement", "audit-generated"],
+    "file": "src/renderer/src/modules/finance/journal/JournalPage.tsx:68"
+  },
+  {
+    "title": "StrategyBuilder: no validation that parsed AI rules match expected operator/metric schema",
+    "body": "The `parseAiRules()` function (lines 99–113) uses a fragile regex to extract JSON and minimal validation (line 104: `parsed.every((r) => r.metric && r.operator)`). The validation is insufficient:\n\n1. **No type checking**: `operator` string is not validated against OPERATORS enum (line 13)\n2. **No metric validation**: parsed `metric` could be arbitrary string, not from METRICS list (line 15)\n3. **No value validation**: `value` could be NaN, negative (invalid for prices), or missing for \"between\" (needs [lo, hi])\n4. **Poor error UX**: exception falls silently into try/catch, shows generic \"check JSON\" message without showing what failed\n\nAn attacker (or buggy AI) could inject invalid rules. The UI would accept them silently and later fail at save time or during strategy evaluation.\n\nFix:\n1. Use zod/ajv schema to validate parsed rules strictly\n2. Check operator is in OPERATORS, metric is in METRICS\n3. For \"between\" rules, validate value is [number, number]\n4. For other operators, validate value is finite number\n5. Show detailed error: which rule failed and why\n\nEstimated effort: 2–3 hours\nAudit-generated",
+    "labels": ["p2", "strategies", "correctness", "dx", "audit-generated"],
+    "file": "src/renderer/src/modules/finance/strategy/StrategyBuilder.tsx:99"
+  },
+  {
+    "title": "StrategyBuilder: natural language conversion AI output is not re-parsed on update",
+    "body": "The workflow (lines 80–113) is:\n1. User types natural language description\n2. Click \"Parse with AI\"\n3. AI response shown in pre tag\n4. User clicks \"Apply parsed rules\"\n\nBut if the user edits the natural language field after parsing, clicking \"Parse with AI\" again will overwrite `state.text` with the new response. There's no confirmation dialog, and the old pre-tag text is lost. Worse, the \"Apply\" button stays visible but applies the old (not current) rules. This creates confusion if the user iterates.\n\nAdd:\n1. Disable the \"Parse\" button while `state.streaming` is true\n2. Add a \"clear\" button to discard AI output\n3. Detect if natural language changed after last parse; show warning before re-parsing\n4. Reset \"Apply\" button state after user applies rules\n\nEstimated effort: 1–2 hours\nAudit-generated",
+    "labels": ["p3", "strategies", "dx", "ui", "audit-generated"],
+    "file": "src/renderer/src/modules/finance/strategy/StrategyBuilder.tsx:80"
+  },
+  {
+    "title": "ScreenerPage: no result count/pagination; large universe can stall UI or hit memory limit",
+    "body": "The screener query (lines 43–47) hardcodes a fetch of 30 results from each preset. For large presets like \"day_gainers\" or \"most_actives\", there could be 500+ matches. The current code always returns 30, but there's no pagination, result count display, or ability to load more. If a future change increases the limit or the data source returns more rows, the table rendering could stall with >500 rows in a single <tbody>.\n\nThe query caches with `staleTime: 60_000` but doesn't show a \"stale\" indicator, so users might not know they're viewing minute-old data.\n\nAdd:\n1. Pagination: load 30, show \"Load more\" button\n2. Display total result count and current slice\n3. Memo-ize table rows to prevent unnecessary re-renders\n4. Show cache age indicator (e.g., \"Updated 2m ago\")\n5. Warn if >100 results shown: \"Large result set; consider filtering\"\n\nEstimated effort: 2–3 hours\nAudit-generated",
+    "labels": ["p2", "screener", "perf", "ui", "audit-generated"],
+    "file": "src/renderer/src/modules/finance/screener/ScreenerPage.tsx:43"
+  },
+  {
+    "title": "ComparePage: Compare table metrics omit several StockDetail fields; differential highlighting misleading",
+    "body": "The ComparePage Compare table (lines 86–190) lists 11 metrics, but StockDetail (home page) likely shows more (earnings dates, analyst ratings, short interest, float, etc.). For a true side-by-side, users want all available metrics. Additionally, the \"winner\" logic (lines 158–161) is simplistic:\n\n- It only highlights green if one ticker beats the other, not if both are good or bad\n- No threshold logic (e.g., is a 0.01% difference material?)\n- No context on what \"good\" means for each metric in the user's strategy\n- Sparkline shown in Panel (line 72) but not in Compare table, missing intraday context\n\nAdd:\n1. Extend compare table to include all available fundamental metrics from `Fundamentals` type\n2. Add strategy-aware scoring: highlight metrics that align with user's active strategies\n3. Show both absolute values and % difference\n4. Add 1Y / 5Y sparklines to the table for quick trend check\n5. Option to sort by \"most different\" metric\n\nEstimated effort: 3–4 hours\nAudit-generated",
+    "labels": ["p2", "screener", "enhancement", "audit-generated"],
+    "file": "src/renderer/src/modules/finance/compare/ComparePage.tsx:86"
+  },
+  {
+    "title": "PositionSizeCalculator: portfolio % sanity check is weak; no max single-position warning at account level",
+    "body": "The warnings (lines 40–51) include \"Position > 50% of account\" (line 51) but there's no coordination with the actual paper trading portfolio. A user could:\n\n1. Enter a position that's 45% of account in the calculator\n2. Already have an open position in paper trading\n3. Combined allocation exceeds 100% or violates their risk model\n\nAlso, the calculator only warns on absolute portfolio %. Professional traders use Kelly Criterion or fixed-fractional models tied to realized volatility, not a flat %. The current model (line 231) assumes risk is always some % of account, but doesn't adapt to account drawdown.\n\nAdd:\n1. Fetch live paper trading positions; show cumulative allocation impact\n2. Warn if total allocation (paper + this calc) exceeds 75%\n3. Add Kelly Criterion calculator as an option (input historical win rate + avg R multiple)\n4. Log position sizing decisions to journal for later pattern analysis\n5. Option to sync sizes directly to paper trading orders\n\nEstimated effort: 3–4 hours\nAudit-generated",
+    "labels": ["p1", "risk", "finance-math", "enhancement", "audit-generated"],
+    "file": "src/renderer/src/modules/finance/risk/PositionSizeCalculator.tsx:40"
+  }
+]

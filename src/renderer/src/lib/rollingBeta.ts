@@ -75,8 +75,7 @@ export function computeRollingBeta(
     const lastHalf = points.slice(Math.floor(points.length / 2))
     const avgFirst =
       firstHalf.reduce((s, p) => s + (p.beta ?? 0), 0) / Math.max(1, firstHalf.length)
-    const avgLast =
-      lastHalf.reduce((s, p) => s + (p.beta ?? 0), 0) / Math.max(1, lastHalf.length)
+    const avgLast = lastHalf.reduce((s, p) => s + (p.beta ?? 0), 0) / Math.max(1, lastHalf.length)
     const delta = avgLast - avgFirst
     if (Math.abs(delta) < 0.05) trend = 'flat'
     else if (delta > 0) trend = 'rising'

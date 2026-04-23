@@ -58,6 +58,18 @@ describe('rsi', () => {
     expect(r).toBeGreaterThanOrEqual(0)
     expect(r).toBeLessThanOrEqual(100)
   })
+  it('p=14 needs exactly 15 prices — rejects 14', () => {
+    const exactly14 = Array.from({ length: 14 }, (_, i) => i + 1)
+    expect(rsi(exactly14, 14)).toBe(null)
+  })
+  it('p=14 with 15 rising prices returns 100 (no losses)', () => {
+    const rising15 = Array.from({ length: 15 }, (_, i) => i + 1)
+    expect(rsi(rising15, 14)).toBe(100)
+  })
+  it('p=14 with 15 falling prices returns 0 (no gains)', () => {
+    const falling15 = Array.from({ length: 15 }, (_, i) => 100 - i)
+    expect(rsi(falling15, 14)).toBeCloseTo(0, 5)
+  })
 })
 
 describe('stddev', () => {
@@ -99,6 +111,21 @@ describe('maxDrawdown', () => {
   })
   it('peak-to-trough even after recovery', () => {
     expect(maxDrawdown([100, 120, 60, 130])).toBeCloseTo(-50, 5)
+  })
+  it('returns 0 for empty input', () => {
+    expect(maxDrawdown([])).toBe(0)
+  })
+  it('handles single-element input', () => {
+    expect(maxDrawdown([100])).toBe(0)
+  })
+  it('never returns positive values', () => {
+    const random = [100, 95, 110, 85, 120, 90, 100, 75, 130]
+    expect(maxDrawdown(random)).toBeLessThanOrEqual(0)
+  })
+  it('guards against division by zero when peak becomes non-positive', () => {
+    const r = maxDrawdown([0, 0, 0])
+    expect(Number.isFinite(r)).toBe(true)
+    expect(r).toBe(0)
   })
 })
 

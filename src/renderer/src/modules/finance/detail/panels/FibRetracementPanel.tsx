@@ -75,17 +75,10 @@ export function FibRetracementPanel({ ticker }: { ticker: string }): React.JSX.E
       <div className="mb-2 grid grid-cols-2 gap-2 md:grid-cols-4">
         <SmallStat label={`High · ${analysis.hiDate}`} value={`$${fmtPrice(analysis.hi)}`} />
         <SmallStat label={`Low · ${analysis.loDate}`} value={`$${fmtPrice(analysis.lo)}`} />
-        <SmallStat
-          label="Current"
-          value={current != null ? `$${fmtPrice(current)}` : '—'}
-        />
+        <SmallStat label="Current" value={current != null ? `$${fmtPrice(current)}` : '—'} />
         <SmallStat
           label="Nearest level"
-          value={
-            nearest
-              ? `${nearest.label} · ${nearest.distPct.toFixed(2)}%`
-              : '—'
-          }
+          value={nearest ? `${nearest.label} · ${nearest.distPct.toFixed(2)}%` : '—'}
         />
       </div>
 
@@ -104,8 +97,7 @@ export function FibRetracementPanel({ ticker }: { ticker: string }): React.JSX.E
               const delta = current != null ? ((l.value - current) / current) * 100 : null
               const isKey = ['38.2%', '50%', '61.8%'].includes(l.label)
               const isExt = ['127.2%', '161.8%'].includes(l.label)
-              const near =
-                current != null && Math.abs((l.value - current) / current) < 0.015
+              const near = current != null && Math.abs((l.value - current) / current) < 0.015
               return (
                 <tr
                   key={l.label}
@@ -146,8 +138,8 @@ export function FibRetracementPanel({ ticker }: { ticker: string }): React.JSX.E
 
       <div className="mt-2 text-[10px] text-[var(--color-fg-muted)]">
         Key support/resistance cluster: {keyTargets.map((l) => l.label).join(' · ')}. Price reacting
-        at 38.2% = shallow pullback (strong trend). 61.8% = deep pullback (weakening). Below 78.6%
-        = trend likely invalidated.
+        at 38.2% = shallow pullback (strong trend). 61.8% = deep pullback (weakening). Below 78.6% =
+        trend likely invalidated.
       </div>
     </div>
   )

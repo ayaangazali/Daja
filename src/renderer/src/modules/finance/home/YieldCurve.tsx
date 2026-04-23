@@ -13,20 +13,36 @@ const CURVE = [
 export function YieldCurve(): React.JSX.Element {
   const results = useQuotes(CURVE.map((c) => c.ticker))
 
-  const { points, inverted } = useMemo(() => {
+  const { points, inverted, spreadPct, invertedPair } = useMemo(() => {
     const pts = CURVE.map((c, i) => {
       const q = results[i]?.data as Quote | undefined
-      // Yahoo quotes ^TNX etc. as percentage points × 10 (e.g. 43.5 = 4.35%)
-      // Actually ^TNX uses direct percent (e.g. 4.35 = 4.35%). Let's handle both.
+      // Yahoo sometimes quotes rates ×10 (e.g. 43.5 meaning 4.35%) and sometimes
+      // as direct percent (4.35). Threshold heuristic: anything > 20 is ×10 scaling.
       const raw = q?.price ?? null
       const yld = raw == null ? null : raw > 20 ? raw / 10 : raw
       return { label: c.label, months: c.months, yield: yld, change: q?.changePercent ?? null }
     })
-    // Yield curve inversion: 10Y < 2Y surrogate (we use 5Y here since 2Y isn't in our list); use 10Y vs 5Y
-    const short = pts.find((p) => p.label === '5Y')?.yield ?? null
-    const long = pts.find((p) => p.label === '10Y')?.yield ?? null
-    const inv = short != null && long != null && short > long
-    return { points: pts, inverted: inv }
+    // NY Fed's canonical recession predictor is the 10Y − 3M spread.
+    // A negative spread (short > long) = curve inverted = recession signal.
+    const threeMo = pts.find((p) => p.label === '13W')?.yield ?? null
+    const tenY = pts.find((p) => p.label === '10Y')?.yield ?? null
+    let spread: number | null = null
+    let inv = false
+    let pair: '3M-10Y' | '5Y-10Y' | null = null
+    if (threeMo != null && tenY != null) {
+      spread = tenY - threeMo
+      inv = spread < 0
+      pair = '3M-10Y'
+    } else {
+      // Fallback if 3M data unavailable
+      const fiveY = pts.find((p) => p.label === '5Y')?.yield ?? null
+      if (fiveY != null && tenY != null) {
+        spread = tenY - fiveY
+        inv = spread < 0
+        pair = '5Y-10Y'
+      }
+    }
+    return { points: pts, inverted: inv, spreadPct: spread, invertedPair: pair }
   }, [results])
 
   const valid = points.filter((p) => p.yield != null && Number.isFinite(p.yield))
@@ -76,9 +92,13 @@ export function YieldCurve(): React.JSX.Element {
               ? 'bg-[var(--color-neg)]/15 text-[var(--color-neg)]'
               : 'bg-[var(--color-pos)]/15 text-[var(--color-pos)]'
           )}
-          title="Yield curve inversion (5Y > 10Y) historically precedes recessions"
+          title={
+            invertedPair
+              ? `${invertedPair} spread ${spreadPct != null ? spreadPct.toFixed(2) + '%' : '—'} · NY Fed model: negative 10Y−3M inversion has preceded every US recession since 1955`
+              : 'Yield curve inversion indicator'
+          }
         >
-          {inverted ? 'inverted' : 'normal'}
+          {inverted ? `inverted ${invertedPair ?? ''}` : 'normal'}
         </div>
       </div>
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full">

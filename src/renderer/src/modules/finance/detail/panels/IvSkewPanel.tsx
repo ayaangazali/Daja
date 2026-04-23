@@ -39,10 +39,16 @@ export function IvSkewPanel({ ticker }: { ticker: string }): React.JSX.Element {
   const callPoints = bothWings.filter((r) => r.callIv != null)
 
   const putPath = putPoints
-    .map((r, i) => `${i === 0 ? 'M' : 'L'}${toX(r.moneyness).toFixed(1)},${toY(r.putIv as number).toFixed(1)}`)
+    .map(
+      (r, i) =>
+        `${i === 0 ? 'M' : 'L'}${toX(r.moneyness).toFixed(1)},${toY(r.putIv as number).toFixed(1)}`
+    )
     .join(' ')
   const callPath = callPoints
-    .map((r, i) => `${i === 0 ? 'M' : 'L'}${toX(r.moneyness).toFixed(1)},${toY(r.callIv as number).toFixed(1)}`)
+    .map(
+      (r, i) =>
+        `${i === 0 ? 'M' : 'L'}${toX(r.moneyness).toFixed(1)},${toY(r.callIv as number).toFixed(1)}`
+    )
     .join(' ')
 
   const regimeIcon =
@@ -95,10 +101,7 @@ export function IvSkewPanel({ ticker }: { ticker: string }): React.JSX.Element {
           }
           tone={result.callSkew25Delta != null && result.callSkew25Delta > 3 ? 'pos' : undefined}
         />
-        <Stat
-          label="Slope"
-          value={result.skewSlope != null ? result.skewSlope.toFixed(2) : '—'}
-        />
+        <Stat label="Slope" value={result.skewSlope != null ? result.skewSlope.toFixed(2) : '—'} />
       </div>
 
       <div className="mb-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-3">
@@ -112,16 +115,8 @@ export function IvSkewPanel({ ticker }: { ticker: string }): React.JSX.Element {
             strokeDasharray="2,2"
             strokeOpacity="0.4"
           />
-          <line
-            x1={PAD}
-            x2={W - PAD}
-            y1={H - PAD}
-            y2={H - PAD}
-            stroke="var(--color-border)"
-          />
-          {putPath && (
-            <path d={putPath} fill="none" stroke="var(--color-neg)" strokeWidth="1.5" />
-          )}
+          <line x1={PAD} x2={W - PAD} y1={H - PAD} y2={H - PAD} stroke="var(--color-border)" />
+          {putPath && <path d={putPath} fill="none" stroke="var(--color-neg)" strokeWidth="1.5" />}
           {callPath && (
             <path d={callPath} fill="none" stroke="var(--color-pos)" strokeWidth="1.5" />
           )}
@@ -143,25 +138,13 @@ export function IvSkewPanel({ ticker }: { ticker: string }): React.JSX.Element {
               fill="var(--color-pos)"
             />
           ))}
-          <text
-            x={toX(0)}
-            y={H - 10}
-            fontSize="9"
-            fill="var(--color-fg-muted)"
-            textAnchor="middle"
-          >
+          <text x={toX(0)} y={H - 10} fontSize="9" fill="var(--color-fg-muted)" textAnchor="middle">
             ATM
           </text>
           <text x={PAD} y={H - 10} fontSize="9" fill="var(--color-fg-muted)">
             {(minMoney * 100).toFixed(0)}%
           </text>
-          <text
-            x={W - PAD}
-            y={H - 10}
-            fontSize="9"
-            fill="var(--color-fg-muted)"
-            textAnchor="end"
-          >
+          <text x={W - PAD} y={H - 10} fontSize="9" fill="var(--color-fg-muted)" textAnchor="end">
             +{(maxMoney * 100).toFixed(0)}%
           </text>
         </svg>

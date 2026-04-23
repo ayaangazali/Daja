@@ -84,15 +84,15 @@ export function RollingBetaPanel({ ticker }: { ticker: string }): React.JSX.Elem
             strokeDasharray="2,3"
             strokeOpacity="0.3"
           />
-          <line
-            x1={PAD}
-            x2={W - PAD}
-            y1={toY(0)}
-            y2={toY(0)}
-            stroke="var(--color-border)"
-          />
+          <line x1={PAD} x2={W - PAD} y1={toY(0)} y2={toY(0)} stroke="var(--color-border)" />
           <path d={linePath} fill="none" stroke="var(--color-accent)" strokeWidth="1.5" />
-          <text x={W - PAD} y={toY(1) - 2} fontSize="8" fill="var(--color-fg-muted)" textAnchor="end">
+          <text
+            x={W - PAD}
+            y={toY(1) - 2}
+            fontSize="8"
+            fill="var(--color-fg-muted)"
+            textAnchor="end"
+          >
             β=1
           </text>
         </svg>

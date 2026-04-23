@@ -56,12 +56,8 @@ export function ShortSqueezePanel({ ticker }: { ticker: string }): React.JSX.Ele
       <div className="mb-3 grid grid-cols-2 gap-2 md:grid-cols-4">
         <Stat
           label="Short % of float"
-          value={
-            result.shortPercentPct != null ? `${result.shortPercentPct.toFixed(1)}%` : '—'
-          }
-          tone={
-            result.shortPercentPct != null && result.shortPercentPct >= 20 ? 'warn' : undefined
-          }
+          value={result.shortPercentPct != null ? `${result.shortPercentPct.toFixed(1)}%` : '—'}
+          tone={result.shortPercentPct != null && result.shortPercentPct >= 20 ? 'warn' : undefined}
         />
         <Stat
           label="Days to cover"

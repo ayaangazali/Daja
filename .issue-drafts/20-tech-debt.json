@@ -1,0 +1,72 @@
+[
+  {
+    "title": "Type-unsafe `as any` cast in financeIpc screener handler",
+    "labels": ["p1", "tech-debt", "audit-generated", "correctness"],
+    "body": "## Issue\nThe `financeIpc.ts` file contains an unsafe type cast that bypasses TypeScript's type system:\n\n**File:** `src/main/ipc/financeIpc.ts:67`\n```typescript\nreturn fetchScreener(parsed.id as any, parsed.count ?? 25)\n```\n\nThe `eslint-disable` comment on line 66 suppresses the type checker, masking a real type safety issue. The `parsed.id` is a string but `fetchScreener` likely expects a union type of screener IDs. This pattern silently converts the runtime type, making it impossible to catch mismatches.\n\n## Impact\n- Silent failures if an invalid screener ID is passed\n- No type hint for callers about valid screener IDs\n- Maintenance burden if screener types evolve\n\n## Solution\nDefine a proper `ScreenerId` type in a shared types file and use discriminated unions or branded types instead of `as any`. This ensures compile-time safety and documents the API contract.",
+    "assignees": [],
+    "milestone": null
+  },
+  {
+    "title": "Duplicated Fundamentals type definition across boundary",
+    "labels": ["p2", "tech-debt", "audit-generated", "correctness"],
+    "body": "## Issue\nThe `Fundamentals` interface is defined identically in two locations:\n\n1. **File:** `src/renderer/src/hooks/useFundamentals.ts:3-69`\n2. **File:** `src/main/services/finance/fundamentals.ts:1-77`\n\nBoth define the exact same shape with 50+ fields. The main process version includes helpful inline comments (e.g., `// valuation`, `// growth`), but the renderer hook version strips them. This creates:\n\n- **DRY violation:** Changes must be coordinated across two files\n- **Inconsistent documentation:** Comments only in one place\n- **Merge conflicts:** Independent modifications lead to divergence\n- **Missing shared types:** No single source of truth\n\n## Solution\nCreate `src/shared/types/fundamentals.ts` (or a types barrel) with the canonical `Fundamentals` interface. Both main and renderer should import from this shared location. The shared module is already established for IPC types (`src/shared/ipc.ts`).",
+    "assignees": [],
+    "milestone": null
+  },
+  {
+    "title": "Unsafe `unknown` type assertions in preload bridge",
+    "labels": ["p2", "tech-debt", "audit-generated", "correctness"],
+    "body": "## Issue\nThe preload bridge (`src/preload/index.ts`) uses unsafe type assertions for legacy fallback when `contextIsolation` is disabled:\n\n**File:** `src/preload/index.ts:147-150`\n```typescript\n// @ts-ignore legacy fallback\nwindow.electron = electronAPI\n// @ts-ignore legacy fallback\nwindow.daja = daja\n```\n\nAdditionally, the `MeetingNotes.tsx` component uses `as unknown as` pattern to work around Web APIs not in the type definitions:\n\n**File:** `src/renderer/src/modules/assistant/MeetingNotes.tsx:11-15, 26-29`\n```typescript\nconst w = window as unknown as {\n  webkitSpeechRecognition?: unknown\n  SpeechRecognition?: unknown\n}\n```\n\nThis suppresses all type checking for those assignments, hiding future regressions.\n\n## Impact\n- Type errors on `window` mutations go undetected\n- Ambiguous whether assignments are truly necessary\n- Difficult to audit safety of fallback logic\n\n## Solution\nFor preload: extend the global type definition in `src/preload/index.d.ts` to include electron and daja, removing the need for `@ts-ignore`. For Web APIs: use a proper type declaration file or a narrowing function that respects TypeScript's type system.",
+    "assignees": [],
+    "milestone": null
+  },
+  {
+    "title": "Unsafe type casts in renderer query functions hide promise types",
+    "labels": ["p2", "tech-debt", "audit-generated", "correctness"],
+    "body": "## Issue\nMultiple hooks use unsafe `as Promise<T>` casts to suppress type errors from `window.daja` IPC calls:\n\n**File:** `src/renderer/src/hooks/useFundamentals.ts:76`\n```typescript\nqueryFn: () => window.daja.finance.fundamentals(ticker as string) as Promise<Fundamentals>,\n```\n\nSimilar patterns appear in:\n- `src/renderer/src/hooks/useFinance.ts` (useQuote, useHistorical)\n- `src/renderer/src/hooks/useStatements.ts` (6+ query functions)\n- `src/renderer/src/hooks/usePeers.ts`\n\nThe root cause: `window.daja.finance.fundamentals()` is typed as `Promise<unknown>` in the preload, but callers cast it to the expected type without runtime validation. If the backend returns a different shape, the runtime type is wrong.\n\n## Impact\n- No guarantee of type correctness at runtime\n- Future schema changes won't raise compile errors\n- Inconsistent with Zod validation used in IPC handlers\n\n## Solution\nAdd proper return type overloads in the preload IPC methods or use a wrapper that asserts the response shape with Zod schemas. Extract duplicate query logic into a factory function that handles the cast once.",
+    "assignees": [],
+    "milestone": null
+  },
+  {
+    "title": "Non-null assertions (`!`) bypass type safety in tests and production",
+    "labels": ["p2", "tech-debt", "audit-generated", "correctness"],
+    "body": "## Issue\nThe codebase uses TypeScript non-null assertion operator (`!`) extensively to suppress \"possibly null\" warnings:\n\n**Examples:**\n- `src/renderer/src/shared/Sparkline.test.tsx:` `svg!.querySelector('path')`\n- `src/renderer/src/lib/valuation.test.ts:` `dcfValue(...)!.perShare`\n- `src/renderer/src/lib/positionsFifo.ts:79` `byTicker.get(t.ticker)!.push(t)`\n- `src/renderer/src/modules/sports/SportsHome.tsx:` `c!.name`, `c!.winner`\n\nThese assertions assume values are never null, but provide no guard logic. If the assumption is wrong, runtime errors occur without warning.\n\n## Impact\n- Runtime crashes if null/undefined values escape\n- Tests pass even when underlying code is fragile\n- Maintenance burden: future developers can't tell if `!` is justified\n\n## Solution\nReplace each `!` with explicit narrowing or fallback logic:\n  - Use optional chaining (`?.`) and default values\n  - Add runtime guards (`if (!value) { /* handle */ }`)\n  - Use exhaustive null checks or discriminated unions\n- Update linting rules to flag unchecked `!` operators as errors.",
+    "assignees": [],
+    "milestone": null
+  },
+  {
+    "title": "Magic numbers in timing/intervals lack named constants",
+    "labels": ["p2", "tech-debt", "audit-generated", "enhancement"],
+    "body": "## Issue\nTiming constants are hardcoded throughout the codebase without centralized definitions:\n\n**Examples:**\n- `src/renderer/src/providers/AppProviders.tsx`: `staleTime: 60_000`, `gcTime: 5 * 60_000`\n- `src/renderer/src/hooks/useFinance.ts`: `staleTime: 60_000`, `refetchInterval: 60_000`\n- `src/renderer/src/hooks/useFundamentals.ts`: `staleTime: 15 * 60_000`\n- `src/renderer/src/hooks/useSports.ts`: `refetchInterval: 60_000`, `staleTime: 5 * 60_000`\n- `src/renderer/src/hooks/usePeers.ts`: `staleTime: 60 * 60_000`\n- `src/renderer/src/shell/StatusBar.tsx`: `setInterval(..., 1000)`\n- `src/renderer/src/hooks/useKeyboardNav.ts`: `}, 1000)`\n\n## Impact\n- Inconsistent cache expiry policies (15 min vs 1 hour vs 5 min)\n- Difficult to tune polling behavior globally\n- Future changes require searching multiple files\n\n## Solution\nCreate `src/renderer/src/lib/constants.ts` with:\n```typescript\nexport const TIMING = {\n  QUOTE_STALE: 60_000,\n  FUNDAMENTALS_STALE: 15 * 60_000,\n  PEERS_STALE: 60 * 60_000,\n  SPORTS_STALE: 5 * 60_000,\n  QUERY_GC_TIME: 5 * 60_000,\n  CLOCK_TICK: 1000,\n  KEYBOARD_DEBOUNCE: 1000,\n} as const\n```\nReplace all magic numbers with named imports.",
+    "assignees": [],
+    "milestone": null
+  },
+  {
+    "title": "Large component files (>500 LOC) need decomposition",
+    "labels": ["p2", "tech-debt", "audit-generated", "enhancement"],
+    "body": "## Issue\nSeveral complex components exceed 500 lines, mixing multiple concerns:\n\n**File:** `src/renderer/src/modules/finance/detail/panels/AnalystPanel.tsx` (543 LOC)\n**File:** `src/renderer/src/shell/LaunchpadHome.tsx` (537 LOC)\n**File:** `src/renderer/src/modules/pdf-tools/PdfHome.tsx` (469 LOC)\n**File:** `src/renderer/src/modules/finance/portfolio/RiskDashboard.tsx` (412 LOC)\n**File:** `src/renderer/src/modules/finance/detail/tabs/TechnicalsTab.tsx` (376 LOC)\n\nEach contains:\n- State management (useState, useCallback)\n- Business logic (calculations, filtering)\n- Rendering (multiple sections, conditional branches)\n- Utility functions (sma, ema, rsi, macd, stochastic defined locally in TechnicalsTab)\n\nThese duplicate calculations also appear in `src/renderer/src/lib/indicators.ts` and `src/renderer/src/lib/indicators2.ts`, creating divergent implementations.\n\n## Impact\n- Difficult to test individual concerns\n- Hard to reuse logic across components\n- Cognitive load when reading/maintaining\n- Duplication of indicator math (sma, ema, rsi in both TechnicalsTab and lib/)\n\n## Solution\n1. Extract calculation logic from TechnicalsTab into `src/renderer/src/lib/technicalIndicators.ts`\n2. Split large panels into: a data-fetching wrapper, a display component, and isolated subcomponents\n3. Move state logic to custom hooks (e.g., `useTechnicalIndicators`)\n4. Consolidate all indicator utilities into a single lib and remove duplicates.",
+    "assignees": [],
+    "milestone": null
+  },
+  {
+    "title": "Missing barrel exports in hooks and lib directories",
+    "labels": ["p3", "tech-debt", "audit-generated", "enhancement"],
+    "body": "## Issue\nThe codebase lacks barrel files (`index.ts/tsx`) for `hooks/` and `lib/` directories:\n\n- `src/renderer/src/hooks/` has 20+ custom hooks (useFinance, useTrades, useFundamentals, etc.) but no `index.ts`\n- `src/renderer/src/lib/` has 60+ utility modules but no `index.ts`\n\nImport statements are verbose:\n```typescript\nimport { useFinance } from '../../../hooks/useFinance'\nimport { useTrades } from '../../../hooks/useTrades'\nimport { cn } from '../../../lib/cn'\nimport { csv } from '../../../lib/csv'\n```\n\nInstead of:\n```typescript\nimport { useFinance, useTrades } from '../../../hooks'\nimport { cn, csv } from '../../../lib'\n```\n\n## Impact\n- Deep relative path imports (../../../) make refactoring risky\n- No clear public API boundary\n- Harder to discover available hooks/utilities\n\n## Solution\n1. Create `src/renderer/src/hooks/index.ts` exporting all custom hooks\n2. Create `src/renderer/src/lib/index.ts` exporting public utilities (exclude .test files)\n3. Update imports throughout to use barrel imports\n4. Consider grouping lib utilities by domain (e.g., `lib/indicators/`, `lib/math/`)",
+    "assignees": [],
+    "milestone": null
+  },
+  {
+    "title": "IPC call allowlist in dbIpc lacks type safety",
+    "labels": ["p2", "tech-debt", "audit-generated", "correctness"],
+    "body": "## Issue\nThe database IPC security layer manually maintains an allowlist of repo/method combinations:\n\n**File:** `src/main/ipc/dbIpc.ts:11-22`\n```typescript\nconst ALLOWED: Record<string, Set<string>> = {\n  watchlist: new Set(['list', 'listAllNames', 'add', 'remove', 'reorder', 'setAlerts']),\n  trades: new Set(['list', 'byTicker', 'add', 'remove']),\n  // ...\n}\n```\n\nThis allowlist is:\n1. **String-based:** No connection to actual repo types in `src/main/db/repos/`\n2. **Manual:** Changes in repos/ don't update this list automatically\n3. **Unsafe:** Line 33 uses `as unknown as Record<...>` to bypass types\n4. **Opaque:** No way to trace which methods are actually available\n\nIf a repo method is added but not in ALLOWED, it silently fails. If ALLOWED lists a method that was removed, it will raise an error at runtime.\n\n## Impact\n- Maintenance overhead: two sources of truth\n- No automated verification\n- Type cast at line 33 hides the mismatch\n\n## Solution\nGenerate the allowlist from the actual repo definitions using a type-safe helper:\n```typescript\ntype AllowedCalls = ExtractPublicMethods<typeof repos>\nconst ALLOWED = buildAllowList(repos)\n```\nOr use a discriminated union pattern to enforce type safety at the callsite.",
+    "assignees": [],
+    "milestone": null
+  },
+  {
+    "title": "Inconsistent IPC communication patterns across modules",
+    "labels": ["p3", "tech-debt", "audit-generated", "dx"],
+    "body": "## Issue\nThe codebase mixes two IPC communication patterns:\n\n**Pattern A (react-query hooks):** Finance, health, trades, strategies\n```typescript\nconst { data } = useQuery({\n  queryKey: ['fundamentals', ticker],\n  queryFn: () => window.daja.finance.fundamentals(ticker)\n})\n```\n\n**Pattern B (direct window.daja calls):** Preload, AI, preferences\n```typescript\nconst result = await window.daja.prefs.get()\nconst supported = window.daja.ai.start(opts)\n```\n\n**Pattern C (generic db.call):** Trades, strategies\n```typescript\nwindow.daja.db.call('strategies', 'list')\n```\n\nThis inconsistency means:\n- New modules aren't clear which pattern to follow\n- Error handling is inconsistent (react-query errors vs promise rejection)\n- No single place to apply global IPC middleware (logging, metrics, retry)\n- Testing requires different mocking strategies\n\n## Impact\n- Maintenance burden: developers must understand all patterns\n- Code review inconsistency\n- Difficulty implementing cross-cutting concerns (tracing, rate limiting)\n\n## Solution\nStandardize on one pattern:\n1. Preferred: react-query hooks for all async operations\n2. Or: Create an IPC layer wrapper that enforces consistent error handling and typing\n3. Add documentation in ARCHITECTURE.md with examples",
+    "assignees": [],
+    "milestone": null
+  }
+]
