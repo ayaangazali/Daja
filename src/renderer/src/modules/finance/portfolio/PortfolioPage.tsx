@@ -17,6 +17,7 @@ import { PortfolioEarnings } from './PortfolioEarnings'
 import { DripCalculator } from './DripCalculator'
 import { PortfolioExitSignals } from './PortfolioExitSignals'
 import { StressTestPanel } from './StressTestPanel'
+import { AttributionPanel } from './AttributionPanel'
 import { useTrades } from '../../../hooks/useTrades'
 import { downloadCsv, toCsv } from '../../../lib/csv'
 import { ErrorBoundary } from '../../../shared/ErrorBoundary'
@@ -152,6 +153,9 @@ export function PortfolioPage(): React.JSX.Element {
           )}
           {tab === 'analysis' && (
             <>
+              <Panel label="Attribution">
+                <AttributionPanel />
+              </Panel>
               <Panel label="CorrelationMatrix">
                 <CorrelationMatrix />
               </Panel>
