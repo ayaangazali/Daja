@@ -69,9 +69,7 @@ export function QuickSetup(): React.JSX.Element {
     // Gemini prefix check — real Gemini keys start with "AIza", not just "AI".
     const realPrefix = provider.keyPrefix === 'AI' ? 'AIza' : provider.keyPrefix
     if (!trimmed.startsWith(realPrefix)) {
-      setError(
-        `Key doesn't look like a ${provider.name} key — expected prefix "${realPrefix}"`
-      )
+      setError(`Key doesn't look like a ${provider.name} key — expected prefix "${realPrefix}"`)
       return
     }
     setBusy(true)

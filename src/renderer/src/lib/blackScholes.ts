@@ -57,8 +57,7 @@ export function blackScholes(type: OptionType, input: BsInput): Greeks {
     // than 0, so caller can tell "we know it's deep ITM" from "we have no
     // information". Sign matches call/put convention.
     const intrinsic = type === 'call' ? Math.max(S - K, 0) : Math.max(K - S, 0)
-    const asymptoticDelta =
-      type === 'call' ? (S > K ? 1 : 0) : S < K ? -1 : 0
+    const asymptoticDelta = type === 'call' ? (S > K ? 1 : 0) : S < K ? -1 : 0
     return {
       price: intrinsic,
       delta: asymptoticDelta,

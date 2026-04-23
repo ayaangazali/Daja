@@ -237,29 +237,81 @@ function createWindow(): void {
   }
 }
 
-app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.daja.app')
-
-  app.on('browser-window-created', (_, window) => {
-    optimizer.watchWindowShortcuts(window)
+// Single-instance lock: prevents multiple Daja processes from fighting over
+// the better-sqlite3 handle on daja.db. Second launch focuses the running
+// instance rather than starting a separate process.
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  app.quit()
+} else {
+  app.on('second-instance', () => {
+    const wins = BrowserWindow.getAllWindows()
+    const main = wins[0]
+    if (main) {
+      if (main.isMinimized()) main.restore()
+      main.focus()
+    }
   })
 
-  openDatabase()
-  registerKeyVaultIpc()
-  registerDbIpc()
-  registerAiIpc()
-  registerFinanceIpc()
-  registerSportsIpc()
-  registerPdfIpc()
+  app.whenReady().then(() => {
+    electronApp.setAppUserModelId('com.daja.app')
 
-  createWindow()
+    app.on('browser-window-created', (_, window) => {
+      optimizer.watchWindowShortcuts(window)
+    })
 
-  app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    openDatabase()
+    registerKeyVaultIpc()
+    registerDbIpc()
+    registerAiIpc()
+    registerFinanceIpc()
+    registerSportsIpc()
+    registerPdfIpc()
+
+    createWindow()
+
+    app.on('activate', function () {
+      if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    })
   })
-})
 
-app.on('window-all-closed', () => {
-  closeDatabase()
-  if (process.platform !== 'darwin') app.quit()
-})
+  // Graceful shutdown: flush DB + save window state even if the renderer is
+  // mid-animation when the user hits Cmd+Q. before-quit fires before any
+  // windows close; will-quit after all cleanup but before exit.
+  let isQuitting = false
+  app.on('before-quit', () => {
+    isQuitting = true
+  })
+  app.on('will-quit', () => {
+    try {
+      closeDatabase()
+    } catch (err) {
+      console.error('closeDatabase on will-quit failed:', err)
+    }
+  })
+
+  app.on('window-all-closed', () => {
+    // Only flush + quit on non-Darwin, and only if not already quitting
+    // (quit() triggers before-quit which triggers another window-all-closed).
+    if (!isQuitting) {
+      try {
+        closeDatabase()
+      } catch (err) {
+        console.error('closeDatabase on window-all-closed failed:', err)
+      }
+    }
+    if (process.platform !== 'darwin') app.quit()
+  })
+
+  // POSIX signal handlers — Ctrl-C / terminal SIGTERM in dev.
+  for (const sig of ['SIGINT', 'SIGTERM'] as const) {
+    process.on(sig, () => {
+      try {
+        closeDatabase()
+      } catch {
+        /* best effort */
+      }
+      app.quit()
+    })
+  }
+}

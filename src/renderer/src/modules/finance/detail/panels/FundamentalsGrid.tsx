@@ -83,9 +83,9 @@ export function FundamentalsGrid({ data }: { data: Fundamentals }): React.JSX.El
   if (fullyMissing) {
     return (
       <div className="rounded-md border border-[var(--color-warn)]/40 bg-[var(--color-warn)]/10 p-3 text-[11px] text-[var(--color-warn)]">
-        <span className="font-semibold">No fundamentals available</span> for this ticker from
-        Yahoo. Common for recent IPOs, penny stocks, ADRs, and delisted names. Try again in a
-        minute or verify the symbol.
+        <span className="font-semibold">No fundamentals available</span> for this ticker from Yahoo.
+        Common for recent IPOs, penny stocks, ADRs, and delisted names. Try again in a minute or
+        verify the symbol.
       </div>
     )
   }
@@ -94,37 +94,37 @@ export function FundamentalsGrid({ data }: { data: Fundamentals }): React.JSX.El
     <div className="space-y-2">
       {mostlyMissing && (
         <div className="rounded-md border border-[var(--color-warn)]/40 bg-[var(--color-warn)]/10 px-3 py-1.5 text-[10px] text-[var(--color-warn)]">
-          Fundamentals partially missing ({missingCount} of {totalCount} fields). Provider data
-          may be incomplete for this ticker.
+          Fundamentals partially missing ({missingCount} of {totalCount} fields). Provider data may
+          be incomplete for this ticker.
         </div>
       )}
-    <div
-      className={cn(
-        'grid grid-cols-5 overflow-hidden rounded-md border text-[11px]',
-        'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
-      )}
-    >
-      {cells.map((c) => (
-        <div
-          key={c.label}
-          className={cn(
-            'flex items-center justify-between border-b border-r border-[var(--color-border)] px-2 py-1.5'
-          )}
-        >
-          <span className="truncate text-[var(--color-fg-muted)]">{c.label}</span>
-          <span
+      <div
+        className={cn(
+          'grid grid-cols-5 overflow-hidden rounded-md border text-[11px]',
+          'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
+        )}
+      >
+        {cells.map((c) => (
+          <div
+            key={c.label}
             className={cn(
-              'tabular font-mono font-medium',
-              c.tone === 'pos' && 'text-[var(--color-pos)]',
-              c.tone === 'neg' && 'text-[var(--color-neg)]',
-              c.tone === 'muted' && 'text-[var(--color-fg-muted)]'
+              'flex items-center justify-between border-b border-r border-[var(--color-border)] px-2 py-1.5'
             )}
           >
-            {c.value}
-          </span>
-        </div>
-      ))}
-    </div>
+            <span className="truncate text-[var(--color-fg-muted)]">{c.label}</span>
+            <span
+              className={cn(
+                'tabular font-mono font-medium',
+                c.tone === 'pos' && 'text-[var(--color-pos)]',
+                c.tone === 'neg' && 'text-[var(--color-neg)]',
+                c.tone === 'muted' && 'text-[var(--color-fg-muted)]'
+              )}
+            >
+              {c.value}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
