@@ -115,12 +115,37 @@ export async function resolveMergeOutputPath(outPath: string): Promise<string> {
   return p
 }
 
+/**
+ * pdf-lib parses entire PDFs into memory. Merging more than a few hundred MB
+ * of inputs risks node heap OOM. This guard short-circuits obviously-too-big
+ * jobs with an actionable error before we start allocating.
+ */
+const MAX_TOTAL_BYTES = 256 * 1024 * 1024 // 256 MB combined
+
 export async function mergePdfs(paths: string[], outPath: string): Promise<MergeResult> {
   if (paths.length === 0) throw new Error('No files supplied to merge.')
   const { valid, rejected } = await validateInputPaths(paths)
   if (valid.length === 0) {
     const reasons = rejected.map((r) => `  • ${r.path} — ${r.reason}`).join('\n')
     throw new Error(`No valid PDF files to merge.\n${reasons}`)
+  }
+  // Pre-flight size check. Using stat avoids actually loading the bytes.
+  const { stat } = await import('fs/promises')
+  let totalBytes = 0
+  for (const p of valid) {
+    try {
+      totalBytes += (await stat(p)).size
+    } catch {
+      /* ignore — read will surface a specific error */
+    }
+  }
+  if (totalBytes > MAX_TOTAL_BYTES) {
+    const mb = Math.round(totalBytes / 1024 / 1024)
+    throw new Error(
+      `Combined input size is ${mb} MB (> ${MAX_TOTAL_BYTES / 1024 / 1024} MB limit). ` +
+        `pdf-lib holds entire PDFs in memory during merge; this size risks OOM. ` +
+        `Split the batch into smaller groups or compress inputs first.`
+    )
   }
   const resolvedOut = await resolveMergeOutputPath(outPath)
   const out = await PDFDocument.create()

@@ -153,4 +153,26 @@ CREATE TABLE IF NOT EXISTS user_context (
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now'))
 );
+
+-- Referential-integrity triggers. SQLite doesn't let us add FOREIGN KEY to
+-- existing tables without recreating them, so we emulate ON DELETE SET NULL
+-- via triggers on the parent-row delete. This keeps journal entries around
+-- (users may want the note) but breaks the dangling reference.
+CREATE TRIGGER IF NOT EXISTS trg_trade_delete_null_journal
+AFTER DELETE ON trades
+BEGIN
+  UPDATE journal_entries SET trade_id = NULL WHERE trade_id = OLD.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_strategy_delete_null_trades
+AFTER DELETE ON strategies
+BEGIN
+  UPDATE trades SET strategy_id = NULL WHERE strategy_id = OLD.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_journal_delete_null_trades
+AFTER DELETE ON journal_entries
+BEGIN
+  UPDATE trades SET journal_id = NULL WHERE journal_id = OLD.id;
+END;
 `
