@@ -29,10 +29,26 @@ function writeAll(keys: Record<string, VaultEntry>): void {
   store().set('keys', keys)
 }
 
+/**
+ * Returns true if OS keychain is available.
+ * Called by UI layer (via isEncryptionAvailable IPC) so Settings can show
+ * an actionable banner on systems without a backing store rather than
+ * hard-failing only when the user first tries to save a key.
+ */
+export function isEncryptionAvailable(): boolean {
+  try {
+    return safeStorage.isEncryptionAvailable()
+  } catch {
+    return false
+  }
+}
+
 function assertEncryptionAvailable(): void {
   if (!safeStorage.isEncryptionAvailable()) {
     throw new Error(
-      'safeStorage unavailable — no OS keychain. Linux may need libsecret / gnome-keyring.'
+      process.platform === 'linux'
+        ? 'Key encryption unavailable. Install libsecret or gnome-keyring (see `sudo apt install libsecret-1-0 gnome-keyring`) then restart Daja. See https://www.electronjs.org/docs/latest/api/safe-storage for details.'
+        : 'Key encryption unavailable — no OS keychain. Reinstall Daja or check system permissions.'
     )
   }
 }

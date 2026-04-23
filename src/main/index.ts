@@ -226,7 +226,18 @@ function createWindow(): void {
   Menu.setApplicationMenu(buildAppMenu(mainWindow))
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
+    // Scheme guard — renderer window.open() can pass arbitrary URLs.
+    // Only hand off http/https/mailto to the OS default handler.
+    try {
+      const u = new URL(details.url)
+      if (u.protocol === 'http:' || u.protocol === 'https:' || u.protocol === 'mailto:') {
+        void shell.openExternal(u.toString())
+      } else {
+        console.warn(`[main] blocked window.open scheme "${u.protocol}"`)
+      }
+    } catch {
+      /* malformed URL — drop */
+    }
     return { action: 'deny' }
   })
 

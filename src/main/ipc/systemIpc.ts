@@ -3,6 +3,24 @@ import { writeFileSync } from 'fs'
 import { z } from 'zod'
 import { IPC_CHANNELS } from '../../shared/ipc'
 
+/**
+ * Guard shell.openExternal — only permit http(s) and mailto, reject
+ * file://, javascript:, data:, and other schemes that can bypass the
+ * browser's security model when Electron opens them in the default app.
+ */
+function safeOpenExternal(raw: string): void {
+  try {
+    const u = new URL(raw)
+    if (u.protocol === 'http:' || u.protocol === 'https:' || u.protocol === 'mailto:') {
+      void shell.openExternal(u.toString())
+    } else {
+      console.warn(`[systemIpc] rejecting openExternal scheme "${u.protocol}" for url ${raw}`)
+    }
+  } catch (err) {
+    console.warn('[systemIpc] malformed URL passed to openExternal:', raw, err)
+  }
+}
+
 export function registerSystemIpc(): void {
   ipcMain.handle(IPC_CHANNELS.windowAlwaysOnTop, async (e, raw) => {
     const { enabled } = z.object({ enabled: z.boolean() }).parse(raw)
@@ -25,7 +43,7 @@ export function registerSystemIpc(): void {
       })
       .parse(raw)
     const n = new Notification({ title, body })
-    if (openUrl) n.on('click', () => void shell.openExternal(openUrl))
+    if (openUrl) n.on('click', () => safeOpenExternal(openUrl))
     n.show()
     return { ok: true }
   })
