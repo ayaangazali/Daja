@@ -70,9 +70,9 @@ export function FinanceHome(): React.JSX.Element {
       <div className="flex items-center justify-end gap-2 border-b border-[var(--color-border)] px-3 py-1">
         <button
           onClick={() => {
-            reset()
-            setDirty(true)
+            void reset().then(() => setDirty(false))
           }}
+          aria-label="Reset dashboard layout to default"
           className="flex items-center gap-1 rounded px-2 py-1 text-[10px] text-[var(--color-fg-muted)] hover:bg-[var(--color-bg-elev)] hover:text-[var(--color-fg)]"
         >
           <RotateCcw className="h-3 w-3" /> Reset layout

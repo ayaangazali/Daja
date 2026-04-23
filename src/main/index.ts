@@ -23,9 +23,14 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
+      // Sandbox: preload only uses contextBridge + ipcRenderer + type imports,
+      // which are sandbox-safe. electronAPI from @electron-toolkit/preload is
+      // also sandbox-compatible. Enabling sandbox is defense-in-depth against
+      // compromised renderer.
+      sandbox: true,
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      webSecurity: true
     }
   })
 

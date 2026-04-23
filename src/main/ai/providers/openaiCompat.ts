@@ -29,6 +29,7 @@ export function makeOpenAICompat(id: AIProviderId, baseUrl: string): AIProvider 
         const text = await res.text().catch(() => '')
         throw new AIError(`${id} ${res.status}: ${text.slice(0, 200)}`, id, res.status)
       }
+      let parseFailures = 0
       for await (const { data } of readSSE(res, opts.signal)) {
         if (data === '[DONE]') return
         try {
@@ -37,9 +38,18 @@ export function makeOpenAICompat(id: AIProviderId, baseUrl: string): AIProvider 
           }
           const delta = parsed.choices?.[0]?.delta?.content
           if (delta) yield delta
-        } catch {
-          // skip
+        } catch (err) {
+          parseFailures += 1
+          console.warn(
+            `[${id}] SSE parse failed (#${parseFailures}):`,
+            err instanceof Error ? err.message : err,
+            '· data preview:',
+            data.slice(0, 120)
+          )
         }
+      }
+      if (parseFailures > 0) {
+        console.warn(`[${id}] stream completed with ${parseFailures} parse failures`)
       }
     }
   }

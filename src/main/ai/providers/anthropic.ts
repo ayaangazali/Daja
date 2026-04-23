@@ -26,6 +26,7 @@ export const anthropicProvider: AIProvider = {
       const text = await res.text().catch(() => '')
       throw new AIError(`Anthropic ${res.status}: ${text.slice(0, 200)}`, 'anthropic', res.status)
     }
+    let parseFailures = 0
     for await (const { event, data } of readSSE(res, opts.signal)) {
       if (event === 'content_block_delta' || !event) {
         try {
@@ -36,10 +37,22 @@ export const anthropicProvider: AIProvider = {
           if (parsed.delta?.type === 'text_delta' && parsed.delta.text) {
             yield parsed.delta.text
           }
-        } catch {
-          // skip malformed
+        } catch (err) {
+          parseFailures += 1
+          // Log every parse failure at warn level so stream drops don't vanish
+          // silently. We don't abort — readSSE already re-buffers across
+          // chunk boundaries, so transient issues are expected to be rare.
+          console.warn(
+            `[anthropic] SSE parse failed (#${parseFailures}):`,
+            err instanceof Error ? err.message : err,
+            '· data preview:',
+            data.slice(0, 120)
+          )
         }
       }
+    }
+    if (parseFailures > 0) {
+      console.warn(`[anthropic] stream completed with ${parseFailures} parse failures`)
     }
   }
 }

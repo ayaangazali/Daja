@@ -3,9 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <title>Daja</title>
+    <!--
+      CSP design:
+      - connect-src 'self' is intentional: renderer must route ALL external
+        network calls through the main process via IPC (window.daja). A
+        compromised renderer cannot exfiltrate or reach attacker endpoints.
+      - Main process is unaffected by CSP and handles Yahoo/Anthropic/etc.
+      - img-src permits HTTPS for ticker logos + external chart images.
+      - frame-src restricted to YouTube for embedded earnings replays.
+      - Tightened with object-src 'none', base-uri 'self', form-action 'none',
+        frame-ancestors 'none'.
+    -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' https:; frame-src https://www.youtube.com https://youtube.com; connect-src 'self'"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' https:; frame-src https://www.youtube.com https://youtube.com; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"
     />
   </head>
 

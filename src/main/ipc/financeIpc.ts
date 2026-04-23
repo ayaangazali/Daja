@@ -62,9 +62,22 @@ export function registerFinanceIpc(): void {
     return fetchEarningsCalendar(parsed.daysAhead ?? 14)
   })
   ipcMain.handle(IPC_CHANNELS.financeScreener, async (_e, raw) => {
-    const parsed = z.object({ id: z.string().min(1), count: z.number().optional() }).parse(raw)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return fetchScreener(parsed.id as any, parsed.count ?? 25)
+    const ScreenerIdEnum = z.enum([
+      'day_gainers',
+      'day_losers',
+      'most_actives',
+      'undervalued_growth_stocks',
+      'growth_technology_stocks',
+      'aggressive_small_caps',
+      'small_cap_gainers',
+      'undervalued_large_caps',
+      'conservative_foreign_funds',
+      'high_yield_bond'
+    ])
+    const parsed = z
+      .object({ id: ScreenerIdEnum, count: z.number().int().min(1).max(100).optional() })
+      .parse(raw)
+    return fetchScreener(parsed.id, parsed.count ?? 25)
   })
   ipcMain.handle(IPC_CHANNELS.financeDividends, async (_e, raw) => {
     const { ticker } = QuotePayload.parse(raw)

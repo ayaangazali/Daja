@@ -29,7 +29,7 @@ export function useDashboardLayout(
   layout: Layout[]
   setLayout: (l: Layout[]) => void
   save: () => Promise<void>
-  reset: () => void
+  reset: () => Promise<void>
   loading: boolean
 } {
   const [layout, setLayout] = useState<Layout[]>(initial)
@@ -67,7 +67,15 @@ export function useDashboardLayout(
     await window.daja.db.call('layouts', 'save', [module, name, layout, true])
   }
 
-  const reset = (): void => setLayout(initial)
+  /** Reset layout to the built-in default AND persist that reset so reloads stick. */
+  const reset = async (): Promise<void> => {
+    setLayout(initial)
+    try {
+      await window.daja.db.call('layouts', 'save', [module, name, initial, true])
+    } catch {
+      // non-fatal: local state reset still applied
+    }
+  }
 
   return { layout, setLayout, save, reset, loading }
 }
