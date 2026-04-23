@@ -131,4 +131,41 @@ describe('computeTaxLotPositions FIFO', () => {
     expect(r[0].qty).toBe(0)
     expect(r[0].realized).toBe(500) // only 5 shares could be sold
   })
+  it('partial fractional sell splits lot correctly', () => {
+    const r = computeTaxLotPositions([
+      t({ date: '2025-01-01', side: 'buy', quantity: 1.5, price: 100 }),
+      t({ date: '2025-02-01', side: 'sell', quantity: 0.5, price: 150 })
+    ])
+    expect(r[0].qty).toBeCloseTo(1.0, 6)
+    // 0.5 shares sold at 150 - 100 basis = 25 realized
+    expect(r[0].realized).toBeCloseTo(25, 6)
+    expect(r[0].openLots).toHaveLength(1)
+    expect(r[0].openLots[0].qty).toBeCloseTo(1.0, 6)
+  })
+  it('fractional sell across two lots applies FIFO per share', () => {
+    const r = computeTaxLotPositions([
+      t({ date: '2025-01-01', side: 'buy', quantity: 0.3, price: 100 }),
+      t({ date: '2025-02-01', side: 'buy', quantity: 0.4, price: 200 }),
+      t({ date: '2025-03-01', side: 'sell', quantity: 0.5, price: 300 })
+    ])
+    // First lot (0.3 @ 100) fully consumed → gain = 0.3 * (300 - 100) = 60
+    // Second lot: 0.2 of 0.4 consumed → gain = 0.2 * (300 - 200) = 20
+    // Total realized = 80, remaining 0.2 @ 200 basis
+    expect(r[0].realized).toBeCloseTo(80, 6)
+    expect(r[0].qty).toBeCloseTo(0.2, 6)
+    expect(r[0].openLots).toHaveLength(1)
+    expect(r[0].openLots[0].price).toBe(200)
+    expect(r[0].openLots[0].qty).toBeCloseTo(0.2, 6)
+  })
+  it('tiny floating-point drift does not leave phantom lots', () => {
+    // 0.1 + 0.2 = 0.30000000000000004 classic JS float
+    const r = computeTaxLotPositions([
+      t({ date: '2025-01-01', side: 'buy', quantity: 0.1, price: 100 }),
+      t({ date: '2025-02-01', side: 'buy', quantity: 0.2, price: 100 }),
+      t({ date: '2025-03-01', side: 'sell', quantity: 0.3, price: 100 })
+    ])
+    // Even with float drift the result should show qty ≈ 0 and no leftover lot
+    expect(r[0].qty).toBeCloseTo(0, 5)
+    expect(r[0].openLots.length === 0 || r[0].openLots.every((l) => l.qty < 1e-6)).toBe(true)
+  })
 })
