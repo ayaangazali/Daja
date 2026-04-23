@@ -21,7 +21,9 @@ export function DailyBriefing(): React.JSX.Element {
     const elapsed = now - lastGenAtRef.current
     if (lastGenAtRef.current > 0 && elapsed < MIN_REGEN_MS) {
       const remaining = Math.ceil((MIN_REGEN_MS - elapsed) / 1000)
-      setThrottleMsg(`Briefing was generated ${Math.floor(elapsed / 1000)}s ago — wait ${remaining}s before regenerating.`)
+      setThrottleMsg(
+        `Briefing was generated ${Math.floor(elapsed / 1000)}s ago — wait ${remaining}s before regenerating.`
+      )
       setTimeout(() => setThrottleMsg(null), 3000)
       return
     }

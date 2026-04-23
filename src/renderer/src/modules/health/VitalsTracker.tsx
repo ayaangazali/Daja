@@ -31,22 +31,30 @@ function validate(form: {
     errs.push(`${tempRange.name} ${form.temperature} is outside ${tempRange.min}–${tempRange.max}`)
   }
   if (form.heart_rate < RANGES.heart_rate.min || form.heart_rate > RANGES.heart_rate.max) {
-    errs.push(`Heart rate ${form.heart_rate} bpm is outside ${RANGES.heart_rate.min}–${RANGES.heart_rate.max}`)
+    errs.push(
+      `Heart rate ${form.heart_rate} bpm is outside ${RANGES.heart_rate.min}–${RANGES.heart_rate.max}`
+    )
   }
   if (
     form.blood_pressure_systolic < RANGES.bp_systolic.min ||
     form.blood_pressure_systolic > RANGES.bp_systolic.max
   ) {
-    errs.push(`BP systolic ${form.blood_pressure_systolic} is outside ${RANGES.bp_systolic.min}–${RANGES.bp_systolic.max}`)
+    errs.push(
+      `BP systolic ${form.blood_pressure_systolic} is outside ${RANGES.bp_systolic.min}–${RANGES.bp_systolic.max}`
+    )
   }
   if (
     form.blood_pressure_diastolic < RANGES.bp_diastolic.min ||
     form.blood_pressure_diastolic > RANGES.bp_diastolic.max
   ) {
-    errs.push(`BP diastolic ${form.blood_pressure_diastolic} is outside ${RANGES.bp_diastolic.min}–${RANGES.bp_diastolic.max}`)
+    errs.push(
+      `BP diastolic ${form.blood_pressure_diastolic} is outside ${RANGES.bp_diastolic.min}–${RANGES.bp_diastolic.max}`
+    )
   }
   if (form.blood_pressure_systolic <= form.blood_pressure_diastolic) {
-    errs.push(`Systolic must be greater than diastolic (got ${form.blood_pressure_systolic}/${form.blood_pressure_diastolic})`)
+    errs.push(
+      `Systolic must be greater than diastolic (got ${form.blood_pressure_systolic}/${form.blood_pressure_diastolic})`
+    )
   }
   const wRange = form.weight_unit === 'kg' ? RANGES.weightKg : RANGES.weightLbs
   if (form.weight < wRange.min || form.weight > wRange.max) {

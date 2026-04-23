@@ -59,9 +59,7 @@ export function SettingsPage(): React.JSX.Element {
                   <Icon className="mt-0.5 h-3.5 w-3.5" aria-hidden="true" />
                   <div>
                     <div className="text-[12px] font-medium">{s.label}</div>
-                    <div className="text-[10px] text-[var(--color-fg-muted)]">
-                      {s.description}
-                    </div>
+                    <div className="text-[10px] text-[var(--color-fg-muted)]">{s.description}</div>
                   </div>
                 </button>
               )

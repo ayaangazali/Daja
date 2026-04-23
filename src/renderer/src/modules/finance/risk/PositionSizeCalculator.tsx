@@ -54,11 +54,17 @@ export function PositionSizeCalculator(): React.JSX.Element {
   if (result.portfolioPct > 50)
     warnings.push('Position > 50% of account — near-YOLO concentration. Verify account size.')
   else if (result.portfolioPct > 20)
-    warnings.push(`Position = ${result.portfolioPct.toFixed(1)}% of account — institutional cap is usually 10–20%.`)
+    warnings.push(
+      `Position = ${result.portfolioPct.toFixed(1)}% of account — institutional cap is usually 10–20%.`
+    )
   else if (result.portfolioPct > 10)
-    warnings.push(`Position = ${result.portfolioPct.toFixed(1)}% of account — consider whether single-name concentration is intentional.`)
+    warnings.push(
+      `Position = ${result.portfolioPct.toFixed(1)}% of account — consider whether single-name concentration is intentional.`
+    )
   if (result.dollarRisk > accN * 0.05)
-    warnings.push('Dollar-risk > 5% of account — a cluster of correlated positions at this size can compound into catastrophic drawdowns.')
+    warnings.push(
+      'Dollar-risk > 5% of account — a cluster of correlated positions at this size can compound into catastrophic drawdowns.'
+    )
 
   return (
     <div className="flex h-full flex-col">

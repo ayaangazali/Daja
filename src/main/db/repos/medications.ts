@@ -67,9 +67,9 @@ export const medicationsRepo = {
       vals.push(v)
     }
     if (cols.length === 0) {
-      const row = getDb()
-        .prepare('SELECT * FROM medications WHERE id = ?')
-        .get(id) as Medication | undefined
+      const row = getDb().prepare('SELECT * FROM medications WHERE id = ?').get(id) as
+        | Medication
+        | undefined
       if (!row) throw new Error(`medication ${id} not found`)
       return row
     }
@@ -77,9 +77,9 @@ export const medicationsRepo = {
     getDb()
       .prepare(`UPDATE medications SET ${cols.join(', ')} WHERE id = ?`)
       .run(...vals)
-    const row = getDb()
-      .prepare('SELECT * FROM medications WHERE id = ?')
-      .get(id) as Medication | undefined
+    const row = getDb().prepare('SELECT * FROM medications WHERE id = ?').get(id) as
+      | Medication
+      | undefined
     if (!row) throw new Error(`medication ${id} not found after update`)
     return row
   }

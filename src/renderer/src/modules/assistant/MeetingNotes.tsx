@@ -4,50 +4,61 @@ import { useAI } from '../../hooks/useAI'
 import { useAddConversation } from '../../hooks/useConversations'
 import { cn } from '../../lib/cn'
 
+// Web Speech API isn't in lib.dom.d.ts by default. Declare precise shapes
+// so consumers don't reach for `as unknown as` ad-hoc in every call site.
+interface SpeechRecognitionResultLike {
+  0: { transcript: string }
+  isFinal: boolean
+}
+interface SpeechRecognitionEventLike {
+  resultIndex: number
+  results: ArrayLike<SpeechRecognitionResultLike>
+}
+interface SpeechRecognitionLike {
+  continuous: boolean
+  interimResults: boolean
+  lang: string
+  onresult: (ev: SpeechRecognitionEventLike) => void
+  onend: () => void
+  onerror: (e: { error: string }) => void
+  start: () => void
+  stop: () => void
+}
+interface SpeechWindow {
+  SpeechRecognition?: new () => SpeechRecognitionLike
+  webkitSpeechRecognition?: new () => SpeechRecognitionLike
+}
+
+function getSpeechWindow(): SpeechWindow {
+  if (typeof window === 'undefined') return {}
+  // Safe single cast: we've enumerated the exact fields we consume.
+  return window as unknown as SpeechWindow
+}
+
 export function MeetingNotes(): React.JSX.Element {
   const [listening, setListening] = useState(false)
   const [supported] = useState(() => {
-    if (typeof window === 'undefined') return false
-    const w = window as unknown as {
-      webkitSpeechRecognition?: unknown
-      SpeechRecognition?: unknown
-    }
+    const w = getSpeechWindow()
     return !!(w.SpeechRecognition ?? w.webkitSpeechRecognition)
   })
   const [transcript, setTranscript] = useState('')
   const [interim, setInterim] = useState('')
   const [title, setTitle] = useState('')
-  const recRef = useRef<unknown>(null)
+  const recRef = useRef<SpeechRecognitionLike | null>(null)
   const { state, start, cancel } = useAI()
   const savedNote = useAddConversation()
   const [savedMsg, setSavedMsg] = useState<string | null>(null)
 
   const toggle = (): void => {
-    const w = window as unknown as {
-      webkitSpeechRecognition?: new () => unknown
-      SpeechRecognition?: new () => unknown
-    }
+    const w = getSpeechWindow()
     const RecCtor = w.SpeechRecognition ?? w.webkitSpeechRecognition
     if (!RecCtor) return
     if (listening) {
-      type Rec = { stop: () => void }
-      ;(recRef.current as Rec | null)?.stop()
+      recRef.current?.stop()
       setListening(false)
       return
     }
-    const rec = new RecCtor() as {
-      continuous: boolean
-      interimResults: boolean
-      lang: string
-      onresult: (ev: {
-        resultIndex: number
-        results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }>
-      }) => void
-      onend: () => void
-      onerror: (e: { error: string }) => void
-      start: () => void
-      stop: () => void
-    }
+    const rec = new RecCtor()
     rec.continuous = true
     rec.interimResults = true
     rec.lang = 'en-US'

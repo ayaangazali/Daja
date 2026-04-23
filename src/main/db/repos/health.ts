@@ -101,9 +101,9 @@ export const healthRepo = {
       vals.push(v)
     }
     if (cols.length === 0) {
-      const row = getDb()
-        .prepare('SELECT * FROM health_logs WHERE id = ?')
-        .get(id) as HealthLog | undefined
+      const row = getDb().prepare('SELECT * FROM health_logs WHERE id = ?').get(id) as
+        | HealthLog
+        | undefined
       if (!row) throw new Error(`health_log ${id} not found`)
       return row
     }
@@ -111,9 +111,9 @@ export const healthRepo = {
     getDb()
       .prepare(`UPDATE health_logs SET ${cols.join(', ')} WHERE id = ?`)
       .run(...vals)
-    const row = getDb()
-      .prepare('SELECT * FROM health_logs WHERE id = ?')
-      .get(id) as HealthLog | undefined
+    const row = getDb().prepare('SELECT * FROM health_logs WHERE id = ?').get(id) as
+      | HealthLog
+      | undefined
     if (!row) throw new Error(`health_log ${id} not found after update`)
     return row
   }

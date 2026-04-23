@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
 import { z } from 'zod'
-import { repos } from '../db/repos'
+import { repos, type RepoName } from '../db/repos'
 
 const DbCallPayload = z.object({
   repo: z.string().min(1),
@@ -8,17 +8,24 @@ const DbCallPayload = z.object({
   args: z.array(z.unknown()).default([])
 })
 
-const ALLOWED: Record<string, Set<string>> = {
-  watchlist: new Set(['list', 'listAllNames', 'add', 'remove', 'reorder', 'setAlerts']),
-  trades: new Set(['list', 'byTicker', 'add', 'remove']),
-  strategies: new Set(['list', 'listActive', 'get', 'add', 'update', 'remove']),
-  journal: new Set(['list', 'byTicker', 'add', 'remove']),
-  userContext: new Set(['list', 'add', 'remove']),
-  health: new Set(['list', 'recent', 'add', 'remove']),
-  medications: new Set(['list', 'add', 'setActive', 'remove']),
-  layouts: new Set(['list', 'get', 'save', 'remove']),
-  conversations: new Set(['list', 'get', 'add', 'update', 'remove']),
-  paperTrades: new Set(['list', 'byTicker', 'add', 'remove', 'reset'])
+/**
+ * Derive the allowlist directly from the typed `repos` object — every exported
+ * method on every repo is automatically callable. No manual string list to
+ * drift out of sync. Security comes from: (1) the repo boundary being the
+ * full surface we intend to expose, (2) Zod validation at the IPC edge, and
+ * (3) the `repo in repos` check preventing prototype-pollution-style escapes.
+ */
+type RepoObj = Record<string, unknown>
+
+function isRepoName(name: string): name is RepoName {
+  return Object.prototype.hasOwnProperty.call(repos, name)
+}
+
+function methodFor(repo: RepoName, method: string): ((...a: unknown[]) => unknown) | null {
+  const obj = repos[repo] as RepoObj
+  if (!Object.prototype.hasOwnProperty.call(obj, method)) return null
+  const fn = obj[method]
+  return typeof fn === 'function' ? (fn as (...a: unknown[]) => unknown) : null
 }
 
 export const DB_CALL_CHANNEL = 'db:call'
@@ -26,13 +33,9 @@ export const DB_CALL_CHANNEL = 'db:call'
 export function registerDbIpc(): void {
   ipcMain.handle(DB_CALL_CHANNEL, async (_e, raw) => {
     const { repo, method, args } = DbCallPayload.parse(raw)
-    if (!(repo in repos) || !ALLOWED[repo]?.has(method)) {
-      throw new Error(`Forbidden db call: ${repo}.${method}`)
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const r = (repos as unknown as Record<string, Record<string, (...a: any[]) => unknown>>)[repo]
-    const fn = r[method]
-    if (typeof fn !== 'function') throw new Error(`Method not fn: ${repo}.${method}`)
+    if (!isRepoName(repo)) throw new Error(`Forbidden db call: unknown repo "${repo}"`)
+    const fn = methodFor(repo, method)
+    if (!fn) throw new Error(`Forbidden db call: ${repo}.${method} is not a method`)
     return fn(...args)
   })
 }

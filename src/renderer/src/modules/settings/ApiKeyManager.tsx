@@ -51,7 +51,10 @@ export function ApiKeyManager(): React.JSX.Element {
 const KEY_FORMATS: Record<string, { match: RegExp; hint: string }> = {
   anthropic: { match: /^sk-ant-/, hint: 'Anthropic keys start with `sk-ant-`' },
   openai: { match: /^sk-/, hint: 'OpenAI keys start with `sk-`' },
-  gemini: { match: /^AIza[0-9A-Za-z_-]{33,}$/, hint: 'Gemini keys start with `AIza` and are ~39 chars' },
+  gemini: {
+    match: /^AIza[0-9A-Za-z_-]{33,}$/,
+    hint: 'Gemini keys start with `AIza` and are ~39 chars'
+  },
   grok: { match: /^xai-/, hint: 'Grok keys start with `xai-`' },
   perplexity: { match: /^pplx-/, hint: 'Perplexity keys start with `pplx-`' },
   supermemory: { match: /^sm_/, hint: 'Supermemory keys start with `sm_`' },

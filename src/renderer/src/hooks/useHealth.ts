@@ -73,8 +73,7 @@ export function useUpdateHealthLog(): ReturnType<
     Error,
     { id: number; patch: Partial<Omit<HealthLog, 'id' | 'created_at'>> }
   >({
-    mutationFn: ({ id, patch }) =>
-      window.daja.db.call<HealthLog>('health', 'update', [id, patch]),
+    mutationFn: ({ id, patch }) => window.daja.db.call<HealthLog>('health', 'update', [id, patch]),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['health_logs'] })
   })
 }

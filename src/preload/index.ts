@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IPC_CHANNELS } from '../shared/ipc'
 import type { AIProviderId, KeyMeta, ModuleId, Prefs, ProviderId, TestResult } from '../shared/ipc'
+import type { Fundamentals } from '../shared/fundamentals'
 
 type Unsubscribe = () => void
 
@@ -61,8 +62,8 @@ const daja = {
     historical: (ticker: string, range: string): Promise<unknown> =>
       ipcRenderer.invoke(IPC_CHANNELS.financeHistorical, { ticker, range }),
     search: (q: string): Promise<unknown> => ipcRenderer.invoke(IPC_CHANNELS.financeSearch, { q }),
-    fundamentals: (ticker: string): Promise<unknown> =>
-      ipcRenderer.invoke(IPC_CHANNELS.financeFundamentals, { ticker }),
+    fundamentals: (ticker: string): Promise<Fundamentals> =>
+      ipcRenderer.invoke(IPC_CHANNELS.financeFundamentals, { ticker }) as Promise<Fundamentals>,
     statements: (ticker: string): Promise<unknown> =>
       ipcRenderer.invoke(IPC_CHANNELS.financeStatements, { ticker }),
     ownership: (ticker: string): Promise<unknown> =>
@@ -136,6 +137,14 @@ const daja = {
   }
 }
 
+// Legacy-fallback window shape when contextIsolation is disabled. We declare
+// the exact keys we're assigning so the ts-ignore is unnecessary.
+type LegacyWindow = Window &
+  typeof globalThis & {
+    electron?: typeof electronAPI
+    daja?: typeof daja
+  }
+
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
@@ -144,10 +153,9 @@ if (process.contextIsolated) {
     console.error(error)
   }
 } else {
-  // @ts-ignore legacy fallback
-  window.electron = electronAPI
-  // @ts-ignore legacy fallback
-  window.daja = daja
+  const w = window as LegacyWindow
+  w.electron = electronAPI
+  w.daja = daja
 }
 
 export type DajaBridge = typeof daja

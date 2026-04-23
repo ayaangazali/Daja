@@ -197,23 +197,25 @@ function GameCard({
           </div>
         )}
       </div>
-      {[away, home].filter(Boolean).map((c) => (
-        <div
-          key={c!.abbreviation + c!.name}
-          className={cn('flex items-center justify-between py-1', c!.winner && 'font-semibold')}
-        >
-          <div className="flex items-center gap-2">
-            {c!.logo && <img src={c!.logo} alt="" className="h-5 w-5 object-contain" />}
-            <div>
-              <div>{c!.name}</div>
-              <div className="text-[9px] text-[var(--color-fg-muted)]">
-                {c!.homeAway === 'home' ? 'HOME' : 'AWAY'}
+      {[away, home]
+        .filter((c): c is NonNullable<typeof c> => c != null)
+        .map((c) => (
+          <div
+            key={c.abbreviation + c.name}
+            className={cn('flex items-center justify-between py-1', c.winner && 'font-semibold')}
+          >
+            <div className="flex items-center gap-2">
+              {c.logo && <img src={c.logo} alt="" className="h-5 w-5 object-contain" />}
+              <div>
+                <div>{c.name}</div>
+                <div className="text-[9px] text-[var(--color-fg-muted)]">
+                  {c.homeAway === 'home' ? 'HOME' : 'AWAY'}
+                </div>
               </div>
             </div>
+            <div className="font-mono text-base tabular">{c.score ?? '—'}</div>
           </div>
-          <div className="font-mono text-base tabular">{c!.score ?? '—'}</div>
-        </div>
-      ))}
+        ))}
       {game.venue && (
         <div className="mt-1 text-[9px] text-[var(--color-fg-muted)]">{game.venue}</div>
       )}

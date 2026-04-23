@@ -43,7 +43,9 @@ export function useScoreboard(league: string): ReturnType<typeof useQuery<Scoreb
       if (!data) return 60_000
       const hasLive = data.games.some((g) => {
         const s = (g.status || '').toLowerCase()
-        return s.includes('in progress') || s.includes('half') || s.includes('quarter') || s === 'in'
+        return (
+          s.includes('in progress') || s.includes('half') || s.includes('quarter') || s === 'in'
+        )
       })
       return hasLive ? 30_000 : 5 * 60_000
     }

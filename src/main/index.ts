@@ -78,7 +78,7 @@ function buildAppMenu(mainWindow: BrowserWindow): Menu {
   const isMac = process.platform === 'darwin'
   const template: MenuItemConstructorOptions[] = [
     ...(isMac
-      ? ([
+      ? [
           {
             label: app.name,
             submenu: [
@@ -99,7 +99,7 @@ function buildAppMenu(mainWindow: BrowserWindow): Menu {
               { role: 'quit' }
             ]
           } as MenuItemConstructorOptions
-        ])
+        ]
       : []),
     {
       label: 'File',

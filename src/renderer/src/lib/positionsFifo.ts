@@ -59,8 +59,9 @@ export function computeTaxLotPositions(
 ): TaxLotPosition[] {
   const byTicker = new Map<string, TaxLotTrade[]>()
   for (const t of trades) {
-    if (!byTicker.has(t.ticker)) byTicker.set(t.ticker, [])
-    byTicker.get(t.ticker)!.push(t)
+    const existing = byTicker.get(t.ticker)
+    if (existing) existing.push(t)
+    else byTicker.set(t.ticker, [t])
   }
 
   const out: TaxLotPosition[] = []
