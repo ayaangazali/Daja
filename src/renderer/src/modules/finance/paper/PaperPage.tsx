@@ -27,13 +27,19 @@ function computePaperPositions(trades: PaperTrade[]): PaperPosition[] {
   const map = new Map<string, PaperPosition>()
   const sorted = [...trades].sort((a, b) => a.date.localeCompare(b.date))
   for (const t of sorted) {
-    let p = map.get(t.ticker) ?? {
+    const p = map.get(t.ticker) ?? {
       ticker: t.ticker,
       qty: 0,
       avgCost: 0,
       costBasis: 0,
       realized: 0
     }
+    // Paper-trading P&L model:
+    // - Fees are pro-rated into cost basis on buy (inflates effective entry)
+    //   and netted from sell proceeds (reduces realized P&L).
+    // - Long-only simplified: selling more than owned clamps at current qty.
+    //   Unmatched excess is ignored (user's input error, not a short).
+    // - Short positions + cover trades tracked as separate follow-up.
     if (t.side === 'buy') {
       const newQty = p.qty + t.quantity
       p.costBasis += t.quantity * t.price + t.fees
@@ -41,9 +47,12 @@ function computePaperPositions(trades: PaperTrade[]): PaperPosition[] {
       p.avgCost = newQty > 0 ? p.costBasis / newQty : 0
     } else {
       const sellQty = Math.min(t.quantity, p.qty)
-      if (p.qty > 0) {
+      if (p.qty > 0 && sellQty > 0) {
         const avg = p.costBasis / p.qty
-        p.realized += (t.price - avg) * sellQty - t.fees
+        // Fee prorated to the qty actually sold vs the qty requested,
+        // matching how brokers charge on partial fills.
+        const feeShare = t.quantity > 0 ? t.fees * (sellQty / t.quantity) : 0
+        p.realized += (t.price - avg) * sellQty - feeShare
         p.costBasis -= avg * sellQty
       }
       p.qty -= sellQty
