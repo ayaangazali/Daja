@@ -1,5 +1,5 @@
 import type { AIProvider, AIStreamOptions } from '../types'
-import { AIError } from '../types'
+import { AIError, computeRetryDelay } from '../types'
 import { readSSE } from '../sse'
 import type { AIProviderId } from '../../../shared/ipc'
 
@@ -27,6 +27,15 @@ export function makeOpenAICompat(id: AIProviderId, baseUrl: string): AIProvider 
       })
       if (!res.ok) {
         const text = await res.text().catch(() => '')
+        if (res.status === 429) {
+          const retryAfterSec = computeRetryDelay(res, 0, id)
+          throw new AIError(
+            `Rate limited by ${id}. Retry in ${Math.ceil(retryAfterSec)}s.`,
+            id,
+            429,
+            retryAfterSec
+          )
+        }
         throw new AIError(`${id} ${res.status}: ${text.slice(0, 200)}`, id, res.status)
       }
       let parseFailures = 0

@@ -1,5 +1,5 @@
 import type { AIProvider, AIStreamOptions } from '../types'
-import { AIError } from '../types'
+import { AIError, computeRetryDelay } from '../types'
 import { readSSE } from '../sse'
 
 export const anthropicProvider: AIProvider = {
@@ -24,6 +24,15 @@ export const anthropicProvider: AIProvider = {
     })
     if (!res.ok) {
       const text = await res.text().catch(() => '')
+      if (res.status === 429) {
+        const retryAfterSec = computeRetryDelay(res, 0, 'anthropic')
+        throw new AIError(
+          `Rate limited by Anthropic. Retry in ${Math.ceil(retryAfterSec)}s.`,
+          'anthropic',
+          429,
+          retryAfterSec
+        )
+      }
       throw new AIError(`Anthropic ${res.status}: ${text.slice(0, 200)}`, 'anthropic', res.status)
     }
     let parseFailures = 0
