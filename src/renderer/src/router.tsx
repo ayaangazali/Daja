@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react'
-import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom'
+import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { Shell } from './shell/Shell'
+import { LaunchpadHome } from './shell/LaunchpadHome'
 import { FinanceModule } from './modules/finance/FinanceModule'
 import { FinanceHome } from './modules/finance/FinanceHome'
 import { ErrorBoundary } from './shared/ErrorBoundary'
@@ -69,7 +70,7 @@ const router = createHashRouter([
     path: '/',
     element: <Shell />,
     children: [
-      { index: true, element: <Navigate to="/finance" replace /> },
+      { index: true, element: <LaunchpadHome /> },
       {
         path: 'finance',
         element: <FinanceModule />,

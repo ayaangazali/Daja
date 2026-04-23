@@ -4,19 +4,44 @@
 
 @theme {
   --font-sans:
-    'Geist', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Fraunces', 'Copernicus', ui-serif, Georgia, serif;
   --font-mono:
-    'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    'JetBrains Mono', 'Geist Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    monospace;
 
-  --color-bg: #0b0d10;
-  --color-bg-elev: #12161b;
-  --color-border: #1f252d;
-  --color-fg: #e6e9ee;
-  --color-fg-muted: #8b95a3;
-  --color-pos: #1d9e75;
-  --color-neg: #e24b4a;
-  --color-info: #185fa5;
-  --color-warn: #ba7517;
+  /* Claude-inspired warm palette — light-mode defaults */
+  --color-bg: #faf9f5;
+  --color-bg-elev: #ffffff;
+  --color-bg-tint: #f4f1e9;
+  --color-border: #e5ded0;
+  --color-border-strong: #c9c0ad;
+  --color-fg: #1a1915;
+  --color-fg-muted: #6b665c;
+  --color-accent: #cc785c;
+  --color-accent-soft: #e8b8a4;
+  --color-pos: #4a7c3b;
+  --color-neg: #c65741;
+  --color-info: #5e7a9b;
+  --color-warn: #c78b2c;
+}
+
+/* Dark-mode overrides — warm near-black, not cold slate */
+html.dark,
+.dark {
+  --color-bg: #1a1917;
+  --color-bg-elev: #262421;
+  --color-bg-tint: #2f2c28;
+  --color-border: #36322c;
+  --color-border-strong: #534d43;
+  --color-fg: #f2efe8;
+  --color-fg-muted: #9a9287;
+  --color-accent: #da7756;
+  --color-accent-soft: #a85a3f;
+  --color-pos: #7fb069;
+  --color-neg: #e07865;
+  --color-info: #88a5c6;
+  --color-warn: #dca859;
 }
 
 html,
@@ -26,6 +51,10 @@ body,
 }
 
 html {
+  color-scheme: light;
+}
+
+html.dark {
   color-scheme: dark;
 }
 
@@ -43,17 +72,92 @@ body {
   font-family: var(--font-mono);
 }
 
+.serif {
+  font-family: var(--font-serif);
+  font-feature-settings: 'liga' on, 'kern' on;
+}
+
+/* Launchpad background + tiles */
+.launchpad-bg {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(204, 120, 92, 0.12), transparent 45%),
+    radial-gradient(circle at 82% 75%, rgba(94, 122, 155, 0.1), transparent 50%),
+    var(--color-bg);
+}
+html.dark .launchpad-bg {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(218, 119, 86, 0.18), transparent 45%),
+    radial-gradient(circle at 82% 75%, rgba(136, 165, 198, 0.12), transparent 50%),
+    var(--color-bg);
+}
+
+.launchpad-tile {
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 220ms ease,
+    background 160ms ease;
+  animation: lp-tile-in 260ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+.launchpad-tile:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.22);
+}
+.launchpad-tile:active {
+  transform: scale(0.97);
+}
+
+.launchpad-icon {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-soft) 100%);
+  color: white;
+  border-radius: 28%;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 6px 14px -6px rgba(0, 0, 0, 0.25);
+}
+.launchpad-icon[data-hue='blue'] {
+  background: linear-gradient(135deg, #5e7a9b 0%, #a4bcd4 100%);
+}
+.launchpad-icon[data-hue='green'] {
+  background: linear-gradient(135deg, #4a7c3b 0%, #8fbf7a 100%);
+}
+.launchpad-icon[data-hue='amber'] {
+  background: linear-gradient(135deg, #c78b2c 0%, #edca80 100%);
+}
+.launchpad-icon[data-hue='rose'] {
+  background: linear-gradient(135deg, #c65741 0%, #e8a295 100%);
+}
+.launchpad-icon[data-hue='violet'] {
+  background: linear-gradient(135deg, #7b5ea1 0%, #c5b1d9 100%);
+}
+.launchpad-icon[data-hue='teal'] {
+  background: linear-gradient(135deg, #3d8a85 0%, #8fc7c3 100%);
+}
+.launchpad-icon[data-hue='slate'] {
+  background: linear-gradient(135deg, #3c3a36 0%, #6b665c 100%);
+}
+
+@keyframes lp-tile-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* react-grid-layout tweaks */
 .react-grid-item {
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
 }
 .react-grid-item.react-grid-placeholder {
-  background: var(--color-info);
+  background: var(--color-accent);
   opacity: 0.2;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 .react-grid-item > .react-resizable-handle {
   opacity: 0.25;

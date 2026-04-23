@@ -4,12 +4,7 @@ import { mkdtempSync, rmSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { PDFDocument } from 'pdf-lib'
-import {
-  expandDirectoryToPDFs,
-  mergePdfs,
-  resolveMergeOutputPath,
-  validateInputPaths
-} from './ops'
+import { expandDirectoryToPDFs, mergePdfs, resolveMergeOutputPath, validateInputPaths } from './ops'
 
 let tmpRoot: string
 
@@ -157,7 +152,10 @@ describe('mergePdfs', () => {
   })
   it('throws clearly when no valid files to merge', async () => {
     await expect(
-      mergePdfs([join(tmpRoot, 'missing1.pdf'), join(tmpRoot, 'not-a-pdf.txt')], join(tmpRoot, 'x.pdf'))
+      mergePdfs(
+        [join(tmpRoot, 'missing1.pdf'), join(tmpRoot, 'not-a-pdf.txt')],
+        join(tmpRoot, 'x.pdf')
+      )
     ).rejects.toThrow('No valid PDF files')
   })
   it('throws when no paths supplied', async () => {

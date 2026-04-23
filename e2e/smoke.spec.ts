@@ -37,21 +37,27 @@ test.describe('Daja end-to-end', () => {
     await page.waitForLoadState('domcontentloaded')
     await page.waitForTimeout(2000)
 
-    // 1. Finance home
-    await snap(page, '01-finance-home')
+    // 0. Launchpad home (root)
+    await snap(page, '00-launchpad')
     const daja = page.getByText('Daja').first()
     await expect(daja).toBeVisible({ timeout: 10_000 })
 
-    // 2. Sidebar module icons (by title attribute)
+    // 1. Click the Market tile on Launchpad to enter Finance + shell
+    await page.locator('button').filter({ hasText: 'Market' }).first().click({ timeout: 10_000 })
+    await page.waitForTimeout(2500)
+    await page.locator('nav').getByTitle('Finance').first().waitFor({ timeout: 15_000 })
+    await snap(page, '01-finance-home')
+
+    // 2. Sidebar module icons (scope to nav to avoid collisions)
     for (const label of ['Sports', 'PDF Tools', 'Health', 'Assistant']) {
-      const target = page.getByTitle(label).first()
-      await target.click({ timeout: 5000 })
+      const target = page.locator('nav').getByTitle(label).first()
+      await target.click({ timeout: 10_000 })
       await page.waitForTimeout(900)
       await snap(page, `02-module-${label.toLowerCase().replace(/\W+/g, '-')}`)
     }
 
     // 3. Back to Finance + add watchlist ticker + visit detail
-    await page.getByTitle('Finance').click({ timeout: 5000 })
+    await page.locator('nav').getByTitle('Finance').first().click({ timeout: 10_000 })
     await page.waitForTimeout(500)
     await snap(page, '03-finance-return')
 
@@ -62,7 +68,7 @@ test.describe('Daja end-to-end', () => {
     await page.waitForTimeout(1500)
     await snap(page, '04-watchlist-added')
 
-    await page.goto(page.url().replace(/#.*$/, '#/finance/AAPL'))
+    await page.evaluate(() => { window.location.hash = '/finance/AAPL' })
     await page.waitForTimeout(3500)
     await snap(page, '05-detail-overview')
 
@@ -89,35 +95,35 @@ test.describe('Daja end-to-end', () => {
     }
 
     // 5. Portfolio page
-    await page.goto(page.url().replace(/#.*$/, '#/finance/portfolio'))
+    await page.evaluate(() => { window.location.hash = '/finance/portfolio' })
     await page.waitForTimeout(1500)
     await snap(page, '07-portfolio')
 
     // 6. Assistant module + meeting notes
-    await page.goto(page.url().replace(/#.*$/, '#/assistant'))
+    await page.evaluate(() => { window.location.hash = '/assistant' })
     await page.waitForTimeout(1200)
     await snap(page, '08-assistant-chat')
-    await page.goto(page.url().replace(/#.*$/, '#/assistant/meeting'))
+    await page.evaluate(() => { window.location.hash = '/assistant/meeting' })
     await page.waitForTimeout(1000)
     await snap(page, '09-assistant-meeting')
 
     // 7. Settings
-    await page.goto(page.url().replace(/#.*$/, '#/settings'))
+    await page.evaluate(() => { window.location.hash = '/settings' })
     await page.waitForTimeout(1200)
     await snap(page, '10-settings')
 
     // 8. Sports detail
-    await page.goto(page.url().replace(/#.*$/, '#/sports'))
+    await page.evaluate(() => { window.location.hash = '/sports' })
     await page.waitForTimeout(2000)
     await snap(page, '11-sports')
 
     // 9. PDF
-    await page.goto(page.url().replace(/#.*$/, '#/pdf'))
+    await page.evaluate(() => { window.location.hash = '/pdf' })
     await page.waitForTimeout(800)
     await snap(page, '12-pdf')
 
     // 10. Health
-    await page.goto(page.url().replace(/#.*$/, '#/health'))
+    await page.evaluate(() => { window.location.hash = '/health' })
     await page.waitForTimeout(800)
     await snap(page, '13-health')
 

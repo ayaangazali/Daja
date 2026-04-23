@@ -1,0 +1,345 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import {
+  LineChart,
+  Briefcase,
+  Sparkles,
+  SquareActivity,
+  FileText,
+  HeartPulse,
+  MessageSquare,
+  Settings,
+  BookOpen,
+  GitCompareArrows,
+  ListFilter,
+  Calculator,
+  Newspaper,
+  FlaskConical,
+  Search,
+  Command
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+import { cn } from '../lib/cn'
+import { useUIStore } from '../stores/uiStore'
+
+type Hue = 'accent' | 'blue' | 'green' | 'amber' | 'rose' | 'violet' | 'teal' | 'slate'
+
+interface AppTile {
+  id: string
+  name: string
+  description: string
+  route: string
+  icon: LucideIcon
+  hue: Hue
+  group: 'finance' | 'tools' | 'system'
+}
+
+const APPS: AppTile[] = [
+  {
+    id: 'market',
+    name: 'Market',
+    description: 'Indices · movers · sector rotation',
+    route: '/finance',
+    icon: LineChart,
+    hue: 'blue',
+    group: 'finance'
+  },
+  {
+    id: 'portfolio',
+    name: 'Portfolio',
+    description: 'Positions · exit signals · risk',
+    route: '/finance/portfolio',
+    icon: Briefcase,
+    hue: 'accent',
+    group: 'finance'
+  },
+  {
+    id: 'briefing',
+    name: 'Briefing',
+    description: 'AI daily market summary',
+    route: '/finance/briefing',
+    icon: Newspaper,
+    hue: 'amber',
+    group: 'finance'
+  },
+  {
+    id: 'screener',
+    name: 'Screener',
+    description: 'Filter stocks by fundamentals',
+    route: '/finance/screener',
+    icon: ListFilter,
+    hue: 'teal',
+    group: 'finance'
+  },
+  {
+    id: 'compare',
+    name: 'Compare',
+    description: 'Side-by-side ticker analysis',
+    route: '/finance/compare',
+    icon: GitCompareArrows,
+    hue: 'violet',
+    group: 'finance'
+  },
+  {
+    id: 'paper',
+    name: 'Paper Trading',
+    description: 'Practice orders, no capital risk',
+    route: '/finance/paper',
+    icon: FlaskConical,
+    hue: 'green',
+    group: 'finance'
+  },
+  {
+    id: 'journal',
+    name: 'Journal',
+    description: 'Log trades + learn from history',
+    route: '/finance/journal',
+    icon: BookOpen,
+    hue: 'rose',
+    group: 'finance'
+  },
+  {
+    id: 'strategies',
+    name: 'Strategies',
+    description: 'Build + backtest rules',
+    route: '/finance/strategies',
+    icon: Sparkles,
+    hue: 'accent',
+    group: 'finance'
+  },
+  {
+    id: 'risk',
+    name: 'Risk Calc',
+    description: 'Position sizing · Kelly · R-multiple',
+    route: '/finance/risk',
+    icon: Calculator,
+    hue: 'slate',
+    group: 'finance'
+  },
+  {
+    id: 'sports',
+    name: 'Sports',
+    description: 'NFL · NBA · EPL · MLB scores',
+    route: '/sports',
+    icon: SquareActivity,
+    hue: 'green',
+    group: 'tools'
+  },
+  {
+    id: 'pdf',
+    name: 'PDF Tools',
+    description: 'Merge · split · info',
+    route: '/pdf',
+    icon: FileText,
+    hue: 'rose',
+    group: 'tools'
+  },
+  {
+    id: 'health',
+    name: 'Health',
+    description: 'Workouts · sleep · weight log',
+    route: '/health',
+    icon: HeartPulse,
+    hue: 'rose',
+    group: 'tools'
+  },
+  {
+    id: 'assistant',
+    name: 'Assistant',
+    description: 'AI chat across your data',
+    route: '/assistant',
+    icon: MessageSquare,
+    hue: 'violet',
+    group: 'tools'
+  },
+  {
+    id: 'settings',
+    name: 'Settings',
+    description: 'API keys · theme · AI providers',
+    route: '/settings',
+    icon: Settings,
+    hue: 'slate',
+    group: 'system'
+  }
+]
+
+const RECENT_STORAGE_KEY = 'daja.launchpad.recent'
+const MAX_RECENT = 4
+
+export function LaunchpadHome(): React.JSX.Element {
+  const navigate = useNavigate()
+  const [query, setQuery] = useState('')
+  const [focusIdx, setFocusIdx] = useState(0)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const setPalette = useUIStore((s) => s.setPalette)
+
+  const [recent, setRecent] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem(RECENT_STORAGE_KEY)
+      return raw ? (JSON.parse(raw) as string[]) : []
+    } catch {
+      return []
+    }
+  })
+
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return APPS
+    return APPS.filter(
+      (a) =>
+        a.name.toLowerCase().includes(q) ||
+        a.description.toLowerCase().includes(q) ||
+        a.id.toLowerCase().includes(q)
+    )
+  }, [query])
+
+  const orderedApps = useMemo(() => {
+    if (query) return filtered
+    // Without query: put recents first (in order), then the rest preserving group order
+    const recentApps = recent
+      .map((id) => APPS.find((a) => a.id === id))
+      .filter((a): a is AppTile => !!a)
+    const rest = APPS.filter((a) => !recent.includes(a.id))
+    return [...recentApps, ...rest]
+  }, [filtered, query, recent])
+
+  const launch = (app: AppTile): void => {
+    setRecent((prev) => {
+      const next = [app.id, ...prev.filter((id) => id !== app.id)].slice(0, MAX_RECENT)
+      try {
+        localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(next))
+      } catch {
+        // ignore
+      }
+      return next
+    })
+    navigate(app.route)
+  }
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent): void => {
+      if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        setFocusIdx((i) => Math.min(i + 1, orderedApps.length - 1))
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        setFocusIdx((i) => Math.max(i - 1, 0))
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setFocusIdx((i) => Math.min(i + 4, orderedApps.length - 1))
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setFocusIdx((i) => Math.max(i - 4, 0))
+      } else if (e.key === 'Enter') {
+        const app = orderedApps[focusIdx]
+        if (app) launch(app)
+      }
+    }
+    window.addEventListener('keydown', h)
+    return () => window.removeEventListener('keydown', h)
+  }, [orderedApps, focusIdx])
+
+  useEffect(() => {
+    if (focusIdx >= orderedApps.length) setFocusIdx(0)
+  }, [orderedApps.length, focusIdx])
+
+  return (
+    <div className="launchpad-bg flex h-full flex-col overflow-auto">
+      <div className="mx-auto flex w-full max-w-5xl flex-col px-6 pt-10 pb-14">
+        {/* Hero */}
+        <div className="mb-8 text-center">
+          <div className="serif mb-2 text-[36px] font-medium leading-tight tracking-tight text-[var(--color-fg)]">
+            Daja
+          </div>
+          <div className="text-[13px] text-[var(--color-fg-muted)]">
+            Your personal command center for finance, research, and everyday tools.
+          </div>
+        </div>
+
+        {/* Search */}
+        <div className="mx-auto mb-8 w-full max-w-md">
+          <div className="flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-elev)] px-4 py-2.5 shadow-sm focus-within:border-[var(--color-accent)]">
+            <Search className="h-4 w-4 text-[var(--color-fg-muted)]" />
+            <input
+              ref={inputRef}
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value)
+                setFocusIdx(0)
+              }}
+              placeholder="Search apps…"
+              className="flex-1 bg-transparent text-[13px] outline-none placeholder:text-[var(--color-fg-muted)]"
+            />
+            <button
+              onClick={() => setPalette(true)}
+              title="Open command palette (⌘K)"
+              className="flex items-center gap-1 rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-0.5 text-[10px] font-mono text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]"
+            >
+              <Command className="h-3 w-3" /> K
+            </button>
+          </div>
+        </div>
+
+        {/* Grid */}
+        {orderedApps.length === 0 ? (
+          <div className="mt-16 text-center text-[13px] text-[var(--color-fg-muted)]">
+            No apps match “{query}”.
+          </div>
+        ) : (
+          <div
+            className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+            role="grid"
+          >
+            {orderedApps.map((app, i) => {
+              const Icon = app.icon
+              const isFocused = i === focusIdx
+              return (
+                <button
+                  key={app.id}
+                  onClick={() => launch(app)}
+                  onFocus={() => setFocusIdx(i)}
+                  className={cn(
+                    'launchpad-tile flex flex-col items-center gap-3 rounded-2xl border p-5 text-center',
+                    'border-[var(--color-border)] bg-[var(--color-bg-elev)]',
+                    isFocused &&
+                      'border-[var(--color-accent)]/60 ring-2 ring-[var(--color-accent)]/25'
+                  )}
+                  style={{ animationDelay: `${Math.min(i, 20) * 25}ms` }}
+                >
+                  <span
+                    className="launchpad-icon flex h-16 w-16 items-center justify-center"
+                    data-hue={app.hue}
+                  >
+                    <Icon className="h-8 w-8" strokeWidth={1.6} />
+                  </span>
+                  <div>
+                    <div className="text-[13px] font-semibold text-[var(--color-fg)]">
+                      {app.name}
+                    </div>
+                    <div className="mt-0.5 text-[11px] leading-snug text-[var(--color-fg-muted)]">
+                      {app.description}
+                    </div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        <div className="mt-10 flex items-center justify-center gap-4 text-[10px] text-[var(--color-fg-muted)]">
+          <span>↑↓←→ navigate</span>
+          <span>·</span>
+          <span>⏎ launch</span>
+          <span>·</span>
+          <span>⌘K palette</span>
+          <span>·</span>
+          <span>? help</span>
+        </div>
+      </div>
+    </div>
+  )
+}

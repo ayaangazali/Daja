@@ -240,14 +240,13 @@ function MergeTab(): React.JSX.Element {
             <Download className="h-3 w-3" /> {busy ? 'Merging…' : 'Merge & save'}
           </button>
         </div>
-        {outHint && (
-          <div className="text-[10px] text-[var(--color-warn)]">ℹ {outHint}</div>
-        )}
+        {outHint && <div className="text-[10px] text-[var(--color-warn)]">ℹ {outHint}</div>}
       </div>
       {result && (
         <div className="space-y-1 rounded bg-[var(--color-pos)]/10 p-2 text-[11px] text-[var(--color-pos)]">
           <div>
-            ✓ Merged {result.mergedCount} file{result.mergedCount === 1 ? '' : 's'} ({result.pageCount} pages)
+            ✓ Merged {result.mergedCount} file{result.mergedCount === 1 ? '' : 's'} (
+            {result.pageCount} pages)
           </div>
           <div className="break-all font-mono text-[10px]">{result.path}</div>
           <button

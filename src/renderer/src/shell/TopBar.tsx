@@ -1,4 +1,13 @@
-import { Command, Maximize2, Moon, Pin, Search, Settings2, Sun } from 'lucide-react'
+import {
+  Command,
+  LayoutGrid,
+  Maximize2,
+  Moon,
+  Pin,
+  Search,
+  Settings2,
+  Sun
+} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useUIStore } from '../stores/uiStore'
 import { useSetTheme } from '../hooks/usePrefs'
@@ -27,12 +36,22 @@ export function TopBar(): React.JSX.Element {
         'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
       )}
     >
-      <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--color-info)] text-xs font-bold text-white">
-          N
+      <button
+        onClick={() => navigate('/')}
+        title="Home (Launchpad)"
+        className="flex items-center gap-2 rounded-md px-1 py-0.5 transition-colors hover:bg-[var(--color-bg)]"
+      >
+        <div
+          className="flex h-7 w-7 items-center justify-center text-xs font-bold text-white"
+          style={{
+            borderRadius: '28%',
+            background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-soft))'
+          }}
+        >
+          D
         </div>
-        <span className="text-sm font-semibold tracking-tight">Daja</span>
-      </div>
+        <span className="serif text-sm font-semibold tracking-tight">Daja</span>
+      </button>
       <button
         onClick={togglePalette}
         className={cn(
@@ -48,6 +67,13 @@ export function TopBar(): React.JSX.Element {
         </kbd>
       </button>
       <div className="flex items-center gap-1">
+        <button
+          onClick={() => navigate('/')}
+          title="Launchpad (⌘H)"
+          className="rounded-md p-1.5 text-[var(--color-fg-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-fg)]"
+        >
+          <LayoutGrid className="h-4 w-4" />
+        </button>
         <button
           onClick={toggleFocus}
           title="Focus mode (hide shell chrome)"

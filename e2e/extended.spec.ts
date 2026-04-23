@@ -36,7 +36,7 @@ test.describe('Daja extended interactions', () => {
     await page.waitForTimeout(2000)
 
     // ── 1. Navigate to AAPL detail ───────────────────────────────────────────
-    await page.goto(page.url().replace(/#.*$/, '#/finance/AAPL'))
+    await page.evaluate(() => { window.location.hash = '/finance/AAPL' })
     await page.waitForTimeout(4000)
     await snap(page, '01-aapl-overview')
 
@@ -125,8 +125,13 @@ test.describe('Daja extended interactions', () => {
     await snap(page, '03-overview-chart-revisit')
 
     // ── 3. Portfolio: log a buy trade for AAPL ────────────────────────────────
-    await page.goto(page.url().replace(/#.*$/, '#/finance/portfolio'))
-    await page.waitForTimeout(1500)
+    await page.evaluate(() => {
+      window.location.hash = '/finance/portfolio'
+    })
+    await page.waitForTimeout(3500)
+    await page
+      .locator('[data-testid="trade-ticker-input"]')
+      .waitFor({ state: 'visible', timeout: 20_000 })
     await snap(page, '04-portfolio-before-trade')
 
     // Check if "No positions yet" placeholder is showing
@@ -189,7 +194,7 @@ test.describe('Daja extended interactions', () => {
     }
 
     // ── 4. Settings page ──────────────────────────────────────────────────────
-    await page.goto(page.url().replace(/#.*$/, '#/settings'))
+    await page.evaluate(() => { window.location.hash = '/settings' })
     await page.waitForTimeout(1500)
     await snap(page, '07-settings')
 
@@ -285,7 +290,7 @@ test.describe('Daja extended interactions', () => {
     }
 
     // ── 6. Sports — switch between NFL, NBA, EPL ──────────────────────────────
-    await page.goto(page.url().replace(/#.*$/, '#/sports'))
+    await page.evaluate(() => { window.location.hash = '/sports' })
     await page.waitForTimeout(2500)
     await snap(page, '12-sports-nfl-default')
 
@@ -343,7 +348,7 @@ test.describe('Daja extended interactions', () => {
     }
 
     // ── 7. PDF: Merge tab, file picker button enabled ─────────────────────────
-    await page.goto(page.url().replace(/#.*$/, '#/pdf'))
+    await page.evaluate(() => { window.location.hash = '/pdf' })
     await page.waitForTimeout(800)
 
     // Merge is default tab

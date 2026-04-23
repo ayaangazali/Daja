@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { TopBar } from './TopBar'
 import { ModuleSwitcher } from './ModuleSwitcher'
 import { CommandPalette } from './CommandPalette'
@@ -13,6 +13,9 @@ export function Shell(): React.JSX.Element {
   useKeyboardNav()
   const focusMode = useUIStore((s) => s.focusMode)
   const [cheatsheetOpen, setCheatsheetOpen] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const isLaunchpad = location.pathname === '/' || location.pathname === ''
 
   useEffect(() => {
     const h = (e: KeyboardEvent): void => {
@@ -23,10 +26,28 @@ export function Shell(): React.JSX.Element {
         e.preventDefault()
         setCheatsheetOpen((v) => !v)
       }
+      // Cmd/Ctrl + H → back to launchpad
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'h') {
+        e.preventDefault()
+        navigate('/')
+      }
     }
     window.addEventListener('keydown', h)
     return () => window.removeEventListener('keydown', h)
-  }, [])
+  }, [navigate])
+
+  // Full-bleed Launchpad: hide TopBar + sidebar + StatusBar
+  if (isLaunchpad) {
+    return (
+      <div className="flex h-full flex-col">
+        <main className="min-h-0 flex-1 overflow-hidden">
+          <Outlet />
+        </main>
+        <CommandPalette />
+        <KeyboardCheatsheet open={cheatsheetOpen} onClose={() => setCheatsheetOpen(false)} />
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-full flex-col">
