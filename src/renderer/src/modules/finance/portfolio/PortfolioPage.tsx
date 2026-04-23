@@ -16,6 +16,7 @@ import { RebalancePanel } from './RebalancePanel'
 import { PortfolioEarnings } from './PortfolioEarnings'
 import { DripCalculator } from './DripCalculator'
 import { PortfolioExitSignals } from './PortfolioExitSignals'
+import { StressTestPanel } from './StressTestPanel'
 import { useTrades } from '../../../hooks/useTrades'
 import { downloadCsv, toCsv } from '../../../lib/csv'
 import { ErrorBoundary } from '../../../shared/ErrorBoundary'
@@ -76,54 +77,57 @@ export function PortfolioPage(): React.JSX.Element {
       />
       <div className="flex-1 overflow-y-auto p-4">
         <div className="mx-auto max-w-6xl space-y-3">
-        <Panel label="ExitSignals">
-          <PortfolioExitSignals />
-        </Panel>
-        <Panel label="EquityCurve">
-          <EquityCurve />
-        </Panel>
-        <Panel label="PortfolioEarnings">
-          <PortfolioEarnings />
-        </Panel>
-        <Panel label="RiskDashboard">
-          <RiskDashboard trades={trades} />
-        </Panel>
-        <Panel label="DividendTracker">
-          <DividendTracker />
-        </Panel>
-        <Panel label="AllocationBar">
-          <AllocationBar />
-        </Panel>
-        <Panel label="SectorAllocation">
-          <SectorAllocation />
-        </Panel>
-        <Panel label="RebalancePanel">
-          <RebalancePanel />
-        </Panel>
-        <Panel label="PositionsList">
-          <PositionsList />
-        </Panel>
-        <Panel label="TaxLotView">
-          <TaxLotView />
-        </Panel>
-        <Panel label="TaxHarvestPanel">
-          <TaxHarvestPanel />
-        </Panel>
-        <Panel label="CorrelationMatrix">
-          <CorrelationMatrix />
-        </Panel>
-        <Panel label="DripCalculator">
-          <DripCalculator />
-        </Panel>
-        <Panel label="TradeForm">
-          <TradeForm />
-        </Panel>
-        <Panel label="TradesTable">
-          <TradesTable />
-        </Panel>
-        <Panel label="WatchlistImport">
-          <WatchlistImport />
-        </Panel>
+          <Panel label="ExitSignals">
+            <PortfolioExitSignals />
+          </Panel>
+          <Panel label="StressTest">
+            <StressTestPanel />
+          </Panel>
+          <Panel label="EquityCurve">
+            <EquityCurve />
+          </Panel>
+          <Panel label="PortfolioEarnings">
+            <PortfolioEarnings />
+          </Panel>
+          <Panel label="RiskDashboard">
+            <RiskDashboard trades={trades} />
+          </Panel>
+          <Panel label="DividendTracker">
+            <DividendTracker />
+          </Panel>
+          <Panel label="AllocationBar">
+            <AllocationBar />
+          </Panel>
+          <Panel label="SectorAllocation">
+            <SectorAllocation />
+          </Panel>
+          <Panel label="RebalancePanel">
+            <RebalancePanel />
+          </Panel>
+          <Panel label="PositionsList">
+            <PositionsList />
+          </Panel>
+          <Panel label="TaxLotView">
+            <TaxLotView />
+          </Panel>
+          <Panel label="TaxHarvestPanel">
+            <TaxHarvestPanel />
+          </Panel>
+          <Panel label="CorrelationMatrix">
+            <CorrelationMatrix />
+          </Panel>
+          <Panel label="DripCalculator">
+            <DripCalculator />
+          </Panel>
+          <Panel label="TradeForm">
+            <TradeForm />
+          </Panel>
+          <Panel label="TradesTable">
+            <TradesTable />
+          </Panel>
+          <Panel label="WatchlistImport">
+            <WatchlistImport />
+          </Panel>
         </div>
       </div>
     </div>

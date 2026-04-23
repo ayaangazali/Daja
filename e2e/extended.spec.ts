@@ -36,7 +36,9 @@ test.describe('Daja extended interactions', () => {
     await page.waitForTimeout(2000)
 
     // ── 1. Navigate to AAPL detail ───────────────────────────────────────────
-    await page.evaluate(() => { window.location.hash = '/finance/AAPL' })
+    await page.evaluate(() => {
+      window.location.hash = '/finance/AAPL'
+    })
     await page.waitForTimeout(4000)
     await snap(page, '01-aapl-overview')
 
@@ -194,7 +196,9 @@ test.describe('Daja extended interactions', () => {
     }
 
     // ── 4. Settings page ──────────────────────────────────────────────────────
-    await page.evaluate(() => { window.location.hash = '/settings' })
+    await page.evaluate(() => {
+      window.location.hash = '/settings'
+    })
     await page.waitForTimeout(1500)
     await snap(page, '07-settings')
 
@@ -290,7 +294,9 @@ test.describe('Daja extended interactions', () => {
     }
 
     // ── 6. Sports — switch between NFL, NBA, EPL ──────────────────────────────
-    await page.evaluate(() => { window.location.hash = '/sports' })
+    await page.evaluate(() => {
+      window.location.hash = '/sports'
+    })
     await page.waitForTimeout(2500)
     await snap(page, '12-sports-nfl-default')
 
@@ -348,7 +354,9 @@ test.describe('Daja extended interactions', () => {
     }
 
     // ── 7. PDF: Merge tab, file picker button enabled ─────────────────────────
-    await page.evaluate(() => { window.location.hash = '/pdf' })
+    await page.evaluate(() => {
+      window.location.hash = '/pdf'
+    })
     await page.waitForTimeout(800)
 
     // Merge is default tab

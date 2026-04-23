@@ -68,7 +68,9 @@ test.describe('Daja end-to-end', () => {
     await page.waitForTimeout(1500)
     await snap(page, '04-watchlist-added')
 
-    await page.evaluate(() => { window.location.hash = '/finance/AAPL' })
+    await page.evaluate(() => {
+      window.location.hash = '/finance/AAPL'
+    })
     await page.waitForTimeout(3500)
     await snap(page, '05-detail-overview')
 
@@ -95,35 +97,49 @@ test.describe('Daja end-to-end', () => {
     }
 
     // 5. Portfolio page
-    await page.evaluate(() => { window.location.hash = '/finance/portfolio' })
+    await page.evaluate(() => {
+      window.location.hash = '/finance/portfolio'
+    })
     await page.waitForTimeout(1500)
     await snap(page, '07-portfolio')
 
     // 6. Assistant module + meeting notes
-    await page.evaluate(() => { window.location.hash = '/assistant' })
+    await page.evaluate(() => {
+      window.location.hash = '/assistant'
+    })
     await page.waitForTimeout(1200)
     await snap(page, '08-assistant-chat')
-    await page.evaluate(() => { window.location.hash = '/assistant/meeting' })
+    await page.evaluate(() => {
+      window.location.hash = '/assistant/meeting'
+    })
     await page.waitForTimeout(1000)
     await snap(page, '09-assistant-meeting')
 
     // 7. Settings
-    await page.evaluate(() => { window.location.hash = '/settings' })
+    await page.evaluate(() => {
+      window.location.hash = '/settings'
+    })
     await page.waitForTimeout(1200)
     await snap(page, '10-settings')
 
     // 8. Sports detail
-    await page.evaluate(() => { window.location.hash = '/sports' })
+    await page.evaluate(() => {
+      window.location.hash = '/sports'
+    })
     await page.waitForTimeout(2000)
     await snap(page, '11-sports')
 
     // 9. PDF
-    await page.evaluate(() => { window.location.hash = '/pdf' })
+    await page.evaluate(() => {
+      window.location.hash = '/pdf'
+    })
     await page.waitForTimeout(800)
     await snap(page, '12-pdf')
 
     // 10. Health
-    await page.evaluate(() => { window.location.hash = '/health' })
+    await page.evaluate(() => {
+      window.location.hash = '/health'
+    })
     await page.waitForTimeout(800)
     await snap(page, '13-health')
 

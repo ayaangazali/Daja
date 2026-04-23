@@ -14,7 +14,13 @@ interface Props {
  * Consistent Claude-style page header — serif title, muted subtitle,
  * optional back button (Launchpad icon if no `back` provided).
  */
-export function PageHeader({ title, subtitle, back, actions, className }: Props): React.JSX.Element {
+export function PageHeader({
+  title,
+  subtitle,
+  back,
+  actions,
+  className
+}: Props): React.JSX.Element {
   const navigate = useNavigate()
   return (
     <div

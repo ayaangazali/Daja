@@ -278,16 +278,9 @@ export function LaunchpadHome(): React.JSX.Element {
           <Settings2 className="h-4 w-4" />
         </button>
       </div>
-      <div className="mx-auto flex w-full max-w-5xl flex-col px-6 pt-10 pb-14">
+      <div className="mx-auto flex w-full max-w-5xl flex-col px-6 pt-8 pb-14">
         {/* Hero */}
-        <div className="mb-8 text-center">
-          <div className="serif mb-2 text-[36px] font-medium leading-tight tracking-tight text-[var(--color-fg)]">
-            Daja
-          </div>
-          <div className="text-[13px] text-[var(--color-fg-muted)]">
-            Your personal command center for finance, research, and everyday tools.
-          </div>
-        </div>
+        <LaunchpadHero />
 
         {/* Search */}
         <div className="mx-auto mb-8 w-full max-w-md">
@@ -382,6 +375,69 @@ export function LaunchpadHome(): React.JSX.Element {
           <span>·</span>
           <span>? help</span>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function LaunchpadHero(): React.JSX.Element {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30_000)
+    return () => clearInterval(id)
+  }, [])
+
+  // NYSE market status
+  const marketStatus = useMemo((): {
+    label: string
+    tone: 'open' | 'pre' | 'post' | 'closed'
+  } => {
+    const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }))
+    const day = et.getDay()
+    if (day === 0 || day === 6) return { label: 'Market closed · weekend', tone: 'closed' }
+    const mins = et.getHours() * 60 + et.getMinutes()
+    if (mins >= 9 * 60 + 30 && mins < 16 * 60)
+      return { label: 'Market open · NYSE regular hours', tone: 'open' }
+    if (mins >= 4 * 60 && mins < 9 * 60 + 30)
+      return { label: 'Pre-market · opens 9:30 ET', tone: 'pre' }
+    if (mins >= 16 * 60 && mins < 20 * 60) return { label: 'After-hours · closes 8 PM ET', tone: 'post' }
+    return { label: 'Market closed · overnight', tone: 'closed' }
+  }, [now])
+
+  const greeting = useMemo(() => {
+    const h = now.getHours()
+    if (h < 5) return 'Up late'
+    if (h < 12) return 'Good morning'
+    if (h < 17) return 'Good afternoon'
+    if (h < 21) return 'Good evening'
+    return 'Good night'
+  }, [now])
+
+  const date = now.toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric'
+  })
+
+  return (
+    <div className="mb-10 text-center">
+      <div className="mb-2 text-[12px] font-medium uppercase tracking-[0.16em] text-[var(--color-fg-muted)]">
+        {date}
+      </div>
+      <div className="serif mb-3 text-[48px] font-medium leading-[1.05] tracking-tight text-[var(--color-fg)]">
+        {greeting}.
+      </div>
+      <div className="mx-auto flex max-w-xl items-center justify-center gap-2 text-[13px] text-[var(--color-fg-muted)]">
+        <span
+          className={cn(
+            'inline-block h-2 w-2 rounded-full',
+            marketStatus.tone === 'open' && 'bg-[var(--color-pos)] shadow-[0_0_6px_var(--color-pos)]',
+            marketStatus.tone === 'pre' && 'bg-[var(--color-warn)]',
+            marketStatus.tone === 'post' && 'bg-[var(--color-warn)]',
+            marketStatus.tone === 'closed' && 'bg-[var(--color-fg-muted)]/50'
+          )}
+        />
+        {marketStatus.label}
       </div>
     </div>
   )

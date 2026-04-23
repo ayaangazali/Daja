@@ -1,13 +1,4 @@
-import {
-  Command,
-  LayoutGrid,
-  Maximize2,
-  Moon,
-  Pin,
-  Search,
-  Settings2,
-  Sun
-} from 'lucide-react'
+import { Command, LayoutGrid, Maximize2, Moon, Pin, Search, Settings2, Sun } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useUIStore } from '../stores/uiStore'
 import { useSetTheme } from '../hooks/usePrefs'

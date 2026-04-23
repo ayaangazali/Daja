@@ -58,182 +58,181 @@ export function PositionSizeCalculator(): React.JSX.Element {
       />
       <div className="flex-1 overflow-y-auto p-4">
         <div className="mx-auto max-w-3xl space-y-3">
-
-        <div
-          className={cn(
-            'grid grid-cols-1 gap-3 rounded-md border p-3 md:grid-cols-2',
-            'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
-          )}
-        >
-          <Field label="Account size ($)">
-            <input
-              type="number"
-              value={account}
-              onChange={(e) => setAccount(e.target.value)}
-              className="w-full rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 font-mono text-[12px]"
-            />
-          </Field>
-          <Field label="Risk per trade (%)">
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                step="0.1"
-                value={riskPct}
-                onChange={(e) => setRiskPct(e.target.value)}
-                className="flex-1 rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 font-mono text-[12px]"
-              />
-              <div className="flex gap-0.5">
-                {['0.5', '1', '2'].map((v) => (
-                  <button
-                    key={v}
-                    onClick={() => setRiskPct(v)}
-                    className="rounded border border-[var(--color-border)] px-1.5 py-0.5 text-[9px] hover:bg-[var(--color-bg)]"
-                  >
-                    {v}%
-                  </button>
-                ))}
-              </div>
-            </div>
-          </Field>
-          <Field label="Ticker (optional, pulls live price)">
-            <div className="flex items-center gap-2">
-              <input
-                value={ticker}
-                onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                placeholder="AAPL"
-                className="flex-1 rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 font-mono text-[12px]"
-              />
-              {quote?.price != null && (
-                <button
-                  onClick={useLivePrice}
-                  className="rounded bg-[var(--color-info)] px-2 py-1.5 text-[10px] font-medium text-white"
-                >
-                  Use ${fmtPrice(quote.price)}
-                </button>
-              )}
-            </div>
-          </Field>
-          <Field label="Side">
-            <div className="flex gap-1">
-              <button
-                onClick={() => setSide('long')}
-                className={cn(
-                  'flex-1 rounded py-1.5 text-[11px] font-medium',
-                  side === 'long'
-                    ? 'bg-[var(--color-pos)] text-white'
-                    : 'border border-[var(--color-border)] text-[var(--color-fg-muted)]'
-                )}
-              >
-                <TrendingUp className="inline h-3 w-3" /> Long
-              </button>
-              <button
-                onClick={() => setSide('short')}
-                className={cn(
-                  'flex-1 rounded py-1.5 text-[11px] font-medium',
-                  side === 'short'
-                    ? 'bg-[var(--color-neg)] text-white'
-                    : 'border border-[var(--color-border)] text-[var(--color-fg-muted)]'
-                )}
-              >
-                <TrendingDown className="inline h-3 w-3" /> Short
-              </button>
-            </div>
-          </Field>
-          <Field label="Entry price ($)">
-            <input
-              type="number"
-              step="0.01"
-              value={entry}
-              onChange={(e) => setEntry(e.target.value)}
-              className="w-full rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 font-mono text-[12px]"
-            />
-          </Field>
-          <Field label="Stop loss ($)">
-            <input
-              type="number"
-              step="0.01"
-              value={stop}
-              onChange={(e) => setStop(e.target.value)}
-              className="w-full rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 font-mono text-[12px]"
-            />
-          </Field>
-          <Field label="Price target ($, optional)">
-            <input
-              type="number"
-              step="0.01"
-              value={target}
-              onChange={(e) => setTarget(e.target.value)}
-              placeholder="Optional — computes reward + R:R"
-              className="w-full rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 font-mono text-[12px]"
-            />
-          </Field>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <Stat label="Shares" value={result.shares.toLocaleString()} emphasize />
-          <Stat label="Risk per share" value={`$${fmtPrice(result.riskPerShare)}`} />
-          <Stat label="Dollar risk" value={`$${fmtLargeNum(result.dollarRisk)}`} tone="neg" />
-          <Stat label="Position value" value={`$${fmtLargeNum(result.positionValue)}`} />
-          <Stat
-            label="% of account"
-            value={`${result.portfolioPct.toFixed(1)}%`}
-            tone={result.portfolioPct > 50 ? 'neg' : result.portfolioPct > 25 ? 'warn' : null}
-          />
-          {targetN > 0 && (
-            <>
-              <Stat label="Reward" value={`$${fmtLargeNum(reward)}`} tone="pos" />
-              <Stat
-                label="Risk : Reward"
-                value={rr > 0 ? `1 : ${rr.toFixed(2)}` : '—'}
-                tone={rr >= 2 ? 'pos' : rr >= 1 ? 'warn' : rr > 0 ? 'neg' : null}
-              />
-              <Stat
-                label="R multiple"
-                value={
-                  rMult > 0 ? `+${rMult.toFixed(2)}R` : rMult < 0 ? `${rMult.toFixed(2)}R` : '—'
-                }
-                tone={
-                  rMult >= 2
-                    ? 'pos'
-                    : rMult >= 1
-                      ? 'warn'
-                      : rMult > 0
-                        ? 'warn'
-                        : rMult < 0
-                          ? 'neg'
-                          : null
-                }
-              />
-            </>
-          )}
-        </div>
-
-        {warnings.length > 0 && (
           <div
             className={cn(
-              'rounded-md border p-3',
-              'border-[var(--color-warn)]/50 bg-[var(--color-warn)]/10'
+              'grid grid-cols-1 gap-3 rounded-md border p-3 md:grid-cols-2',
+              'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
             )}
           >
-            <div className="mb-1 flex items-center gap-1 text-[11px] font-semibold text-[var(--color-warn)]">
-              <AlertTriangle className="h-3.5 w-3.5" /> Warnings
-            </div>
-            <ul className="space-y-0.5 text-[11px] text-[var(--color-warn)]">
-              {warnings.map((w) => (
-                <li key={w}>• {w}</li>
-              ))}
-            </ul>
+            <Field label="Account size ($)">
+              <input
+                type="number"
+                value={account}
+                onChange={(e) => setAccount(e.target.value)}
+                className="w-full rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 font-mono text-[12px]"
+              />
+            </Field>
+            <Field label="Risk per trade (%)">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  value={riskPct}
+                  onChange={(e) => setRiskPct(e.target.value)}
+                  className="flex-1 rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 font-mono text-[12px]"
+                />
+                <div className="flex gap-0.5">
+                  {['0.5', '1', '2'].map((v) => (
+                    <button
+                      key={v}
+                      onClick={() => setRiskPct(v)}
+                      className="rounded border border-[var(--color-border)] px-1.5 py-0.5 text-[9px] hover:bg-[var(--color-bg)]"
+                    >
+                      {v}%
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </Field>
+            <Field label="Ticker (optional, pulls live price)">
+              <div className="flex items-center gap-2">
+                <input
+                  value={ticker}
+                  onChange={(e) => setTicker(e.target.value.toUpperCase())}
+                  placeholder="AAPL"
+                  className="flex-1 rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 font-mono text-[12px]"
+                />
+                {quote?.price != null && (
+                  <button
+                    onClick={useLivePrice}
+                    className="rounded bg-[var(--color-info)] px-2 py-1.5 text-[10px] font-medium text-white"
+                  >
+                    Use ${fmtPrice(quote.price)}
+                  </button>
+                )}
+              </div>
+            </Field>
+            <Field label="Side">
+              <div className="flex gap-1">
+                <button
+                  onClick={() => setSide('long')}
+                  className={cn(
+                    'flex-1 rounded py-1.5 text-[11px] font-medium',
+                    side === 'long'
+                      ? 'bg-[var(--color-pos)] text-white'
+                      : 'border border-[var(--color-border)] text-[var(--color-fg-muted)]'
+                  )}
+                >
+                  <TrendingUp className="inline h-3 w-3" /> Long
+                </button>
+                <button
+                  onClick={() => setSide('short')}
+                  className={cn(
+                    'flex-1 rounded py-1.5 text-[11px] font-medium',
+                    side === 'short'
+                      ? 'bg-[var(--color-neg)] text-white'
+                      : 'border border-[var(--color-border)] text-[var(--color-fg-muted)]'
+                  )}
+                >
+                  <TrendingDown className="inline h-3 w-3" /> Short
+                </button>
+              </div>
+            </Field>
+            <Field label="Entry price ($)">
+              <input
+                type="number"
+                step="0.01"
+                value={entry}
+                onChange={(e) => setEntry(e.target.value)}
+                className="w-full rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 font-mono text-[12px]"
+              />
+            </Field>
+            <Field label="Stop loss ($)">
+              <input
+                type="number"
+                step="0.01"
+                value={stop}
+                onChange={(e) => setStop(e.target.value)}
+                className="w-full rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 font-mono text-[12px]"
+              />
+            </Field>
+            <Field label="Price target ($, optional)">
+              <input
+                type="number"
+                step="0.01"
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+                placeholder="Optional — computes reward + R:R"
+                className="w-full rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 font-mono text-[12px]"
+              />
+            </Field>
           </div>
-        )}
 
-        <div className="rounded-md border border-dashed border-[var(--color-border)] p-3 text-[10px] leading-relaxed text-[var(--color-fg-muted)]">
-          <div className="font-semibold text-[var(--color-fg)]">How this works</div>
-          <div className="mt-1">
-            Shares = floor(Account × Risk% / |Entry − Stop|). Pros typically risk 0.5–1% per trade.
-            A 20% max drawdown at 1% risk per trade survives 20 consecutive losses — the math that
-            keeps accounts alive.
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <Stat label="Shares" value={result.shares.toLocaleString()} emphasize />
+            <Stat label="Risk per share" value={`$${fmtPrice(result.riskPerShare)}`} />
+            <Stat label="Dollar risk" value={`$${fmtLargeNum(result.dollarRisk)}`} tone="neg" />
+            <Stat label="Position value" value={`$${fmtLargeNum(result.positionValue)}`} />
+            <Stat
+              label="% of account"
+              value={`${result.portfolioPct.toFixed(1)}%`}
+              tone={result.portfolioPct > 50 ? 'neg' : result.portfolioPct > 25 ? 'warn' : null}
+            />
+            {targetN > 0 && (
+              <>
+                <Stat label="Reward" value={`$${fmtLargeNum(reward)}`} tone="pos" />
+                <Stat
+                  label="Risk : Reward"
+                  value={rr > 0 ? `1 : ${rr.toFixed(2)}` : '—'}
+                  tone={rr >= 2 ? 'pos' : rr >= 1 ? 'warn' : rr > 0 ? 'neg' : null}
+                />
+                <Stat
+                  label="R multiple"
+                  value={
+                    rMult > 0 ? `+${rMult.toFixed(2)}R` : rMult < 0 ? `${rMult.toFixed(2)}R` : '—'
+                  }
+                  tone={
+                    rMult >= 2
+                      ? 'pos'
+                      : rMult >= 1
+                        ? 'warn'
+                        : rMult > 0
+                          ? 'warn'
+                          : rMult < 0
+                            ? 'neg'
+                            : null
+                  }
+                />
+              </>
+            )}
           </div>
-        </div>
+
+          {warnings.length > 0 && (
+            <div
+              className={cn(
+                'rounded-md border p-3',
+                'border-[var(--color-warn)]/50 bg-[var(--color-warn)]/10'
+              )}
+            >
+              <div className="mb-1 flex items-center gap-1 text-[11px] font-semibold text-[var(--color-warn)]">
+                <AlertTriangle className="h-3.5 w-3.5" /> Warnings
+              </div>
+              <ul className="space-y-0.5 text-[11px] text-[var(--color-warn)]">
+                {warnings.map((w) => (
+                  <li key={w}>• {w}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="rounded-md border border-dashed border-[var(--color-border)] p-3 text-[10px] leading-relaxed text-[var(--color-fg-muted)]">
+            <div className="font-semibold text-[var(--color-fg)]">How this works</div>
+            <div className="mt-1">
+              Shares = floor(Account × Risk% / |Entry − Stop|). Pros typically risk 0.5–1% per
+              trade. A 20% max drawdown at 1% risk per trade survives 20 consecutive losses — the
+              math that keeps accounts alive.
+            </div>
+          </div>
         </div>
       </div>
     </div>
