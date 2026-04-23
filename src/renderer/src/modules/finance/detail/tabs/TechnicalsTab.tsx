@@ -13,6 +13,7 @@ import { VolumeProfilePanel } from '../panels/VolumeProfilePanel'
 import { DivergencePanel } from '../panels/DivergencePanel'
 import { GapAndLevelsPanel } from '../panels/GapAndLevelsPanel'
 import { HeikinAshiPanel } from '../panels/HeikinAshiPanel'
+import { PanelBoundary } from '../../../../shared/ErrorBoundary'
 
 function sma(arr: number[], p: number): number | null {
   if (arr.length < p) return null
@@ -176,18 +177,18 @@ export function TechnicalsTab({ ticker }: { ticker: string }): React.JSX.Element
 
   return (
     <div className="space-y-3 p-3">
-      <RollingBetaPanel ticker={ticker} />
-      <IndicatorsPanel ticker={ticker} />
-      <OscillatorsPanel ticker={ticker} />
-      <CandlePatternsPanel ticker={ticker} />
-      <PivotPointsPanel ticker={ticker} />
-      <FibRetracementPanel ticker={ticker} />
-      <VolumeProfilePanel ticker={ticker} />
-      <GapAndLevelsPanel ticker={ticker} />
-      <HeikinAshiPanel ticker={ticker} />
-      <DivergencePanel ticker={ticker} />
-      <CrossSignals ticker={ticker} />
-      <SeasonalityPanel ticker={ticker} />
+      <PanelBoundary label="Rolling beta"><RollingBetaPanel ticker={ticker} /></PanelBoundary>
+      <PanelBoundary label="Indicators"><IndicatorsPanel ticker={ticker} /></PanelBoundary>
+      <PanelBoundary label="Oscillators"><OscillatorsPanel ticker={ticker} /></PanelBoundary>
+      <PanelBoundary label="Candle patterns"><CandlePatternsPanel ticker={ticker} /></PanelBoundary>
+      <PanelBoundary label="Pivot points"><PivotPointsPanel ticker={ticker} /></PanelBoundary>
+      <PanelBoundary label="Fib retracement"><FibRetracementPanel ticker={ticker} /></PanelBoundary>
+      <PanelBoundary label="Volume profile"><VolumeProfilePanel ticker={ticker} /></PanelBoundary>
+      <PanelBoundary label="Gaps & levels"><GapAndLevelsPanel ticker={ticker} /></PanelBoundary>
+      <PanelBoundary label="Heikin-Ashi"><HeikinAshiPanel ticker={ticker} /></PanelBoundary>
+      <PanelBoundary label="Divergence"><DivergencePanel ticker={ticker} /></PanelBoundary>
+      <PanelBoundary label="Cross signals"><CrossSignals ticker={ticker} /></PanelBoundary>
+      <PanelBoundary label="Seasonality"><SeasonalityPanel ticker={ticker} /></PanelBoundary>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <Card title="Moving Averages">
           <table className="w-full text-[11px]">

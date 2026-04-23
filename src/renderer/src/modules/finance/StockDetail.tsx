@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { useQuote } from '../../hooks/useFinance'
 import { useFundamentals } from '../../hooks/useFundamentals'
 import { StockHeader } from './detail/StockHeader'
@@ -21,7 +21,30 @@ import { useRecentTickers } from '../../stores/recentTickersStore'
 export function StockDetail(): React.JSX.Element {
   const { ticker = '' } = useParams<{ ticker: string }>()
   const upper = ticker.toUpperCase()
-  const [tab, setTab] = useState<DetailTab>('Overview')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const urlTab = searchParams.get('tab') as DetailTab | null
+  const initialTab: DetailTab =
+    urlTab && DETAIL_TABS.includes(urlTab) ? urlTab : 'Overview'
+  const [tab, setTabState] = useState<DetailTab>(initialTab)
+
+  const setTab = (next: DetailTab): void => {
+    setTabState(next)
+    const params = new URLSearchParams(searchParams)
+    if (next === 'Overview') params.delete('tab')
+    else params.set('tab', next)
+    setSearchParams(params, { replace: false })
+  }
+
+  // Sync state if URL changes externally (back/forward)
+  useEffect(() => {
+    if (urlTab && DETAIL_TABS.includes(urlTab) && urlTab !== tab) {
+      setTabState(urlTab)
+    } else if (!urlTab && tab !== 'Overview') {
+      setTabState('Overview')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlTab])
+
   const { data: quote } = useQuote(upper)
   const { data: fundamentals, error: fundError } = useFundamentals(upper)
   const addRecent = useRecentTickers((s) => s.add)

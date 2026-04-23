@@ -6,6 +6,7 @@ import { cn } from '../lib/cn'
 export function ModuleSwitcher(): React.JSX.Element {
   return (
     <nav
+      aria-label="Module navigation"
       className={cn(
         'flex w-14 shrink-0 flex-col items-center gap-1 border-r py-3',
         'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
@@ -15,6 +16,7 @@ export function ModuleSwitcher(): React.JSX.Element {
         to="/"
         end
         title="Launchpad (⌘H)"
+        aria-label="Open Launchpad home"
         className={({ isActive }) =>
           cn(
             'mb-1 flex h-10 w-10 items-center justify-center rounded-md transition-colors',
@@ -37,6 +39,8 @@ export function ModuleSwitcher(): React.JSX.Element {
               if (!m.enabled) e.preventDefault()
             }}
             title={m.enabled ? m.name : `${m.name} — Coming Soon`}
+            aria-label={m.enabled ? `Open ${m.name} module` : `${m.name} module (coming soon)`}
+            aria-disabled={!m.enabled}
             className={({ isActive }) =>
               cn(
                 'flex h-10 w-10 items-center justify-center rounded-md transition-colors',

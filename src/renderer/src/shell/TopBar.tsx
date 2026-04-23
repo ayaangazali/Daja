@@ -30,6 +30,7 @@ export function TopBar(): React.JSX.Element {
       <button
         onClick={() => navigate('/')}
         title="Home (Launchpad)"
+        aria-label="Navigate to Launchpad home"
         className="flex items-center gap-2 rounded-md px-1 py-0.5 transition-colors hover:bg-[var(--color-bg)]"
       >
         <div
@@ -45,6 +46,7 @@ export function TopBar(): React.JSX.Element {
       </button>
       <button
         onClick={togglePalette}
+        aria-label="Open command palette"
         className={cn(
           'flex h-8 max-w-xl flex-1 items-center gap-2 rounded-md border px-3 text-xs',
           'border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-fg-muted)]',
@@ -61,6 +63,7 @@ export function TopBar(): React.JSX.Element {
         <button
           onClick={() => navigate('/')}
           title="Launchpad (⌘H)"
+          aria-label="Open Launchpad"
           className="rounded-md p-1.5 text-[var(--color-fg-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-fg)]"
         >
           <LayoutGrid className="h-4 w-4" />
@@ -68,6 +71,7 @@ export function TopBar(): React.JSX.Element {
         <button
           onClick={toggleFocus}
           title="Focus mode (hide shell chrome)"
+          aria-label="Toggle focus mode"
           className="rounded-md p-1.5 text-[var(--color-fg-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-fg)]"
         >
           <Maximize2 className="h-4 w-4" />
@@ -75,6 +79,8 @@ export function TopBar(): React.JSX.Element {
         <button
           onClick={toggleAOT}
           title={alwaysOnTop ? 'Unpin window' : 'Always on top'}
+          aria-label={alwaysOnTop ? 'Unpin window from always-on-top' : 'Pin window always on top'}
+          aria-pressed={alwaysOnTop}
           className={cn(
             'rounded-md p-1.5',
             alwaysOnTop
@@ -87,6 +93,7 @@ export function TopBar(): React.JSX.Element {
         <button
           onClick={flipTheme}
           title="Toggle theme"
+          aria-label={`Toggle theme (current: ${theme})`}
           className="rounded-md p-1.5 text-[var(--color-fg-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-fg)]"
         >
           {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -95,6 +102,7 @@ export function TopBar(): React.JSX.Element {
           onClick={() => navigate('/settings')}
           className="rounded-md p-1.5 text-[var(--color-fg-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-fg)]"
           title="Settings"
+          aria-label="Open settings"
         >
           <Settings2 className="h-4 w-4" />
         </button>

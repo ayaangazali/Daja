@@ -64,6 +64,8 @@ export function TradesTable(): React.JSX.Element {
                 <td className="px-2 py-1 text-right">
                   <button
                     onClick={() => remMut.mutate(t.id)}
+                    aria-label={`Delete ${t.side} ${t.quantity} ${t.ticker} trade from ${t.date}`}
+                    title="Delete trade"
                     className="text-[var(--color-fg-muted)] hover:text-[var(--color-neg)]"
                   >
                     <Trash2 className="h-3 w-3" />

@@ -14,6 +14,7 @@ export function TradeForm(): React.JSX.Element {
 
   const submit = (): void => {
     if (!ticker.trim() || !qty || !price) return
+    if (addMut.isPending) return // guard against rapid double-click
     addMut.mutate(
       {
         ticker: ticker.toUpperCase(),
@@ -100,9 +101,10 @@ export function TradeForm(): React.JSX.Element {
           data-testid="trade-save-btn"
           onClick={submit}
           disabled={!ticker || !qty || !price || addMut.isPending}
+          aria-busy={addMut.isPending}
           className="rounded bg-[var(--color-info)] px-3 py-1 text-[11px] font-medium text-white disabled:opacity-40"
         >
-          Save
+          {addMut.isPending ? 'Saving…' : 'Save'}
         </button>
       </div>
       {addMut.isError && (

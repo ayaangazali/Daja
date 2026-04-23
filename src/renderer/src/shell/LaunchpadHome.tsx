@@ -277,6 +277,7 @@ export function LaunchpadHome(): React.JSX.Element {
         <button
           onClick={flipTheme}
           title="Toggle theme"
+          aria-label={`Toggle theme (current: ${theme})`}
           className="rounded-full border border-[var(--color-border)] bg-[var(--color-bg-elev)]/70 p-2 text-[var(--color-fg-muted)] backdrop-blur hover:text-[var(--color-fg)]"
         >
           {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -284,6 +285,7 @@ export function LaunchpadHome(): React.JSX.Element {
         <button
           onClick={() => navigate('/settings')}
           title="Settings"
+          aria-label="Open settings"
           className="rounded-full border border-[var(--color-border)] bg-[var(--color-bg-elev)]/70 p-2 text-[var(--color-fg-muted)] backdrop-blur hover:text-[var(--color-fg)]"
         >
           <Settings2 className="h-4 w-4" />
@@ -510,28 +512,34 @@ function Tile({
 }): React.JSX.Element {
   const Icon = app.icon
   return (
-    <button
-      onClick={() => onLaunch(app)}
-      onFocus={onFocus}
-      className={cn(
-        'launchpad-tile flex flex-col items-center gap-3 rounded-2xl border p-5 text-center',
-        'border-[var(--color-border)] bg-[var(--color-bg-elev)]',
-        focused && 'border-[var(--color-accent)]/60 ring-2 ring-[var(--color-accent)]/25'
-      )}
-      style={{ animationDelay: `${Math.min(index, 20) * 25}ms` }}
-    >
-      <span
-        className="launchpad-icon flex h-16 w-16 items-center justify-center"
-        data-hue={app.hue}
+    <div role="gridcell">
+      <button
+        onClick={() => onLaunch(app)}
+        onFocus={onFocus}
+        aria-label={`Open ${app.name} — ${app.description}`}
+        aria-selected={focused}
+        tabIndex={focused ? 0 : -1}
+        className={cn(
+          'launchpad-tile flex w-full flex-col items-center gap-3 rounded-2xl border p-5 text-center',
+          'border-[var(--color-border)] bg-[var(--color-bg-elev)]',
+          focused && 'border-[var(--color-accent)]/60 ring-2 ring-[var(--color-accent)]/25'
+        )}
+        style={{ animationDelay: `${Math.min(index, 20) * 25}ms` }}
       >
-        <Icon className="h-8 w-8" strokeWidth={1.6} />
-      </span>
-      <div>
-        <div className="text-[13px] font-semibold text-[var(--color-fg)]">{app.name}</div>
-        <div className="mt-0.5 text-[11px] leading-snug text-[var(--color-fg-muted)]">
-          {app.description}
+        <span
+          className="launchpad-icon flex h-16 w-16 items-center justify-center"
+          data-hue={app.hue}
+          aria-hidden="true"
+        >
+          <Icon className="h-8 w-8" strokeWidth={1.6} />
+        </span>
+        <div>
+          <div className="text-[13px] font-semibold text-[var(--color-fg)]">{app.name}</div>
+          <div className="mt-0.5 text-[11px] leading-snug text-[var(--color-fg-muted)]">
+            {app.description}
+          </div>
         </div>
-      </div>
-    </button>
+      </button>
+    </div>
   )
 }
