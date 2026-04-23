@@ -8,6 +8,7 @@ import { OscillatorsPanel } from '../panels/OscillatorsPanel'
 import { CandlePatternsPanel } from '../panels/CandlePatternsPanel'
 import { PivotPointsPanel } from '../panels/PivotPointsPanel'
 import { FibRetracementPanel } from '../panels/FibRetracementPanel'
+import { RollingBetaPanel } from '../panels/RollingBetaPanel'
 import { VolumeProfilePanel } from '../panels/VolumeProfilePanel'
 import { DivergencePanel } from '../panels/DivergencePanel'
 import { GapAndLevelsPanel } from '../panels/GapAndLevelsPanel'
@@ -175,6 +176,7 @@ export function TechnicalsTab({ ticker }: { ticker: string }): React.JSX.Element
 
   return (
     <div className="space-y-3 p-3">
+      <RollingBetaPanel ticker={ticker} />
       <IndicatorsPanel ticker={ticker} />
       <OscillatorsPanel ticker={ticker} />
       <CandlePatternsPanel ticker={ticker} />
