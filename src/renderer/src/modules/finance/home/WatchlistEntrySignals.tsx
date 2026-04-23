@@ -151,7 +151,7 @@ export function WatchlistEntrySignals(): React.JSX.Element | null {
             className={cn(
               'rounded px-2 py-0.5 uppercase',
               watchCount > 0
-                ? 'bg-[var(--color-info)] text-white'
+                ? 'bg-[var(--color-accent)] text-white'
                 : 'bg-[var(--color-info)]/15 text-[var(--color-info)]'
             )}
           >
@@ -208,7 +208,7 @@ export function WatchlistEntrySignals(): React.JSX.Element | null {
                     className={cn(
                       'rounded px-2 py-0.5 font-mono text-[9px] uppercase',
                       v?.action === 'buy' && 'bg-[var(--color-pos)] text-white',
-                      v?.action === 'watch' && 'bg-[var(--color-info)] text-white',
+                      v?.action === 'watch' && 'bg-[var(--color-accent)] text-white',
                       (!v || v.action === 'ignore') &&
                         'bg-[var(--color-fg-muted)]/15 text-[var(--color-fg-muted)]'
                     )}

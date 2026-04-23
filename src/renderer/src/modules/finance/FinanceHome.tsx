@@ -74,7 +74,7 @@ export function FinanceHome(): React.JSX.Element {
           disabled={!dirty}
           className={cn(
             'flex items-center gap-1 rounded px-2 py-1 text-[10px]',
-            dirty ? 'bg-[var(--color-info)] text-white' : 'text-[var(--color-fg-muted)]'
+            dirty ? 'bg-[var(--color-accent)] text-white' : 'text-[var(--color-fg-muted)]'
           )}
         >
           <Save className="h-3 w-3" /> {dirty ? 'Save layout' : 'Saved'}

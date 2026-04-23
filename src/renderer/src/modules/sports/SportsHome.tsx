@@ -34,7 +34,7 @@ export function SportsHome(): React.JSX.Element {
             className={cn(
               'rounded px-2 py-1 text-[11px] font-medium',
               league === l.id
-                ? 'bg-[var(--color-info)] text-white'
+                ? 'bg-[var(--color-accent)] text-white'
                 : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-bg)]'
             )}
           >

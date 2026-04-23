@@ -128,7 +128,7 @@ export function EquityCurve(): React.JSX.Element {
               className={cn(
                 'rounded px-1.5 py-0.5 font-mono text-[10px]',
                 range === r
-                  ? 'bg-[var(--color-info)] text-white'
+                  ? 'bg-[var(--color-accent)] text-white'
                   : 'text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]'
               )}
             >

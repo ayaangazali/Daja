@@ -38,7 +38,7 @@ export function FinancialsTab({ ticker }: { ticker: string }): React.JSX.Element
               className={cn(
                 'px-3 py-1 text-[11px] font-semibold uppercase tracking-wide',
                 stmt === s
-                  ? 'bg-[var(--color-info)] text-white'
+                  ? 'bg-[var(--color-accent)] text-white'
                   : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-bg)]'
               )}
             >

@@ -224,7 +224,7 @@ export function AnalystPanel({ ticker }: { ticker: string }): React.JSX.Element 
               className={cn(
                 'px-3 py-1 text-[10px] font-semibold uppercase tracking-wide',
                 period === p
-                  ? 'bg-[var(--color-info)] text-white'
+                  ? 'bg-[var(--color-accent)] text-white'
                   : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-bg)]'
               )}
             >

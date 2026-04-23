@@ -156,7 +156,7 @@ export function EntrySignalsPanel({ ticker }: { ticker: string }): React.JSX.Ele
     verdict.action === 'buy'
       ? 'bg-[var(--color-pos)] text-white'
       : verdict.action === 'watch'
-        ? 'bg-[var(--color-info)] text-white'
+        ? 'bg-[var(--color-accent)] text-white'
         : 'bg-[var(--color-fg-muted)]/20 text-[var(--color-fg-muted)]'
 
   const visible = showAll ? verdict.signals : verdict.signals.slice(0, 5)

@@ -56,7 +56,7 @@ export function TaxLotView(): React.JSX.Element {
                 className={cn(
                   'px-2 py-1 text-[10px] font-semibold uppercase',
                   method === m
-                    ? 'bg-[var(--color-info)] text-white'
+                    ? 'bg-[var(--color-accent)] text-white'
                     : 'text-[var(--color-fg-muted)]'
                 )}
               >
