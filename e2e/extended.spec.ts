@@ -130,7 +130,10 @@ test.describe('Daja extended interactions', () => {
     await page.evaluate(() => {
       window.location.hash = '/finance/portfolio'
     })
-    await page.waitForTimeout(3500)
+    await page.waitForTimeout(2000)
+    // Click Positions tab to see existing positions, then Tools to get TradeForm
+    await page.getByRole('button', { name: 'Tools', exact: true }).first().click({ timeout: 10_000 })
+    await page.waitForTimeout(1500)
     await page
       .locator('[data-testid="trade-ticker-input"]')
       .waitFor({ state: 'visible', timeout: 20_000 })
@@ -174,6 +177,14 @@ test.describe('Daja extended interactions', () => {
       await saveBtn.click({ force: true })
     }
     await page.waitForTimeout(3000)
+
+    // Switch to Positions tab to verify the AAPL row was recorded
+    await page
+      .getByRole('button', { name: 'Positions', exact: true })
+      .first()
+      .click({ timeout: 10_000 })
+      .catch(() => null)
+    await page.waitForTimeout(1500)
 
     await snap(page, '06-portfolio-after-trade')
 

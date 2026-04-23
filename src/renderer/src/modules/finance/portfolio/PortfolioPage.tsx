@@ -21,6 +21,17 @@ import { useTrades } from '../../../hooks/useTrades'
 import { downloadCsv, toCsv } from '../../../lib/csv'
 import { ErrorBoundary } from '../../../shared/ErrorBoundary'
 import { PageHeader } from '../../../shared/PageHeader'
+import { cn } from '../../../lib/cn'
+
+type Tab = 'overview' | 'positions' | 'signals' | 'analysis' | 'tools'
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'positions', label: 'Positions' },
+  { id: 'signals', label: 'Signals' },
+  { id: 'analysis', label: 'Analysis' },
+  { id: 'tools', label: 'Tools' }
+]
 
 function Panel({
   label,
@@ -34,6 +45,7 @@ function Panel({
 
 export function PortfolioPage(): React.JSX.Element {
   const { data: trades = [] } = useTrades()
+  const [tab, setTab] = useState<Tab>('overview')
 
   const [csvErr, setCsvErr] = useState<string | null>(null)
   const exportCsv = async (): Promise<void> => {
@@ -75,59 +87,95 @@ export function PortfolioPage(): React.JSX.Element {
           </>
         }
       />
+      <div className="flex border-b border-[var(--color-border)] bg-[var(--color-bg-elev)] px-5">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={cn(
+              'px-4 py-2 text-[11px] font-medium transition-colors',
+              tab === t.id
+                ? 'border-b-2 border-[var(--color-accent)] text-[var(--color-fg)]'
+                : 'text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]'
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
       <div className="flex-1 overflow-y-auto p-4">
         <div className="mx-auto max-w-6xl space-y-3">
-          <Panel label="ExitSignals">
-            <PortfolioExitSignals />
-          </Panel>
-          <Panel label="StressTest">
-            <StressTestPanel />
-          </Panel>
-          <Panel label="EquityCurve">
-            <EquityCurve />
-          </Panel>
-          <Panel label="PortfolioEarnings">
-            <PortfolioEarnings />
-          </Panel>
-          <Panel label="RiskDashboard">
-            <RiskDashboard trades={trades} />
-          </Panel>
-          <Panel label="DividendTracker">
-            <DividendTracker />
-          </Panel>
-          <Panel label="AllocationBar">
-            <AllocationBar />
-          </Panel>
-          <Panel label="SectorAllocation">
-            <SectorAllocation />
-          </Panel>
-          <Panel label="RebalancePanel">
-            <RebalancePanel />
-          </Panel>
-          <Panel label="PositionsList">
-            <PositionsList />
-          </Panel>
-          <Panel label="TaxLotView">
-            <TaxLotView />
-          </Panel>
-          <Panel label="TaxHarvestPanel">
-            <TaxHarvestPanel />
-          </Panel>
-          <Panel label="CorrelationMatrix">
-            <CorrelationMatrix />
-          </Panel>
-          <Panel label="DripCalculator">
-            <DripCalculator />
-          </Panel>
-          <Panel label="TradeForm">
-            <TradeForm />
-          </Panel>
-          <Panel label="TradesTable">
-            <TradesTable />
-          </Panel>
-          <Panel label="WatchlistImport">
-            <WatchlistImport />
-          </Panel>
+          {tab === 'overview' && (
+            <>
+              <Panel label="EquityCurve">
+                <EquityCurve />
+              </Panel>
+              <Panel label="RiskDashboard">
+                <RiskDashboard trades={trades} />
+              </Panel>
+              <Panel label="AllocationBar">
+                <AllocationBar />
+              </Panel>
+              <Panel label="SectorAllocation">
+                <SectorAllocation />
+              </Panel>
+              <Panel label="DividendTracker">
+                <DividendTracker />
+              </Panel>
+            </>
+          )}
+          {tab === 'positions' && (
+            <>
+              <Panel label="PositionsList">
+                <PositionsList />
+              </Panel>
+              <Panel label="TaxLotView">
+                <TaxLotView />
+              </Panel>
+              <Panel label="TradesTable">
+                <TradesTable />
+              </Panel>
+            </>
+          )}
+          {tab === 'signals' && (
+            <>
+              <Panel label="ExitSignals">
+                <PortfolioExitSignals />
+              </Panel>
+              <Panel label="StressTest">
+                <StressTestPanel />
+              </Panel>
+              <Panel label="PortfolioEarnings">
+                <PortfolioEarnings />
+              </Panel>
+            </>
+          )}
+          {tab === 'analysis' && (
+            <>
+              <Panel label="CorrelationMatrix">
+                <CorrelationMatrix />
+              </Panel>
+              <Panel label="RebalancePanel">
+                <RebalancePanel />
+              </Panel>
+              <Panel label="TaxHarvestPanel">
+                <TaxHarvestPanel />
+              </Panel>
+            </>
+          )}
+          {tab === 'tools' && (
+            <>
+              <Panel label="TradeForm">
+                <TradeForm />
+              </Panel>
+              <Panel label="DripCalculator">
+                <DripCalculator />
+              </Panel>
+              <Panel label="WatchlistImport">
+                <WatchlistImport />
+              </Panel>
+            </>
+          )}
         </div>
       </div>
     </div>

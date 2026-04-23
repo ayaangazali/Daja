@@ -43,7 +43,11 @@ test.describe('Daja end-to-end', () => {
     await expect(searchInput).toBeVisible({ timeout: 10_000 })
 
     // 1. Click the Market tile on Launchpad to enter Finance + shell
-    await page.locator('button').filter({ hasText: 'Market' }).first().click({ timeout: 10_000 })
+    await page.waitForTimeout(1500) // allow launchpad tiles to finish staggered animation
+    await page
+      .getByRole('button', { name: /^Market/i })
+      .first()
+      .click({ timeout: 15_000 })
     await page.waitForTimeout(2500)
     await page.locator('nav').getByTitle('Finance').first().waitFor({ timeout: 15_000 })
     await snap(page, '01-finance-home')
