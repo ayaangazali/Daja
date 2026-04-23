@@ -6,3 +6,4 @@ dist-electron
 *.log
 .env
 .env.local
+*.tsbuildinfo
