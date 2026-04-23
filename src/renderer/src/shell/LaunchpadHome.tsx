@@ -25,6 +25,7 @@ import type { LucideIcon } from 'lucide-react'
 import { cn } from '../lib/cn'
 import { useUIStore } from '../stores/uiStore'
 import { useSetTheme } from '../hooks/usePrefs'
+import { useRecentTickers } from '../stores/recentTickersStore'
 
 type Hue = 'accent' | 'blue' | 'green' | 'amber' | 'rose' | 'violet' | 'teal' | 'slate'
 
@@ -315,6 +316,9 @@ export function LaunchpadHome(): React.JSX.Element {
           </div>
         </div>
 
+        {/* Recent tickers */}
+        {!query && <RecentTickersRow />}
+
         {/* Grid */}
         {orderedApps.length === 0 ? (
           <div className="mt-16 text-center text-[13px] text-[var(--color-fg-muted)]">
@@ -449,6 +453,39 @@ function LaunchpadHero(): React.JSX.Element {
           )}
         />
         {marketStatus.label}
+      </div>
+    </div>
+  )
+}
+
+function RecentTickersRow(): React.JSX.Element | null {
+  const tickers = useRecentTickers((s) => s.tickers)
+  const clear = useRecentTickers((s) => s.clear)
+  const navigate = useNavigate()
+  if (tickers.length === 0) return null
+  return (
+    <div className="mb-8">
+      <div className="mb-2 flex items-center justify-between">
+        <div className="serif text-[12px] font-medium tracking-tight text-[var(--color-fg-muted)]">
+          Recent tickers
+        </div>
+        <button
+          onClick={clear}
+          className="text-[10px] text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]"
+        >
+          Clear
+        </button>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {tickers.map((t) => (
+          <button
+            key={t}
+            onClick={() => navigate(`/finance/${t}`)}
+            className="rounded-full border border-[var(--color-border)] bg-[var(--color-bg-elev)] px-3 py-1 font-mono text-[11px] font-semibold tabular text-[var(--color-fg)] transition hover:border-[var(--color-accent)] hover:bg-[var(--color-bg-tint)] hover:text-[var(--color-accent)]"
+          >
+            {t}
+          </button>
+        ))}
       </div>
     </div>
   )

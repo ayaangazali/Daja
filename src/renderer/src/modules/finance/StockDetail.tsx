@@ -16,6 +16,7 @@ import { NewsTab } from './detail/tabs/NewsTab'
 import { SentimentTab } from './detail/tabs/SentimentTab'
 import { SimulationTab } from './detail/tabs/SimulationTab'
 import { ErrorBoundary } from '../../shared/ErrorBoundary'
+import { useRecentTickers } from '../../stores/recentTickersStore'
 
 export function StockDetail(): React.JSX.Element {
   const { ticker = '' } = useParams<{ ticker: string }>()
@@ -23,6 +24,11 @@ export function StockDetail(): React.JSX.Element {
   const [tab, setTab] = useState<DetailTab>('Overview')
   const { data: quote } = useQuote(upper)
   const { data: fundamentals, error: fundError } = useFundamentals(upper)
+  const addRecent = useRecentTickers((s) => s.add)
+
+  useEffect(() => {
+    if (upper) addRecent(upper)
+  }, [upper, addRecent])
 
   // Keyboard shortcuts 1-9 jump between detail tabs.
   // Reject shift+digit (='!@#...') and all other modifier combos.
