@@ -39,9 +39,16 @@ function cellColor(pct: number | null): string {
 }
 
 function ytdBars(bars: HistoricalBar[]): number {
-  const year = new Date().getFullYear()
+  // Anchor YTD to New York time — US markets define the year boundary in
+  // Eastern, not the user's local clock. Prevents a user in Tokyo on Jan 1
+  // local from seeing a different YTD than a user in California.
+  const nyNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }))
+  const year = nyNow.getFullYear()
   for (let i = 0; i < bars.length; i++) {
-    if (new Date(bars[i].time * 1000).getFullYear() === year) {
+    const barNy = new Date(
+      new Date(bars[i].time * 1000).toLocaleString('en-US', { timeZone: 'America/New_York' })
+    )
+    if (barNy.getFullYear() === year) {
       return bars.length - i
     }
   }

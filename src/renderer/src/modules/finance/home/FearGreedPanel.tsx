@@ -6,8 +6,10 @@ import { cn } from '../../../lib/cn'
 
 export function FearGreedPanel(): React.JSX.Element {
   const { data: spyBars = [] } = useHistorical('SPY', '1y')
-  const { data: hygBars = [] } = useHistorical('HYG', '2mo')
-  const { data: tltBars = [] } = useHistorical('TLT', '2mo')
+  // 3mo window ensures >= 21 trading days for chg20() even around holidays
+  // and provider gaps (2mo often returns 38-41 calendar days = ~27-29 trading).
+  const { data: hygBars = [] } = useHistorical('HYG', '3mo')
+  const { data: tltBars = [] } = useHistorical('TLT', '3mo')
   const { data: spyQuote } = useQuote('SPY')
   const { data: vixQuote } = useQuote('^VIX')
 

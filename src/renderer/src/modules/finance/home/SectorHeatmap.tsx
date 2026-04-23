@@ -17,18 +17,24 @@ const SECTORS = [
   { etf: 'XLC', label: 'Comm Svcs' }
 ]
 
+/**
+ * Heatmap color: green intensity scales with +% up to 3%, red for −% to −3%.
+ * Tiny values (|pct| < 0.1%) collapse to the neutral elev background so near-
+ * zero cells don't flicker between hues (previous code produced near-identical
+ * adjacent cells at +0.1 vs −0.1, violating the 'similar values → similar color'
+ * heatmap principle). color-mix has been supported in Chromium for Electron
+ * since M111 — fine for desktop app.
+ */
 function colorFor(pct: number | null | undefined): string {
-  if (pct == null) return 'bg-[var(--color-fg-muted)]/10'
+  if (pct == null || !Number.isFinite(pct)) return 'bg-[var(--color-fg-muted)]/10'
+  if (Math.abs(pct) < 0.1) return 'bg-[var(--color-bg-elev)]'
   const clamped = Math.max(-3, Math.min(3, pct))
   if (clamped > 0) {
     const intensity = Math.round((clamped / 3) * 100)
     return `bg-[color-mix(in_srgb,var(--color-pos)_${intensity}%,var(--color-bg-elev))]`
   }
-  if (clamped < 0) {
-    const intensity = Math.round((-clamped / 3) * 100)
-    return `bg-[color-mix(in_srgb,var(--color-neg)_${intensity}%,var(--color-bg-elev))]`
-  }
-  return 'bg-[var(--color-bg-elev)]'
+  const intensity = Math.round((-clamped / 3) * 100)
+  return `bg-[color-mix(in_srgb,var(--color-neg)_${intensity}%,var(--color-bg-elev))]`
 }
 
 export function SectorHeatmap(): React.JSX.Element {
