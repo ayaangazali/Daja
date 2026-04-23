@@ -157,6 +157,15 @@ const APPS: AppTile[] = [
     group: 'tools'
   },
   {
+    id: 'quicksetup',
+    name: 'Quick setup',
+    description: 'One API key · enables every AI feature',
+    route: '/quick-setup',
+    icon: Sparkles,
+    hue: 'accent',
+    group: 'system'
+  },
+  {
     id: 'settings',
     name: 'Settings',
     description: 'API keys · theme · AI providers',

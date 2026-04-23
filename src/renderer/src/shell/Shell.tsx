@@ -15,7 +15,10 @@ export function Shell(): React.JSX.Element {
   const [cheatsheetOpen, setCheatsheetOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
-  const isLaunchpad = location.pathname === '/' || location.pathname === ''
+  const isFullbleed =
+    location.pathname === '/' ||
+    location.pathname === '' ||
+    location.pathname === '/quick-setup'
 
   useEffect(() => {
     const h = (e: KeyboardEvent): void => {
@@ -36,8 +39,8 @@ export function Shell(): React.JSX.Element {
     return () => window.removeEventListener('keydown', h)
   }, [navigate])
 
-  // Full-bleed Launchpad: hide TopBar + sidebar + StatusBar
-  if (isLaunchpad) {
+  // Full-bleed Launchpad / Quick Setup: hide TopBar + sidebar + StatusBar
+  if (isFullbleed) {
     return (
       <div className="flex h-full flex-col">
         <main className="min-h-0 flex-1 overflow-hidden">

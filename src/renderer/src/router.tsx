@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { Shell } from './shell/Shell'
 import { LaunchpadHome } from './shell/LaunchpadHome'
+import { QuickSetup } from './shell/QuickSetup'
 import { FinanceModule } from './modules/finance/FinanceModule'
 import { FinanceHome } from './modules/finance/FinanceHome'
 import { ErrorBoundary } from './shared/ErrorBoundary'
@@ -71,6 +72,7 @@ const router = createHashRouter([
     element: <Shell />,
     children: [
       { index: true, element: <LaunchpadHome /> },
+      { path: 'quick-setup', element: <QuickSetup /> },
       {
         path: 'finance',
         element: <FinanceModule />,
