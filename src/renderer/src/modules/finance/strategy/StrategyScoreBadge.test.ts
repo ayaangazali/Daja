@@ -122,6 +122,7 @@ describe('Fundamentals type contract', () => {
       targetMean: null,
       recommendationMean: null,
       recommendations: null,
+      recommendationTrend: [],
       earningsHistory: []
     }
     expect(f.symbol).toBe('X')

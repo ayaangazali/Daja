@@ -56,6 +56,14 @@ export interface Fundamentals {
     sell: number
     strongSell: number
   } | null
+  recommendationTrend: {
+    period: string
+    strongBuy: number
+    buy: number
+    hold: number
+    sell: number
+    strongSell: number
+  }[]
   // earnings surprises
   earningsHistory: {
     quarter: string
@@ -214,6 +222,14 @@ export async function fetchFundamentals(symbol: string): Promise<Fundamentals> {
           strongSell: num(latestRec.strongSell) ?? 0
         }
       : null,
+    recommendationTrend: rt.map((r) => ({
+      period: String(r.period ?? ''),
+      strongBuy: num(r.strongBuy) ?? 0,
+      buy: num(r.buy) ?? 0,
+      hold: num(r.hold) ?? 0,
+      sell: num(r.sell) ?? 0,
+      strongSell: num(r.strongSell) ?? 0
+    })),
     earningsHistory: eh.map((h) => ({
       quarter: String((h.quarter as Obj)?.fmt ?? ''),
       epsActual: num(h.epsActual),

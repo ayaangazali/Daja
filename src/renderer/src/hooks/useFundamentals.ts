@@ -49,6 +49,14 @@ export interface Fundamentals {
     sell: number
     strongSell: number
   } | null
+  recommendationTrend: {
+    period: string
+    strongBuy: number
+    buy: number
+    hold: number
+    sell: number
+    strongSell: number
+  }[]
   earningsHistory: {
     quarter: string
     epsActual: number | null
