@@ -15,6 +15,7 @@ import { WatchlistEntrySignals } from './home/WatchlistEntrySignals'
 import { CryptoTracker } from './home/CryptoTracker'
 import { YieldCurve } from './home/YieldCurve'
 import { MacroCalendar } from './home/MacroCalendar'
+import { FearGreedPanel } from './home/FearGreedPanel'
 import { ErrorBoundary } from '../../shared/ErrorBoundary'
 import { useDashboardLayout, type Layout } from '../../hooks/useLayout'
 import { cn } from '../../lib/cn'
@@ -33,8 +34,9 @@ const DEFAULT_LAYOUT: Layout[] = [
   { i: 'crypto', x: 0, y: 32, w: 6, h: 5, minW: 4, minH: 3 },
   { i: 'yield', x: 6, y: 32, w: 6, h: 5, minW: 4, minH: 3 },
   { i: 'calendar', x: 0, y: 37, w: 12, h: 7, minW: 6, minH: 4 },
-  { i: 'entries', x: 0, y: 44, w: 12, h: 6, minW: 6, minH: 4 },
-  { i: 'summary', x: 0, y: 50, w: 12, h: 8, minW: 4, minH: 4 }
+  { i: 'feargreed', x: 0, y: 44, w: 12, h: 6, minW: 6, minH: 4 },
+  { i: 'entries', x: 0, y: 50, w: 12, h: 6, minW: 6, minH: 4 },
+  { i: 'summary', x: 0, y: 56, w: 12, h: 8, minW: 4, minH: 4 }
 ]
 
 export function FinanceHome(): React.JSX.Element {
@@ -179,6 +181,14 @@ export function FinanceHome(): React.JSX.Element {
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
               <ErrorBoundary label="MacroCalendar"><MacroCalendar /></ErrorBoundary>
+            </div>
+          </div>
+          <div key="feargreed" className="h-full overflow-hidden rounded-md">
+            <div className="panel-handle flex cursor-move items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-bg-elev)] px-2 py-1 text-[10px] uppercase tracking-wide text-[var(--color-fg-muted)]">
+              <span>Fear & Greed</span>
+            </div>
+            <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
+              <ErrorBoundary label="FearGreed"><FearGreedPanel /></ErrorBoundary>
             </div>
           </div>
           <div key="entries" className="h-full overflow-hidden rounded-md">

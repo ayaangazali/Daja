@@ -39,8 +39,8 @@ test.describe('Daja end-to-end', () => {
 
     // 0. Launchpad home (root)
     await snap(page, '00-launchpad')
-    const daja = page.getByText('Daja').first()
-    await expect(daja).toBeVisible({ timeout: 10_000 })
+    const searchInput = page.getByPlaceholder('Search apps…').first()
+    await expect(searchInput).toBeVisible({ timeout: 10_000 })
 
     // 1. Click the Market tile on Launchpad to enter Finance + shell
     await page.locator('button').filter({ hasText: 'Market' }).first().click({ timeout: 10_000 })
