@@ -8,6 +8,21 @@ import { cn } from '../../lib/cn'
  * League ids map to ESPN's sport + league slug internally in src/main/services/sports.
  * When adding a new league, ensure the main-process handler understands the id.
  */
+/** Format an ESPN ISO-8601 game start into the user's local weekday + time. */
+function formatGameTime(iso: string): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const now = new Date()
+  const sameDay =
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  const timeStr = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+  if (sameDay) return `today ${timeStr}`
+  return `${d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} ${timeStr}`
+}
+
 const LEAGUES = [
   // US major
   { id: 'nfl', name: 'NFL', group: 'US' },
@@ -180,7 +195,7 @@ function GameCard({
         'border-[var(--color-border)] bg-[var(--color-bg-elev)]'
       )}
     >
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between gap-2">
         <div
           className={cn(
             'rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase',
@@ -191,11 +206,10 @@ function GameCard({
         >
           {game.statusDetail}
         </div>
-        {game.broadcasts.length > 0 && (
-          <div className="text-[9px] text-[var(--color-fg-muted)]">
-            {game.broadcasts.join(', ')}
-          </div>
-        )}
+        <div className="flex items-center gap-2 text-[9px] text-[var(--color-fg-muted)]">
+          {formatGameTime(game.startDate)}
+          {game.broadcasts.length > 0 && <span>· {game.broadcasts.join(', ')}</span>}
+        </div>
       </div>
       {[away, home]
         .filter((c): c is NonNullable<typeof c> => c != null)

@@ -58,9 +58,19 @@ export function QuickSetup(): React.JSX.Element {
       setError('Paste an API key from ' + provider.name)
       return
     }
-    if (!trimmed.startsWith(provider.keyPrefix) && provider.keyPrefix !== 'AI') {
+    if (trimmed.length > 512) {
+      setError('Key is too long — check that only the key was pasted, not a full file')
+      return
+    }
+    if (/\s/.test(trimmed)) {
+      setError('Key contains whitespace — paste may have included a newline')
+      return
+    }
+    // Gemini prefix check — real Gemini keys start with "AIza", not just "AI".
+    const realPrefix = provider.keyPrefix === 'AI' ? 'AIza' : provider.keyPrefix
+    if (!trimmed.startsWith(realPrefix)) {
       setError(
-        `Key doesn't look like a ${provider.name} key — expected prefix "${provider.keyPrefix}"`
+        `Key doesn't look like a ${provider.name} key — expected prefix "${realPrefix}"`
       )
       return
     }

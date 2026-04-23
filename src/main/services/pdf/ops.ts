@@ -224,15 +224,51 @@ export async function splitPdf(
   const src = await PDFDocument.load(bytes, { ignoreEncryption: true })
   const total = src.getPageCount()
   const stem = basename(path, extname(path))
+
+  // Validate ranges before any work — fail fast with an actionable list.
+  const problems: string[] = []
+  ranges.forEach((r, idx) => {
+    if (!Number.isInteger(r.from) || !Number.isInteger(r.to)) {
+      problems.push(`Range ${idx + 1} ("${r.name || 'unnamed'}"): page numbers must be integers`)
+    }
+    if (r.from < 1 || r.from > total) {
+      problems.push(
+        `Range ${idx + 1} ("${r.name || 'unnamed'}"): 'from' = ${r.from} is outside 1..${total}`
+      )
+    }
+    if (r.to < 1 || r.to > total) {
+      problems.push(
+        `Range ${idx + 1} ("${r.name || 'unnamed'}"): 'to' = ${r.to} is outside 1..${total}`
+      )
+    }
+    if (r.to < r.from) {
+      problems.push(
+        `Range ${idx + 1} ("${r.name || 'unnamed'}"): 'to' (${r.to}) < 'from' (${r.from})`
+      )
+    }
+  })
+  // Detect overlapping ranges
+  const sorted = [...ranges].sort((a, b) => a.from - b.from)
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i].from <= sorted[i - 1].to) {
+      problems.push(
+        `Ranges overlap: "${sorted[i - 1].name || sorted[i - 1].from + '-' + sorted[i - 1].to}" and "${sorted[i].name || sorted[i].from + '-' + sorted[i].to}"`
+      )
+    }
+  }
+  if (problems.length > 0) {
+    throw new Error(
+      `Split ranges invalid (${total}-page PDF):\n${problems.map((p) => '  • ' + p).join('\n')}`
+    )
+  }
+
   const out: string[] = []
   for (const r of ranges) {
-    const from = Math.max(1, Math.min(r.from, total))
-    const to = Math.max(from, Math.min(r.to, total))
     const doc = await PDFDocument.create()
-    const indices = Array.from({ length: to - from + 1 }, (_, i) => from - 1 + i)
+    const indices = Array.from({ length: r.to - r.from + 1 }, (_, i) => r.from - 1 + i)
     const pages = await doc.copyPages(src, indices)
     for (const p of pages) doc.addPage(p)
-    const outFile = join(outDir, `${stem}_${r.name || `${from}-${to}`}.pdf`)
+    const outFile = join(outDir, `${stem}_${r.name || `${r.from}-${r.to}`}.pdf`)
     await writeFile(outFile, await doc.save())
     out.push(outFile)
   }
