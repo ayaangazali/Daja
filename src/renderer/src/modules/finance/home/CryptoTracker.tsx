@@ -42,18 +42,14 @@ export function CryptoTracker(): React.JSX.Element {
                     <div
                       className={cn(
                         'font-mono text-[10px] tabular',
-                        q.changePercent > 0
-                          ? 'text-[var(--color-pos)]'
-                          : 'text-[var(--color-neg)]'
+                        q.changePercent > 0 ? 'text-[var(--color-pos)]' : 'text-[var(--color-neg)]'
                       )}
                     >
                       {fmtPct(q.changePercent)}
                     </div>
                   </div>
                 )}
-                {loading && !q && (
-                  <div className="text-[9px] text-[var(--color-fg-muted)]">…</div>
-                )}
+                {loading && !q && <div className="text-[9px] text-[var(--color-fg-muted)]">…</div>}
               </div>
               {q?.marketCap != null && (
                 <div className="mt-1 text-[9px] text-[var(--color-fg-muted)]">

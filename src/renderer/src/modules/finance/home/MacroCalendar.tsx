@@ -20,9 +20,7 @@ export function MacroCalendar(): React.JSX.Element {
         <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-fg-muted)]">
           <CalendarClock className="h-3 w-3" /> Macro calendar (next 90 days)
         </div>
-        <span className="text-[9px] text-[var(--color-fg-muted)]">
-          Fed · CPI · NFP · GDP
-        </span>
+        <span className="text-[9px] text-[var(--color-fg-muted)]">Fed · CPI · NFP · GDP</span>
       </div>
       {events.length === 0 ? (
         <div className="py-4 text-center text-[11px] text-[var(--color-fg-muted)]">

@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  HISTORICAL_SCENARIOS,
-  runCustomScenario,
-  runStressTest,
-  type Position
-} from './stressTest'
+import { HISTORICAL_SCENARIOS, runCustomScenario, runStressTest, type Position } from './stressTest'
 
 const samplePositions: Position[] = [
   { ticker: 'AAPL', shares: 100, currentPrice: 200, beta: 1.2, sector: 'Technology' },

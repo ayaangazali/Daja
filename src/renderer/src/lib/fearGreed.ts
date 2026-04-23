@@ -45,8 +45,7 @@ export function computeFearGreed(i: FearGreedInputs): FearGreedResult {
   let momentumScore = 50
   if (i.spyCloses.length >= 126) {
     const recent = i.spyCloses[i.spyCloses.length - 1]
-    const sma125 =
-      i.spyCloses.slice(-125).reduce((s, v) => s + v, 0) / 125
+    const sma125 = i.spyCloses.slice(-125).reduce((s, v) => s + v, 0) / 125
     const diff = ((recent - sma125) / sma125) * 100
     // diff +10% = 90 greed, -10% = 10 fear, 0 = 50
     momentumScore = clamp(50 + diff * 4)

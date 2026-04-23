@@ -52,8 +52,7 @@ export function YieldCurve(): React.JSX.Element {
     const t = (Math.log(months) - Math.log(minM)) / (Math.log(maxM) - Math.log(minM))
     return padX + t * (width - 2 * padX)
   }
-  const yOf = (yld: number): number =>
-    padY + (1 - (yld - minY) / rangeY) * (height - 2 * padY)
+  const yOf = (yld: number): number => padY + (1 - (yld - minY) / rangeY) * (height - 2 * padY)
 
   const path = points
     .filter((p) => p.yield != null)

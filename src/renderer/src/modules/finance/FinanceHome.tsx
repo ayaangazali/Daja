@@ -164,7 +164,9 @@ export function FinanceHome(): React.JSX.Element {
               <span>Crypto</span>
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
-              <ErrorBoundary label="CryptoTracker"><CryptoTracker /></ErrorBoundary>
+              <ErrorBoundary label="CryptoTracker">
+                <CryptoTracker />
+              </ErrorBoundary>
             </div>
           </div>
           <div key="yield" className="h-full overflow-hidden rounded-md">
@@ -172,7 +174,9 @@ export function FinanceHome(): React.JSX.Element {
               <span>Yield curve</span>
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
-              <ErrorBoundary label="YieldCurve"><YieldCurve /></ErrorBoundary>
+              <ErrorBoundary label="YieldCurve">
+                <YieldCurve />
+              </ErrorBoundary>
             </div>
           </div>
           <div key="calendar" className="h-full overflow-hidden rounded-md">
@@ -180,7 +184,9 @@ export function FinanceHome(): React.JSX.Element {
               <span>Macro calendar</span>
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
-              <ErrorBoundary label="MacroCalendar"><MacroCalendar /></ErrorBoundary>
+              <ErrorBoundary label="MacroCalendar">
+                <MacroCalendar />
+              </ErrorBoundary>
             </div>
           </div>
           <div key="feargreed" className="h-full overflow-hidden rounded-md">
@@ -188,7 +194,9 @@ export function FinanceHome(): React.JSX.Element {
               <span>Fear & Greed</span>
             </div>
             <div className="h-[calc(100%-24px)] overflow-y-auto p-2">
-              <ErrorBoundary label="FearGreed"><FearGreedPanel /></ErrorBoundary>
+              <ErrorBoundary label="FearGreed">
+                <FearGreedPanel />
+              </ErrorBoundary>
             </div>
           </div>
           <div key="entries" className="h-full overflow-hidden rounded-md">

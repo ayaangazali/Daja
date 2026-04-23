@@ -178,10 +178,7 @@ export const MACRO_EVENTS_2026: MacroEvent[] = [
   }
 ]
 
-export function getUpcomingMacroEvents(
-  refDate: Date = new Date(),
-  daysAhead = 60
-): MacroEvent[] {
+export function getUpcomingMacroEvents(refDate: Date = new Date(), daysAhead = 60): MacroEvent[] {
   const refSec = refDate.getTime()
   const cutoff = refSec + daysAhead * 86400 * 1000
   return MACRO_EVENTS_2026.filter((e) => {

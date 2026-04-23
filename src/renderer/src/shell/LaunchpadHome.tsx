@@ -409,7 +409,8 @@ function LaunchpadHero(): React.JSX.Element {
       return { label: 'Market open · NYSE regular hours', tone: 'open' }
     if (mins >= 4 * 60 && mins < 9 * 60 + 30)
       return { label: 'Pre-market · opens 9:30 ET', tone: 'pre' }
-    if (mins >= 16 * 60 && mins < 20 * 60) return { label: 'After-hours · closes 8 PM ET', tone: 'post' }
+    if (mins >= 16 * 60 && mins < 20 * 60)
+      return { label: 'After-hours · closes 8 PM ET', tone: 'post' }
     return { label: 'Market closed · overnight', tone: 'closed' }
   }, [now])
 
@@ -440,7 +441,8 @@ function LaunchpadHero(): React.JSX.Element {
         <span
           className={cn(
             'inline-block h-2 w-2 rounded-full',
-            marketStatus.tone === 'open' && 'bg-[var(--color-pos)] shadow-[0_0_6px_var(--color-pos)]',
+            marketStatus.tone === 'open' &&
+              'bg-[var(--color-pos)] shadow-[0_0_6px_var(--color-pos)]',
             marketStatus.tone === 'pre' && 'bg-[var(--color-warn)]',
             marketStatus.tone === 'post' && 'bg-[var(--color-warn)]',
             marketStatus.tone === 'closed' && 'bg-[var(--color-fg-muted)]/50'

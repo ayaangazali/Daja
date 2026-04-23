@@ -16,9 +16,7 @@ export function Shell(): React.JSX.Element {
   const location = useLocation()
   const navigate = useNavigate()
   const isFullbleed =
-    location.pathname === '/' ||
-    location.pathname === '' ||
-    location.pathname === '/quick-setup'
+    location.pathname === '/' || location.pathname === '' || location.pathname === '/quick-setup'
 
   useEffect(() => {
     const h = (e: KeyboardEvent): void => {

@@ -132,7 +132,10 @@ test.describe('Daja extended interactions', () => {
     })
     await page.waitForTimeout(2000)
     // Click Positions tab to see existing positions, then Tools to get TradeForm
-    await page.getByRole('button', { name: 'Tools', exact: true }).first().click({ timeout: 10_000 })
+    await page
+      .getByRole('button', { name: 'Tools', exact: true })
+      .first()
+      .click({ timeout: 10_000 })
     await page.waitForTimeout(1500)
     await page
       .locator('[data-testid="trade-ticker-input"]')

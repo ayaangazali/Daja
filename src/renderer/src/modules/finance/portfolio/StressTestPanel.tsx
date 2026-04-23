@@ -131,9 +131,7 @@ export function StressTestPanel(): React.JSX.Element | null {
           <div
             className={cn(
               'font-mono text-[14px] font-semibold tabular',
-              active.portfolioDelta >= 0
-                ? 'text-[var(--color-pos)]'
-                : 'text-[var(--color-neg)]'
+              active.portfolioDelta >= 0 ? 'text-[var(--color-pos)]' : 'text-[var(--color-neg)]'
             )}
           >
             ${fmtLargeNum(active.portfolioDelta)}
@@ -144,9 +142,7 @@ export function StressTestPanel(): React.JSX.Element | null {
           <div
             className={cn(
               'font-mono text-[14px] font-semibold tabular',
-              active.portfolioDeltaPct >= 0
-                ? 'text-[var(--color-pos)]'
-                : 'text-[var(--color-neg)]'
+              active.portfolioDeltaPct >= 0 ? 'text-[var(--color-pos)]' : 'text-[var(--color-neg)]'
             )}
           >
             {fmtPct(active.portfolioDeltaPct)}
@@ -194,7 +190,10 @@ export function StressTestPanel(): React.JSX.Element | null {
               .slice()
               .sort((a, b) => a.pnl - b.pnl)
               .map((p) => (
-                <tr key={p.ticker} className="border-t border-[var(--color-border)] font-mono tabular">
+                <tr
+                  key={p.ticker}
+                  className="border-t border-[var(--color-border)] font-mono tabular"
+                >
                   <td className="px-2 py-0.5 font-semibold">{p.ticker}</td>
                   <td className="max-w-[10rem] truncate px-2 py-0.5 text-[9px]">
                     {p.sector ?? '—'}
@@ -203,9 +202,7 @@ export function StressTestPanel(): React.JSX.Element | null {
                   <td
                     className={cn(
                       'px-2 py-0.5 text-right',
-                      p.shockPct >= 0
-                        ? 'text-[var(--color-pos)]'
-                        : 'text-[var(--color-neg)]'
+                      p.shockPct >= 0 ? 'text-[var(--color-pos)]' : 'text-[var(--color-neg)]'
                     )}
                   >
                     {fmtPct(p.shockPct)}

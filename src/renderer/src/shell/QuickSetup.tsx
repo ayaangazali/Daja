@@ -84,9 +84,7 @@ export function QuickSetup(): React.JSX.Element {
   }
 
   // Check if all 5 modules already route to the same provider
-  const allConfigured = MODULES.every(
-    (m) => prefs?.aiByModule?.[m] === provider.id
-  )
+  const allConfigured = MODULES.every((m) => prefs?.aiByModule?.[m] === provider.id)
 
   return (
     <div className="launchpad-bg flex h-full flex-col overflow-auto">
@@ -102,8 +100,7 @@ export function QuickSetup(): React.JSX.Element {
             className="flex h-10 w-10 items-center justify-center text-white"
             style={{
               borderRadius: '28%',
-              background:
-                'linear-gradient(135deg, var(--color-accent), var(--color-accent-soft))'
+              background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-soft))'
             }}
           >
             <Sparkles className="h-5 w-5" />
@@ -114,9 +111,9 @@ export function QuickSetup(): React.JSX.Element {
         </div>
         <p className="mb-8 text-[13px] leading-relaxed text-[var(--color-fg-muted)]">
           Daja works entirely with your own LLM API key. One key powers every AI feature: market
-          research, daily briefing, portfolio reviewer, journal coach, earnings analyst,
-          assistant chat — all of it. Nothing ever leaves your machine except the requests to
-          your chosen provider.
+          research, daily briefing, portfolio reviewer, journal coach, earnings analyst, assistant
+          chat — all of it. Nothing ever leaves your machine except the requests to your chosen
+          provider.
         </p>
 
         <div className="mb-6 grid grid-cols-1 gap-2 md:grid-cols-3">
@@ -150,7 +147,12 @@ export function QuickSetup(): React.JSX.Element {
           </div>
           <p className="mb-3 text-[11px] text-[var(--color-fg-muted)]">
             Get one from{' '}
-            <a href={provider.href} target="_blank" rel="noreferrer" className="text-[var(--color-accent)] underline">
+            <a
+              href={provider.href}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--color-accent)] underline"
+            >
               {provider.href.replace(/^https?:\/\//, '')}
             </a>
             . It's encrypted with macOS Keychain / Windows Credential Manager via Electron
@@ -206,8 +208,7 @@ export function QuickSetup(): React.JSX.Element {
               required, no account needed.
             </li>
             <li>
-              Crypto, treasuries, FX, commodities, SEC filings — all free sources, no key
-              required.
+              Crypto, treasuries, FX, commodities, SEC filings — all free sources, no key required.
             </li>
           </ul>
         </div>

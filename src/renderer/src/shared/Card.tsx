@@ -34,9 +34,7 @@ export function Card({
       {(title || actions || icon) && (
         <header className="mb-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            {icon && (
-              <span className="text-[var(--color-fg-muted)]">{icon}</span>
-            )}
+            {icon && <span className="text-[var(--color-fg-muted)]">{icon}</span>}
             <div>
               {title && (
                 <h3 className="text-[11px] font-semibold uppercase tracking-wide text-[var(--color-fg-muted)]">

@@ -5,10 +5,7 @@ import { useTrades } from '../../../hooks/useTrades'
 import { useQuotes, useQuote, type Quote } from '../../../hooks/useFinance'
 import type { Fundamentals } from '../../../hooks/useFundamentals'
 import { computeTaxLotPositions, type TaxLotTrade } from '../../../lib/positionsFifo'
-import {
-  attributePerformance,
-  type PerfPosition
-} from '../../../lib/performanceAttribution'
+import { attributePerformance, type PerfPosition } from '../../../lib/performanceAttribution'
 import { fmtLargeNum, fmtPct } from '../../../lib/format'
 import { cn } from '../../../lib/cn'
 
@@ -71,8 +68,16 @@ export function AttributionPanel(): React.JSX.Element | null {
       </div>
 
       <div className="mb-3 grid grid-cols-2 gap-2 md:grid-cols-4">
-        <Stat label="Total P&L" value={`$${fmtLargeNum(result.totalPnl)}`} tone={result.totalPnl >= 0 ? 'pos' : 'neg'} />
-        <Stat label="Return" value={fmtPct(result.totalReturnPct)} tone={result.totalReturnPct >= 0 ? 'pos' : 'neg'} />
+        <Stat
+          label="Total P&L"
+          value={`$${fmtLargeNum(result.totalPnl)}`}
+          tone={result.totalPnl >= 0 ? 'pos' : 'neg'}
+        />
+        <Stat
+          label="Return"
+          value={fmtPct(result.totalReturnPct)}
+          tone={result.totalReturnPct >= 0 ? 'pos' : 'neg'}
+        />
         <Stat label="Benchmark (SPY 1d)" value={fmtPct(result.benchmarkReturnPct)} />
         <Stat label="Alpha" value={fmtPct(result.alpha)} tone={result.alpha >= 0 ? 'pos' : 'neg'} />
       </div>
@@ -115,7 +120,10 @@ export function AttributionPanel(): React.JSX.Element | null {
                 .slice()
                 .sort((a, b) => b.contribution - a.contribution)
                 .map((p) => (
-                  <tr key={p.ticker} className="border-t border-[var(--color-border)] font-mono tabular">
+                  <tr
+                    key={p.ticker}
+                    className="border-t border-[var(--color-border)] font-mono tabular"
+                  >
                     <td className="py-0.5 font-semibold">{p.ticker}</td>
                     <td className="py-0.5 text-right">{p.weightBegin.toFixed(1)}%</td>
                     <td
@@ -154,7 +162,10 @@ export function AttributionPanel(): React.JSX.Element | null {
             </thead>
             <tbody>
               {result.sectors.map((s) => (
-                <tr key={s.sector} className="border-t border-[var(--color-border)] font-mono tabular">
+                <tr
+                  key={s.sector}
+                  className="border-t border-[var(--color-border)] font-mono tabular"
+                >
                   <td className="py-0.5">{s.sector}</td>
                   <td className="py-0.5 text-right">{s.weight.toFixed(1)}%</td>
                   <td

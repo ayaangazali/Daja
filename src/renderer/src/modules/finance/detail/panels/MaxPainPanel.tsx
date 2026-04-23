@@ -30,7 +30,10 @@ export function MaxPainPanel({ ticker }: { ticker: string }): React.JSX.Element 
           <Target className="h-3 w-3" /> Options max pain
         </div>
         <span className="text-[9px] text-[var(--color-fg-muted)]">
-          Expiry {data?.currentExpiration ? new Date(data.currentExpiration * 1000).toISOString().slice(0, 10) : ''}
+          Expiry{' '}
+          {data?.currentExpiration
+            ? new Date(data.currentExpiration * 1000).toISOString().slice(0, 10)
+            : ''}
         </span>
       </div>
 
@@ -52,9 +55,7 @@ export function MaxPainPanel({ ticker }: { ticker: string }): React.JSX.Element 
           <div
             className={cn(
               'flex items-center gap-1 font-mono text-[14px] font-semibold tabular',
-              direction === 'down'
-                ? 'text-[var(--color-neg)]'
-                : 'text-[var(--color-pos)]'
+              direction === 'down' ? 'text-[var(--color-neg)]' : 'text-[var(--color-pos)]'
             )}
           >
             {direction === 'down' ? (

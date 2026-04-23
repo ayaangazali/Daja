@@ -83,9 +83,8 @@ export function computeMaxPain(
   return {
     maxPainStrike: minStrike,
     currentPrice,
-    distanceToPain: minStrike != null && currentPrice > 0
-      ? ((currentPrice - minStrike) / currentPrice) * 100
-      : 0,
+    distanceToPain:
+      minStrike != null && currentPrice > 0 ? ((currentPrice - minStrike) / currentPrice) * 100 : 0,
     painByStrike,
     callOi,
     putOi,
