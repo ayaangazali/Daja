@@ -5,6 +5,7 @@ import { NavLink } from 'react-router-dom'
 import { fmtLargeNum, fmtPct, fmtPrice, signColor } from '../../../lib/format'
 import { useAddToWatchlist } from '../../../hooks/useWatchlist'
 import { useAI } from '../../../hooks/useAI'
+import { PageHeader } from '../../../shared/PageHeader'
 import { cn } from '../../../lib/cn'
 
 const PRESETS = [
@@ -70,6 +71,10 @@ export function ScreenerPage(): React.JSX.Element {
 
   return (
     <div className="flex h-full flex-col">
+      <PageHeader
+        title="Screener"
+        subtitle="Filter Yahoo's predefined universes; click any row to open the detail page."
+      />
       <div className="flex flex-wrap items-center gap-1 border-b border-[var(--color-border)] bg-[var(--color-bg-elev)] px-2 py-1">
         {PRESETS.map((p) => (
           <button
@@ -78,7 +83,7 @@ export function ScreenerPage(): React.JSX.Element {
             className={cn(
               'flex items-center gap-1 rounded px-2 py-1 text-[11px]',
               preset === p.id
-                ? 'bg-[var(--color-info)] text-white'
+                ? 'bg-[var(--color-accent)] text-white'
                 : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-bg)]'
             )}
           >

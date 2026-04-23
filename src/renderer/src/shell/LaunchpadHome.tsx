@@ -318,48 +318,62 @@ export function LaunchpadHome(): React.JSX.Element {
           <div className="mt-16 text-center text-[13px] text-[var(--color-fg-muted)]">
             No apps match “{query}”.
           </div>
+        ) : query ? (
+          // Search mode: flat grid, no groupings
+          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4" role="grid">
+            {orderedApps.map((app, i) => (
+              <Tile
+                key={app.id}
+                app={app}
+                index={i}
+                focused={i === focusIdx}
+                onLaunch={launch}
+                onFocus={() => setFocusIdx(i)}
+              />
+            ))}
+          </div>
         ) : (
-          <div
-            className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-            role="grid"
-          >
-            {orderedApps.map((app, i) => {
-              const Icon = app.icon
-              const isFocused = i === focusIdx
+          // Default: grouped sections
+          <div className="space-y-10">
+            {(
+              [
+                { key: 'finance', label: 'Finance' },
+                { key: 'tools', label: 'Everyday tools' },
+                { key: 'system', label: 'System' }
+              ] as const
+            ).map((section) => {
+              const tiles = orderedApps.filter((a) => a.group === section.key)
+              if (tiles.length === 0) return null
               return (
-                <button
-                  key={app.id}
-                  onClick={() => launch(app)}
-                  onFocus={() => setFocusIdx(i)}
-                  className={cn(
-                    'launchpad-tile flex flex-col items-center gap-3 rounded-2xl border p-5 text-center',
-                    'border-[var(--color-border)] bg-[var(--color-bg-elev)]',
-                    isFocused &&
-                      'border-[var(--color-accent)]/60 ring-2 ring-[var(--color-accent)]/25'
-                  )}
-                  style={{ animationDelay: `${Math.min(i, 20) * 25}ms` }}
-                >
-                  <span
-                    className="launchpad-icon flex h-16 w-16 items-center justify-center"
-                    data-hue={app.hue}
-                  >
-                    <Icon className="h-8 w-8" strokeWidth={1.6} />
-                  </span>
-                  <div>
-                    <div className="text-[13px] font-semibold text-[var(--color-fg)]">
-                      {app.name}
-                    </div>
-                    <div className="mt-0.5 text-[11px] leading-snug text-[var(--color-fg-muted)]">
-                      {app.description}
-                    </div>
+                <div key={section.key}>
+                  <div className="serif mb-4 text-[14px] font-medium tracking-tight text-[var(--color-fg-muted)]">
+                    {section.label}
                   </div>
-                </button>
+                  <div
+                    className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                    role="grid"
+                  >
+                    {tiles.map((app) => {
+                      const idx = orderedApps.indexOf(app)
+                      return (
+                        <Tile
+                          key={app.id}
+                          app={app}
+                          index={idx}
+                          focused={idx === focusIdx}
+                          onLaunch={launch}
+                          onFocus={() => setFocusIdx(idx)}
+                        />
+                      )
+                    })}
+                  </div>
+                </div>
               )
             })}
           </div>
         )}
 
-        <div className="mt-10 flex items-center justify-center gap-4 text-[10px] text-[var(--color-fg-muted)]">
+        <div className="mt-12 flex items-center justify-center gap-4 text-[10px] text-[var(--color-fg-muted)]">
           <span>↑↓←→ navigate</span>
           <span>·</span>
           <span>⏎ launch</span>
@@ -370,5 +384,46 @@ export function LaunchpadHome(): React.JSX.Element {
         </div>
       </div>
     </div>
+  )
+}
+
+function Tile({
+  app,
+  index,
+  focused,
+  onLaunch,
+  onFocus
+}: {
+  app: AppTile
+  index: number
+  focused: boolean
+  onLaunch: (app: AppTile) => void
+  onFocus: () => void
+}): React.JSX.Element {
+  const Icon = app.icon
+  return (
+    <button
+      onClick={() => onLaunch(app)}
+      onFocus={onFocus}
+      className={cn(
+        'launchpad-tile flex flex-col items-center gap-3 rounded-2xl border p-5 text-center',
+        'border-[var(--color-border)] bg-[var(--color-bg-elev)]',
+        focused && 'border-[var(--color-accent)]/60 ring-2 ring-[var(--color-accent)]/25'
+      )}
+      style={{ animationDelay: `${Math.min(index, 20) * 25}ms` }}
+    >
+      <span
+        className="launchpad-icon flex h-16 w-16 items-center justify-center"
+        data-hue={app.hue}
+      >
+        <Icon className="h-8 w-8" strokeWidth={1.6} />
+      </span>
+      <div>
+        <div className="text-[13px] font-semibold text-[var(--color-fg)]">{app.name}</div>
+        <div className="mt-0.5 text-[11px] leading-snug text-[var(--color-fg-muted)]">
+          {app.description}
+        </div>
+      </div>
+    </button>
   )
 }
