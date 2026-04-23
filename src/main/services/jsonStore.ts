@@ -39,6 +39,10 @@ export function createJsonStore<T extends Record<string, unknown>>(
   let writeChain: Promise<void> = Promise.resolve()
 
   const persist = (data: T): void => {
+    // Update cache synchronously so subsequent reads see the new value
+    // immediately. Disk writes remain serialized + atomic.
+    cache = data
+    const snapshot = JSON.stringify(data, null, 2)
     writeChain = writeChain
       .catch(() => {
         /* swallow previous errors so chain stays alive */
@@ -47,11 +51,10 @@ export function createJsonStore<T extends Record<string, unknown>>(
         try {
           if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
           const tmp = `${file}.${process.pid}.${Date.now()}.tmp`
-          writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8')
+          writeFileSync(tmp, snapshot, 'utf8')
           // Atomic rename — POSIX guarantees readers see either old or new,
-          // never partial. Cache update only after the rename succeeds.
+          // never partial.
           renameSync(tmp, file)
-          cache = data
         } catch (err) {
           console.error(`JsonStore persist failed for ${name}:`, err)
         }

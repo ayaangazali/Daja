@@ -124,6 +124,8 @@ export async function mergePdfs(paths: string[], outPath: string): Promise<Merge
   }
   const resolvedOut = await resolveMergeOutputPath(outPath)
   const out = await PDFDocument.create()
+  // Preserve metadata from the first PDF that has non-empty title/author/etc.
+  let metadataSeeded = false
   for (const p of valid) {
     let bytes: Uint8Array
     try {
@@ -141,9 +143,25 @@ export async function mergePdfs(paths: string[], outPath: string): Promise<Merge
         `Could not parse "${p}" as PDF — may be corrupt or password-protected. (${err instanceof Error ? err.message : 'unknown error'})`
       )
     }
+    if (!metadataSeeded) {
+      const title = src.getTitle()
+      const author = src.getAuthor()
+      const subject = src.getSubject()
+      const keywords = src.getKeywords()
+      if (title) out.setTitle(title)
+      if (author) out.setAuthor(author)
+      if (subject) out.setSubject(subject)
+      if (keywords) out.setKeywords(keywords.split(',').map((s) => s.trim()))
+      metadataSeeded = title != null || author != null || subject != null || keywords != null
+    }
     const pages = await out.copyPages(src, src.getPageIndices())
     for (const page of pages) out.addPage(page)
   }
+  // Always stamp the producer + modification date so the merged file
+  // identifies itself as produced by Daja.
+  out.setProducer('Daja PDF Merge')
+  out.setCreator('Daja')
+  out.setModificationDate(new Date())
   const mergedBytes = await out.save()
   try {
     await writeFile(resolvedOut, mergedBytes)
