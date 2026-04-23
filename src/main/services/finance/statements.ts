@@ -48,6 +48,9 @@ export interface CashflowRow {
   financing: number | null
   capex: number | null
   freeCashflow: number | null
+  repurchaseOfStock: number | null
+  dividendsPaid: number | null
+  issuanceOfStock: number | null
 }
 
 export interface Statements {
@@ -106,7 +109,10 @@ function mapCashflow(rows: Obj[]): CashflowRow[] {
       investing: num(r.totalCashflowsFromInvestingActivities),
       financing: num(r.totalCashFromFinancingActivities),
       capex,
-      freeCashflow: op != null && capex != null ? op + capex : null
+      freeCashflow: op != null && capex != null ? op + capex : null,
+      repurchaseOfStock: num(r.repurchaseOfStock),
+      dividendsPaid: num(r.dividendsPaid),
+      issuanceOfStock: num(r.issuanceOfStock)
     }
   })
 }

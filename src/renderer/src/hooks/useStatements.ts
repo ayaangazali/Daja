@@ -30,6 +30,9 @@ export interface CashflowRow {
   financing: number | null
   capex: number | null
   freeCashflow: number | null
+  repurchaseOfStock: number | null
+  dividendsPaid: number | null
+  issuanceOfStock: number | null
 }
 
 export interface Statements {

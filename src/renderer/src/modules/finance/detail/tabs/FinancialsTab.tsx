@@ -8,6 +8,7 @@ import {
 import { fmtLargeNum } from '../../../../lib/format'
 import { MarginTrend } from '../panels/MarginTrend'
 import { FinancialsCharts } from '../panels/FinancialsCharts'
+import { BuybackPanel } from '../panels/BuybackPanel'
 import { cn } from '../../../../lib/cn'
 
 type Period = 'annual' | 'quarterly'
@@ -71,7 +72,10 @@ export function FinancialsTab({ ticker }: { ticker: string }): React.JSX.Element
         <BalanceTable rows={period === 'annual' ? data.balanceAnnual : data.balanceQuarterly} />
       )}
       {data && stmt === 'cashflow' && (
-        <CashflowTable rows={period === 'annual' ? data.cashAnnual : data.cashQuarterly} />
+        <>
+          <BuybackPanel ticker={ticker} />
+          <CashflowTable rows={period === 'annual' ? data.cashAnnual : data.cashQuarterly} />
+        </>
       )}
       {data && stmt === 'income' && period === 'annual' && <MarginTrend ticker={ticker} />}
     </div>

@@ -30,7 +30,10 @@ const CASH_METRICS = [
   'InvestingCashFlow',
   'FinancingCashFlow',
   'CapitalExpenditure',
-  'FreeCashFlow'
+  'FreeCashFlow',
+  'RepurchaseOfCapitalStock',
+  'CashDividendsPaid',
+  'IssuanceOfCapitalStock'
 ]
 
 type Period = 'annual' | 'quarterly'
@@ -113,6 +116,9 @@ export interface TsCashflow {
   financing: number | null
   capex: number | null
   freeCashflow: number | null
+  repurchaseOfStock: number | null
+  dividendsPaid: number | null
+  issuanceOfStock: number | null
 }
 
 function rowsFromMap<T extends { date: string }>(
@@ -206,7 +212,10 @@ export async function fetchCashflowTs(symbol: string, period: Period): Promise<T
       investing: 'InvestingCashFlow',
       financing: 'FinancingCashFlow',
       capex: 'CapitalExpenditure',
-      freeCashflow: 'FreeCashFlow'
+      freeCashflow: 'FreeCashFlow',
+      repurchaseOfStock: 'RepurchaseOfCapitalStock',
+      dividendsPaid: 'CashDividendsPaid',
+      issuanceOfStock: 'IssuanceOfCapitalStock'
     },
     () => ({
       date: '',
@@ -214,7 +223,10 @@ export async function fetchCashflowTs(symbol: string, period: Period): Promise<T
       investing: null,
       financing: null,
       capex: null,
-      freeCashflow: null
+      freeCashflow: null,
+      repurchaseOfStock: null,
+      dividendsPaid: null,
+      issuanceOfStock: null
     })
   )
 }
