@@ -51,6 +51,7 @@ export function TradeForm(): React.JSX.Element {
         <select
           value={side}
           onChange={(e) => setSide(e.target.value as 'buy' | 'sell')}
+          aria-label="Trade side — buy or sell"
           className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 text-[11px]"
         >
           <option value="buy">Buy</option>
@@ -61,6 +62,7 @@ export function TradeForm(): React.JSX.Element {
           value={ticker}
           onChange={(e) => setTicker(e.target.value)}
           placeholder="Ticker (e.g. AAPL)"
+          aria-label="Ticker symbol"
           className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-[11px]"
         />
         <input
@@ -68,6 +70,7 @@ export function TradeForm(): React.JSX.Element {
           value={qty}
           onChange={(e) => setQty(e.target.value)}
           placeholder="Qty"
+          aria-label="Quantity (shares)"
           className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-[11px]"
         />
         <input
@@ -75,18 +78,21 @@ export function TradeForm(): React.JSX.Element {
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           placeholder="Price"
+          aria-label="Price per share in USD"
           className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-[11px]"
         />
         <input
           value={fees}
           onChange={(e) => setFees(e.target.value)}
           placeholder="Fees"
+          aria-label="Fees in USD"
           className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-[11px]"
         />
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
+          aria-label="Trade date"
           className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 text-[11px]"
         />
       </div>
@@ -95,6 +101,7 @@ export function TradeForm(): React.JSX.Element {
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Notes (optional)"
+          aria-label="Trade notes (optional)"
           className="flex-1 rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 text-[11px]"
         />
         <button

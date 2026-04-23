@@ -54,12 +54,17 @@ export function StockDetail(): React.JSX.Element {
 
   // Keyboard shortcuts 1-9 jump between detail tabs.
   // Reject shift+digit (='!@#...') and all other modifier combos.
+  // Also bail if a modal is open (CommandPalette, ConfirmDialog) — check
+  // for role=dialog in the DOM to avoid stealing numeric keys from modal
+  // input fields.
   useEffect(() => {
     const h = (e: KeyboardEvent): void => {
       const el = document.activeElement as HTMLElement | null
       const tagName = el?.tagName.toLowerCase()
       if (tagName === 'input' || tagName === 'textarea' || el?.isContentEditable) return
       if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return
+      // Bail if a modal dialog is mounted — don't hijack digits inside it.
+      if (document.querySelector('[role="dialog"][aria-modal="true"]')) return
       if (!/^[1-9]$/.test(e.key)) return
       const n = parseInt(e.key, 10)
       if (n < 1 || n > DETAIL_TABS.length) return

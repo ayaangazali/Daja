@@ -172,6 +172,9 @@ export function CommandPalette(): React.JSX.Element {
     <div
       className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 pt-24 backdrop-blur-md"
       onClick={close}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Command palette"
     >
       <div
         className={cn(

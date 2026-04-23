@@ -101,8 +101,17 @@ export function RiskDashboard({ trades }: { trades: Trade[] }): React.JSX.Elemen
         effectiveN: 0
       }
     }
-    const values = positions.map((p, i) => {
-      const price = quotes[i]?.data?.price ?? p.avgCost
+    // Build ticker → quote map so we're not depending on parallel-array index
+    // ordering across renders — which can desync mid-render if positions list
+    // mutates while useQuotes is still stabilizing.
+    const quoteByTicker = new Map<string, number>()
+    quotes.forEach((q, i) => {
+      const t = tickers[i]
+      const px = q?.data?.price
+      if (t && typeof px === 'number' && Number.isFinite(px)) quoteByTicker.set(t, px)
+    })
+    const values = positions.map((p) => {
+      const price = quoteByTicker.get(p.ticker) ?? p.avgCost
       return { ticker: p.ticker, value: price * p.qty }
     })
     const totalValue = values.reduce((s, v) => s + v.value, 0)
