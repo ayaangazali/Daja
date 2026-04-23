@@ -5,6 +5,7 @@ import { fmtLargeNum, fmtPct, fmtPrice } from '../../../../lib/format'
 import { blackScholes } from '../../../../lib/blackScholes'
 import { findUnusualActivity, flowBias } from '../../../../lib/optionsFlow'
 import { OptionsPayoffPanel } from '../panels/OptionsPayoffPanel'
+import { MaxPainPanel } from '../panels/MaxPainPanel'
 import { cn } from '../../../../lib/cn'
 
 const RISK_FREE_RATE = 0.045 // approximation — fetch from FRED in Phase 2
@@ -81,6 +82,7 @@ export function OptionsTab({ ticker }: { ticker: string }): React.JSX.Element {
         </div>
       </div>
 
+      <MaxPainPanel ticker={ticker} />
       <OptionsPayoffPanel ticker={ticker} />
 
       {unusual.length > 0 && (
