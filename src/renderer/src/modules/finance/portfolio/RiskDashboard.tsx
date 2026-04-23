@@ -34,6 +34,8 @@ interface PortfolioRisk {
   top: { ticker: string; pct: number }[]
   concentrationRisk: number
   totalValue: number
+  hhi: number
+  effectiveN: number
 }
 
 export function RiskDashboard({ trades }: { trades: Trade[] }): React.JSX.Element {
@@ -94,7 +96,9 @@ export function RiskDashboard({ trades }: { trades: Trade[] }): React.JSX.Elemen
         drawdown: 0,
         top: [],
         concentrationRisk: 0,
-        totalValue: 0
+        totalValue: 0,
+        hhi: 0,
+        effectiveN: 0
       }
     }
     const values = positions.map((p, i) => {
@@ -107,6 +111,8 @@ export function RiskDashboard({ trades }: { trades: Trade[] }): React.JSX.Elemen
       .map((v) => ({ ticker: v.ticker, pct: totalValue > 0 ? (v.value / totalValue) * 100 : 0 }))
       .sort((a, b) => b.pct - a.pct)
     const concentrationRisk = top.slice(0, 3).reduce((s, x) => s + x.pct, 0)
+    const hhi = weights.reduce((s, w) => s + w * w, 0)
+    const effectiveN = hhi > 0 ? 1 / hhi : 0
 
     // Weighted portfolio returns
     const minLen = Math.min(
@@ -120,7 +126,9 @@ export function RiskDashboard({ trades }: { trades: Trade[] }): React.JSX.Elemen
         drawdown: 0,
         top,
         concentrationRisk,
-        totalValue
+        totalValue,
+        hhi,
+        effectiveN
       }
     }
     const portfolioReturns: number[] = []
@@ -145,7 +153,9 @@ export function RiskDashboard({ trades }: { trades: Trade[] }): React.JSX.Elemen
       drawdown: maxDrawdown(equity),
       top,
       concentrationRisk,
-      totalValue
+      totalValue,
+      hhi,
+      effectiveN
     }
   }, [positions, quotes, hist])
 
@@ -222,6 +232,43 @@ export function RiskDashboard({ trades }: { trades: Trade[] }): React.JSX.Elemen
               : risk.concentrationRisk > 60
                 ? 'Concentrated'
                 : 'Diversified'
+          }
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Stat
+          label="HHI"
+          value={risk.hhi > 0 ? risk.hhi.toFixed(3) : '—'}
+          tone={risk.hhi > 0.25 ? 'neg' : risk.hhi > 0.15 ? 'warn' : 'pos'}
+          sub={
+            risk.hhi > 0.25
+              ? 'Highly concentrated (>0.25)'
+              : risk.hhi > 0.15
+                ? 'Moderately concentrated'
+                : 'Diversified (<0.15)'
+          }
+        />
+        <Stat
+          label="Effective positions"
+          value={risk.effectiveN > 0 ? risk.effectiveN.toFixed(1) : '—'}
+          sub={`of ${positions.length} actual · 1/HHI`}
+        />
+        <Stat
+          label="Largest position"
+          value={risk.top[0] ? fmtPct(risk.top[0].pct) : '—'}
+          tone={risk.top[0]?.pct > 40 ? 'neg' : risk.top[0]?.pct > 25 ? 'warn' : null}
+          sub={risk.top[0]?.ticker}
+        />
+        <Stat
+          label="Positions held"
+          value={positions.length.toString()}
+          sub={
+            positions.length < 10
+              ? 'Below typical 10-20 range'
+              : positions.length > 30
+                ? 'Over-diversified — watch ETF overlap'
+                : 'Standard range'
           }
         />
       </div>
