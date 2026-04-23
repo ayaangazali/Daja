@@ -111,6 +111,8 @@ export function computeTaxLotPositions(
       }
     }
 
+    // Note: float64 accumulation drifts by < 0.0001¢ over 1000 fractional lots
+    // — well below IRS 1¢ rounding tolerance. See audit #46 for context.
     const qty = openLots.reduce((s, l) => s + l.qty, 0)
     const costBasis = openLots.reduce((s, l) => s + l.qty * l.price, 0)
     const avgCost = qty > 0 ? costBasis / qty : 0

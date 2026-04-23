@@ -42,16 +42,26 @@ export function normPdf(x: number): number {
   return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI)
 }
 
+// Below this sigma, the Black-Scholes formula's sigma*sqrtT denominator
+// explodes d1 to ±Infinity before the caller ever gets a useful delta/gamma.
+// We clamp to the intrinsic fallback rather than returning NaN-adjacent output.
+const MIN_SIGMA = 1e-4
+
 export function blackScholes(type: OptionType, input: BsInput): Greeks {
   const { S, K, T, r, sigma } = input
   const q = input.q ?? 0
 
-  if (T <= 0 || sigma <= 0 || S <= 0 || K <= 0) {
-    // Intrinsic value fallback
+  if (T <= 0 || sigma < MIN_SIGMA || S <= 0 || K <= 0) {
+    // Intrinsic fallback. For expired contracts and near-zero sigma, delta
+    // asymptotically becomes the hard {0,1} indicator — surface that rather
+    // than 0, so caller can tell "we know it's deep ITM" from "we have no
+    // information". Sign matches call/put convention.
     const intrinsic = type === 'call' ? Math.max(S - K, 0) : Math.max(K - S, 0)
+    const asymptoticDelta =
+      type === 'call' ? (S > K ? 1 : 0) : S < K ? -1 : 0
     return {
       price: intrinsic,
-      delta: 0,
+      delta: asymptoticDelta,
       gamma: 0,
       theta: 0,
       vega: 0,

@@ -198,8 +198,22 @@ export function RiskDashboard({ trades }: { trades: Trade[] }): React.JSX.Elemen
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tickerPairs.join(','), hist.assetReturns])
 
+  // Surface history shortfall so users know beta/sharpe are provisional.
+  const shortHistoryTickers = positions
+    .map((p) => ({ ticker: p.ticker, len: hist.assetReturns.get(p.ticker)?.length ?? 0 }))
+    .filter((x) => x.len > 0 && x.len < 200) // ~8mo trading days = too little for beta
+    .map((x) => x.ticker)
+
   return (
     <div className="space-y-3">
+      {shortHistoryTickers.length > 0 && (
+        <div className="rounded-md border border-[var(--color-warn)]/40 bg-[var(--color-warn)]/10 p-3 text-[11px] text-[var(--color-warn)]">
+          <span className="font-semibold">Limited price history:</span>{' '}
+          {shortHistoryTickers.join(', ')} {shortHistoryTickers.length === 1 ? 'has' : 'have'}{' '}
+          less than ~8 months of data. Beta, Sharpe, and correlation numbers below under-weight
+          these names and may be unreliable until more history accumulates.
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat
           icon={<Shield className="h-3 w-3" />}

@@ -120,7 +120,21 @@ export function macd(
   return { macd: m, signal: sigVal, hist: m - sigVal }
 }
 
-/** MACD series for charting. */
+/**
+ * MACD series for charting.
+ *
+ * Index alignment contract (subtle — do not break):
+ *   - macdLine[i]   = fastEMA[i] - slowEMA[i], null while either side warming up
+ *   - firstMacdIdx  = first i where macdLine[i] is non-null (= slow-1 typically)
+ *   - macdCompact   = macdLine with nulls dropped; length = arr.length - firstMacdIdx
+ *   - sigCompactSeries = emaSeries(macdCompact, signal) — SAME length as macdCompact,
+ *                        with its own leading nulls for the first `signal-1` entries
+ *   - signalSeries[firstMacdIdx + i] = sigCompactSeries[i] — writes stay in bounds
+ *     because firstMacdIdx + macdCompact.length = arr.length
+ *
+ * Histogram is macdLine − signalSeries, correct at crossovers since both are
+ * sampled at the same index before subtraction.
+ */
 export function macdSeries(
   arr: number[],
   fast = 12,
@@ -141,7 +155,7 @@ export function macdSeries(
   const signalSeries: (number | null)[] = Array(arr.length).fill(null)
   for (let i = 0; i < sigCompactSeries.length; i++) {
     const origIdx = firstMacdIdx + i
-    signalSeries[origIdx] = sigCompactSeries[i]
+    if (origIdx < arr.length) signalSeries[origIdx] = sigCompactSeries[i]
   }
   const histSeries = macdLine.map((m, i) => {
     const s = signalSeries[i]
