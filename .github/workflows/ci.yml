@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  typecheck-and-test:
+    name: Typecheck + Vitest
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        # If lockfile not committed yet, fall through to unfrozen install
+        continue-on-error: true
+
+      - name: Install (fallback, no frozen lock)
+        run: pnpm install
+
+      - name: TypeScript — web project
+        run: pnpm exec tsc --noEmit -p tsconfig.web.json
+
+      - name: TypeScript — node project
+        run: pnpm exec tsc --noEmit -p tsconfig.node.json
+
+      - name: Unit tests
+        run: pnpm exec vitest run
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install
+      - name: ESLint
+        run: pnpm exec eslint . --max-warnings=0
+        continue-on-error: true # soft-fail until lint baseline is clean

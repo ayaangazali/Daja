@@ -130,22 +130,25 @@ export const GLOSSARY: Record<string, string> = {
   Sharpe:
     '(Annualized return − risk-free rate) / annualized volatility. Higher = better risk-adjusted return. >1 is healthy, >2 is great.',
   Sortino:
-    "Like Sharpe but only penalizes downside volatility. Often a fairer measure for asymmetric strategies.",
+    'Like Sharpe but only penalizes downside volatility. Often a fairer measure for asymmetric strategies.',
   MaxDrawdown:
     'Largest peak-to-trough decline. A -40% drawdown means equity fell 40% from its high before recovering.',
   ATR: 'Average True Range. Average price range over N bars. Use for stop-loss sizing (e.g. stop = entry − 2× ATR).',
   RSI: 'Relative Strength Index. 0-100 momentum oscillator. >70 overbought, <30 oversold. Best on 14-period.',
   MACD: 'Moving Average Convergence Divergence. MACD = 12EMA − 26EMA. Signal line = 9-period EMA of MACD. Crossovers = trend change hints.',
   IV: 'Implied Volatility. What the options market expects future volatility to be. Higher IV = pricier options.',
-  Delta: "Option's sensitivity to $1 of underlying move. 0.50 delta call gains ~$0.50 per $1 up-move.",
+  Delta:
+    "Option's sensitivity to $1 of underlying move. 0.50 delta call gains ~$0.50 per $1 up-move.",
   Theta: "Option's daily time decay. Negative for long options — they lose value each day.",
   Vega: "Option's sensitivity to 1% change in IV. Long options have positive vega.",
-  Gamma: 'Rate of change of delta. Highest near ATM. High gamma = fast delta changes = risky for short options.',
-  'P/E': 'Price to Earnings ratio. Market cap / net income. <15 = cheap, >30 = rich (sector-dependent).',
-  'PEG': 'P/E divided by EPS growth rate. Lynch\'s heuristic: PEG <1 = undervalued growth.',
+  Gamma:
+    'Rate of change of delta. Highest near ATM. High gamma = fast delta changes = risky for short options.',
+  'P/E':
+    'Price to Earnings ratio. Market cap / net income. <15 = cheap, >30 = rich (sector-dependent).',
+  PEG: "P/E divided by EPS growth rate. Lynch's heuristic: PEG <1 = undervalued growth.",
   EPS: 'Earnings per share. Net income / shares outstanding.',
-  'FCF': 'Free Cash Flow. Cash from ops minus capex. The true "owner earnings" number.',
-  'ROE': 'Return on Equity. Net income / shareholder equity. > 15% sustained = durable franchise.',
+  FCF: 'Free Cash Flow. Cash from ops minus capex. The true "owner earnings" number.',
+  ROE: 'Return on Equity. Net income / shareholder equity. > 15% sustained = durable franchise.',
   HHI_Effective_N:
     '1/HHI = effective number of equal-weighted positions. A 10-ticker book concentrated in 3 might have Effective N = 4.'
 }

@@ -18,9 +18,10 @@ export function ThemeToggle(): React.JSX.Element {
 
   // Read the saved choice out of localStorage so we remember 'system' vs
   // 'dark'/'light'. The uiStore only tracks resolved 'dark'/'light'.
-  const saved = (typeof localStorage !== 'undefined'
-    ? (localStorage.getItem('daja-theme-choice') as ThemeChoice | null)
-    : null) ?? 'dark'
+  const saved =
+    (typeof localStorage !== 'undefined'
+      ? (localStorage.getItem('daja-theme-choice') as ThemeChoice | null)
+      : null) ?? 'dark'
 
   // When choice is 'system', follow OS preference changes live.
   useEffect(() => {

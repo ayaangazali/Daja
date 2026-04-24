@@ -27,8 +27,8 @@ export function HealthHome(): React.JSX.Element {
           </p>
           <p className="mt-2 text-[10px] text-[var(--color-fg-muted)]">
             Data is stored locally in your app directory and encrypted at rest via the OS
-            filesystem-level encryption (FileVault on macOS, BitLocker on Windows, LUKS on
-            Linux). We do not transmit health data to any server.
+            filesystem-level encryption (FileVault on macOS, BitLocker on Windows, LUKS on Linux).
+            We do not transmit health data to any server.
           </p>
         </div>
 

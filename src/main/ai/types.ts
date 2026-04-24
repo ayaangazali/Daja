@@ -35,11 +35,7 @@ export class AIError extends Error {
  * Parse Retry-After or x-ratelimit-reset-* headers into a seconds value.
  * Falls back to exponential backoff computed from attempt number.
  */
-export function computeRetryDelay(
-  res: Response,
-  attempt: number,
-  provider: string
-): number {
+export function computeRetryDelay(res: Response, attempt: number, provider: string): number {
   const retryAfter = res.headers.get('retry-after')
   if (retryAfter) {
     const asNum = Number(retryAfter)

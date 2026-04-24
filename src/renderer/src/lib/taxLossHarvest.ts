@@ -8,7 +8,10 @@ export interface HarvestCandidate {
   unrealizedPct: number // negative number
   holdingDays: number
   term: 'short' | 'long'
-  washSaleRisk: boolean // if buy within 30 days
+  /** True if buy of same ticker happened within past 30 days (past half of IRS §1091) */
+  washSaleRisk: boolean
+  /** Earliest date user can re-buy without triggering forward half of §1091 */
+  nextSafeBuyDate: Date
   estimatedTaxSaving: number
 }
 
@@ -78,6 +81,12 @@ export function findHarvestCandidates(
       const term: 'short' | 'long' = holdingDays < 365 ? 'short' : 'long'
       const rate = term === 'short' ? stRate : ltRate
       const washSaleRisk = recentBuys.has(pos.ticker)
+      // IRS §1091 disallows the loss if a "substantially identical" security is
+      // bought 30 days BEFORE or AFTER the sale. We can verify the past half
+      // (recentBuys above). The future half is a user commitment — expose the
+      // earliest date after today they can safely re-buy without triggering it.
+      const nextSafeBuyDate = new Date(today)
+      nextSafeBuyDate.setDate(nextSafeBuyDate.getDate() + 31)
       candidates.push({
         ticker: pos.ticker,
         lot,
@@ -87,6 +96,7 @@ export function findHarvestCandidates(
         holdingDays,
         term,
         washSaleRisk,
+        nextSafeBuyDate,
         estimatedTaxSaving: -pnl * rate
       })
     }

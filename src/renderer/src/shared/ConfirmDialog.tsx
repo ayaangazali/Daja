@@ -85,9 +85,7 @@ export function ConfirmDialog({
           </h2>
         </div>
         <div className="mb-2 text-[12px] text-[var(--color-fg)]">{message}</div>
-        {details && (
-          <div className="mb-3 text-[11px] text-[var(--color-fg-muted)]">{details}</div>
-        )}
+        {details && <div className="mb-3 text-[11px] text-[var(--color-fg-muted)]">{details}</div>}
         {typedConfirm && (
           <TypedConfirm expected={typedConfirm} onConfirm={onConfirm} onCancel={onCancel} />
         )}
