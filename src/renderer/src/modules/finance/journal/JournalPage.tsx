@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Sparkles, Square, Trash2 } from 'lucide-react'
 import { useAddJournal, useJournal, useRemoveJournal } from '../../../hooks/useJournal'
 import { useAI } from '../../../hooks/useAI'
+import { JournalOutcomeBadge } from './JournalOutcomeBadge'
 import { PageHeader } from '../../../shared/PageHeader'
 import { cn } from '../../../lib/cn'
 
@@ -245,6 +246,7 @@ export function JournalPage(): React.JSX.Element {
                       <span className="text-[9px] text-[var(--color-fg-muted)]">
                         {e.created_at.slice(0, 10)}
                       </span>
+                      <JournalOutcomeBadge entry={e} />
                     </div>
                     {e.thesis && <div className="mt-0.5">{e.thesis}</div>}
                     {(e.target_price || e.stop_loss) && (
