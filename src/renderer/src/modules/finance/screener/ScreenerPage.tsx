@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { TrendingDown, TrendingUp, Flame, RefreshCw, Sparkles } from 'lucide-react'
-import { useState } from 'react'
+import { TrendingDown, TrendingUp, Flame, RefreshCw, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { fmtLargeNum, fmtPct, fmtPrice, signColor } from '../../../lib/format'
 import { useAddToWatchlist } from '../../../hooks/useWatchlist'
@@ -33,8 +33,13 @@ interface ScreenerStock {
   industry: string | null
 }
 
+const PAGE_SIZE = 20
+const MAX_RESULTS = 100
+
 export function ScreenerPage(): React.JSX.Element {
   const [preset, setPreset] = useState(PRESETS[0].id)
+  const [page, setPage] = useState(0)
+  const [filterSector, setFilterSector] = useState<string | null>(null)
   const {
     data = [],
     isLoading,
@@ -42,11 +47,30 @@ export function ScreenerPage(): React.JSX.Element {
     isRefetching
   } = useQuery<ScreenerStock[]>({
     queryKey: ['screener', preset],
-    queryFn: () => window.daja.finance.screener(preset, 30) as Promise<ScreenerStock[]>,
+    // Fetch larger universe (100) so we can paginate + filter client-side
+    queryFn: () => window.daja.finance.screener(preset, MAX_RESULTS) as Promise<ScreenerStock[]>,
     staleTime: 60_000
   })
   const addWatch = useAddToWatchlist()
   const { state, start, cancel } = useAI()
+
+  // Unique sector list for filter chips
+  const sectors = useMemo(() => {
+    const set = new Set<string>()
+    for (const s of data) if (s.sector) set.add(s.sector)
+    return [...set].sort()
+  }, [data])
+
+  // Apply sector filter then paginate
+  const filtered = useMemo(() => {
+    if (!filterSector) return data
+    return data.filter((s) => s.sector === filterSector)
+  }, [data, filterSector])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const pageClamped = Math.min(page, totalPages - 1)
+  const pageStart = pageClamped * PAGE_SIZE
+  const pageRows = filtered.slice(pageStart, pageStart + PAGE_SIZE)
 
   const analyzeAll = (): void => {
     if (data.length === 0) return
@@ -79,7 +103,11 @@ export function ScreenerPage(): React.JSX.Element {
         {PRESETS.map((p) => (
           <button
             key={p.id}
-            onClick={() => setPreset(p.id)}
+            onClick={() => {
+              setPreset(p.id)
+              setPage(0)
+              setFilterSector(null)
+            }}
             className={cn(
               'flex items-center gap-1 rounded px-2 py-1 text-[11px]',
               preset === p.id
@@ -114,11 +142,62 @@ export function ScreenerPage(): React.JSX.Element {
           {state.text}
         </div>
       )}
+      {/* Sector filter strip + result count */}
+      {data.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1 border-b border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 text-[10px]">
+          <span className="mr-1 text-[var(--color-fg-muted)]">
+            {filtered.length}
+            {filterSector ? ` of ${data.length}` : ''} result{filtered.length === 1 ? '' : 's'}
+          </span>
+          {sectors.length > 0 && (
+            <>
+              <button
+                onClick={() => {
+                  setFilterSector(null)
+                  setPage(0)
+                }}
+                aria-pressed={filterSector === null}
+                className={cn(
+                  'rounded border px-1.5 py-0.5',
+                  filterSector === null
+                    ? 'border-[var(--color-accent)] bg-[var(--color-accent)]/15 text-[var(--color-accent)]'
+                    : 'border-[var(--color-border)] text-[var(--color-fg-muted)]'
+                )}
+              >
+                All sectors
+              </button>
+              {sectors.map((sec) => (
+                <button
+                  key={sec}
+                  onClick={() => {
+                    setFilterSector(sec === filterSector ? null : sec)
+                    setPage(0)
+                  }}
+                  aria-pressed={filterSector === sec}
+                  className={cn(
+                    'rounded border px-1.5 py-0.5',
+                    filterSector === sec
+                      ? 'border-[var(--color-accent)] bg-[var(--color-accent)]/15 text-[var(--color-accent)]'
+                      : 'border-[var(--color-border)] text-[var(--color-fg-muted)] hover:bg-[var(--color-bg-elev)]'
+                  )}
+                >
+                  {sec}
+                </button>
+              ))}
+            </>
+          )}
+        </div>
+      )}
       <div className="flex-1 overflow-auto">
         {isLoading && <div className="p-4 text-[11px] text-[var(--color-fg-muted)]">Loading…</div>}
         {!isLoading && data.length === 0 && (
           <div className="p-6 text-center text-[11px] text-[var(--color-fg-muted)]">
             No results for this screener right now.
+          </div>
+        )}
+        {!isLoading && filtered.length === 0 && data.length > 0 && (
+          <div className="p-6 text-center text-[11px] text-[var(--color-fg-muted)]">
+            No results in {filterSector}. Try a different sector or clear the filter.
           </div>
         )}
         <table className="w-full text-[11px]">
@@ -137,7 +216,7 @@ export function ScreenerPage(): React.JSX.Element {
             </tr>
           </thead>
           <tbody>
-            {data.map((s) => (
+            {pageRows.map((s) => (
               <tr
                 key={s.symbol}
                 className="border-b border-[var(--color-border)] hover:bg-[var(--color-bg-elev)]"
@@ -188,6 +267,30 @@ export function ScreenerPage(): React.JSX.Element {
             ))}
           </tbody>
         </table>
+        {totalPages > 1 && (
+          <div className="sticky bottom-0 flex items-center justify-between border-t border-[var(--color-border)] bg-[var(--color-bg-elev)] px-3 py-2 text-[11px]">
+            <button
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={pageClamped === 0}
+              aria-label="Previous page"
+              className="flex items-center gap-1 rounded border border-[var(--color-border)] px-2 py-1 disabled:opacity-40"
+            >
+              <ChevronLeft className="h-3 w-3" /> Prev
+            </button>
+            <span className="text-[var(--color-fg-muted)]">
+              Page {pageClamped + 1} / {totalPages} · rows {pageStart + 1}–
+              {Math.min(pageStart + PAGE_SIZE, filtered.length)} of {filtered.length}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+              disabled={pageClamped >= totalPages - 1}
+              aria-label="Next page"
+              className="flex items-center gap-1 rounded border border-[var(--color-border)] px-2 py-1 disabled:opacity-40"
+            >
+              Next <ChevronRight className="h-3 w-3" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
