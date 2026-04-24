@@ -1,4 +1,4 @@
-# Daja — Daja
+# Daja
 
 > **Desktop-first AI super app.** Financial research workstation + portfolio tracking + AI assistant + sports, PDF, health. All local, all your keys, all yours.
 
@@ -6,14 +6,16 @@ Inspired by Bloomberg Terminal, Finviz, TradingView and Google Finance Beta. Bui
 
 ## Stack
 
-- **Electron 39** + React 19 + TypeScript (strict)
-- **Vite 7** w/ lazy-loaded route modules
-- **better-sqlite3** for local persistence (portfolio, journal, strategies, health, etc.)
-- **safeStorage** (OS keychain) for API keys — never plaintext to disk
-- **Tailwind v4** + shadcn/ui primitives
+- **Electron** + React 19 + TypeScript (strict, sandbox-enabled)
+- **Vite** with lazy-loaded route modules + per-tab code splitting
+- **better-sqlite3** for local persistence; versioned migrations via PRAGMA user_version
+- **safeStorage** (OS keychain) for API keys — never plaintext on disk
+- **Tailwind v4** + shadcn/ui primitives, Claude warm palette (light + dark + system)
 - **react-grid-layout** draggable dashboards · **lightweight-charts** interactive charts
 - **cmdk** command palette · **Zustand** state · **@tanstack/react-query** server state
-- **Vitest** unit tests (307) · **@playwright/test** E2E
+- **react-markdown + rehype-highlight** for chat rendering
+- **Vitest** unit tests (665+ passing) · **@playwright/test** E2E
+- **GitHub Actions** CI — typecheck + tests on every push/PR
 
 ## Features
 
@@ -41,11 +43,14 @@ Inspired by Bloomberg Terminal, Finviz, TradingView and Google Finance Beta. Bui
 
 ### Cross-cutting
 
-- **5 AI providers** — Anthropic / OpenAI / Gemini / xAI Grok / Perplexity — streaming via unified `AIProvider` interface. Context injector embeds strategies + portfolio + journal in every prompt.
-- **Settings** — Encrypted API key vault (9 providers), model per provider, module → provider mapping, theme.
+- **5 AI providers** — Anthropic / OpenAI / Gemini / xAI Grok / Perplexity — streaming via unified `AIProvider` interface with **429 backoff + Retry-After parsing** + **model fallback chains** per provider. Context injector embeds strategies + portfolio + journal in every prompt.
+- **Settings** — Four-section IA: API keys (encrypted vault, per-provider format validation), Providers (module → provider mapping), Appearance (Light/Dark/**System** theme), **Data (Backup + restore** as signed JSON manifests).
 - **Command palette** (⌘K) — Type a ticker → "Open stock detail" + "Add to watchlist". Tools: theme flip, focus mode, always-on-top, reload, export CSV, daily briefing.
 - **Keyboard nav** — `j/k` through watchlist · `g`-chords (`gf` home, `gp` portfolio, `gr` strategies, `gj` journal, `gc` compare, `gn` screener, `gb` briefing, `gs` settings, `ga` assistant, `gh` health, `go` sports, `gd` PDF) · `1`–`9` detail tabs · `?` cheatsheet.
+- **Application menu** — Full platform-aware menu bar (macOS app menu, File / Edit / View / Window / Help) with Cmd+K palette, Cmd+H Launchpad, Cmd+, Settings.
 - **Status bar** — Market status (open/pre/post/closed NY time), online/offline, IPC ping ms, configured key counts, active provider, clock.
+- **Single-instance lock** — Second launch focuses existing window instead of fighting over the SQLite handle.
+- **Window state persistence** — Bounds + maximized survive restart; disconnected-monitor fallback.
 - **Focus mode** — Hide topbar + rail + status bar.
 - **Always-on-top** via Electron IPC.
 
@@ -55,33 +60,55 @@ Inspired by Bloomberg Terminal, Finviz, TradingView and Google Finance Beta. Bui
 pnpm install
 pnpm dev          # Electron + Vite HMR
 pnpm build        # production bundle
-pnpm test         # Vitest — 307 unit tests
-pnpm e2e          # Playwright — smoke + extended
+pnpm test         # Vitest — 665+ unit tests
+pnpm test:e2e     # Playwright — smoke + extended
 ```
 
-First run: open Settings (⚙) → add at least one AI provider key. Yahoo data needs no key.
+First run: launch from Launchpad → **Quick setup** → paste one AI provider key. That key auto-wires all 5 modules. Yahoo market data needs no key.
 
-## Privacy
+**Device migration:** Settings → Data → Export backup produces a JSON file with your DB + prefs. Restore on the new machine via the same panel (API keys are per-machine by design and must be re-entered).
+
+## Privacy & security
 
 - Everything local. No telemetry. No accounts.
-- API keys encrypted via OS keychain (`safeStorage`) — never in repo, never in plaintext disk.
-- SQLite at `app.getPath('userData')/daja.db`.
-- Context isolation enabled, Node integration disabled, all IPC typed + zod-validated.
+- API keys encrypted via OS keychain (`safeStorage`) — never in repo, never in plaintext disk. Per-provider format validation catches common paste errors.
+- SQLite at `app.getPath('userData')/daja.db` — WAL mode, FK enforced, migration-versioned.
+- Context isolation + **sandbox + webSecurity** enabled, Node integration disabled.
+- Renderer CSP enforces `connect-src 'self'` — all external HTTP routed through main process IPC.
+- `shell.openExternal` + `setWindowOpenHandler` allowlist `http/https/mailto` only.
+- All IPC typed + zod-validated at the boundary; dbIpc allowlist derived from typed `repos` object (no string drift).
+
+See [SECURITY.md](SECURITY.md) for vulnerability reporting.
 
 ## Architecture
 
 ```
-src/main/           Electron main — DB, keyvault, AI router, IPC
-src/preload/        Typed bridge (window.daja.*)
-src/shared/         IPC channel constants + zod schemas
+src/main/           Electron main — DB, keyvault, AI router, IPC, backup
+  db/               schema.ts, client.ts, migrations.ts (user_version-tracked), repos/*
+  ai/               provider router, streaming providers (anthropic/openai/gemini/grok/perplexity),
+                    prompts.ts (17 role-specific system prompts), types.ts (retry/backoff)
+  services/         keyVault, jsonStore (atomic write-and-rename), backup, finance/*
+  ipc/              zod-validated handlers: keyVault, db, ai, finance, sports, pdf, system
+src/preload/        Typed bridge (window.daja.*) — sandbox-safe
+src/shared/         IPC channel constants + canonical types (e.g., Fundamentals)
 src/renderer/       React app (lazy-loaded modules)
-  shell/            Topbar, rail, cmdk, status bar, cheatsheet
+  shell/            Topbar, rail, cmdk palette, status bar, LaunchpadHome, ModuleSwitcher
   modules/          finance (home/detail/portfolio/strategy/journal/compare/screener/briefing/paper/risk)
                     sports, pdf-tools, health, assistant, settings
-  hooks/            react-query wrappers over IPC
-  lib/              pure utils (format, csv, indicators, priceAlerts, marketHours, sparklinePath, colorScale)
-  shared/           ErrorBoundary, FlashPrice, PercentBadge, Sparkline
+  hooks/            react-query wrappers over IPC (market-aware refetch cadence)
+  lib/              pure utils: format, csv (round-trip), indicators*, riskMetrics, ivSkew,
+                    shortSqueeze, performanceAttribution, blackScholes, maxPain, earningsReaction,
+                    entrySignals, exitSignals, pivots, fearGreed, rollingBeta, taxLossHarvest,
+                    copy (microcopy constants + friendlyError), timing (named constants)
+  shared/           ErrorBoundary (panel/compact modes), EmptyState, ConfirmDialog, Tooltip,
+                    PageHeader, Card
+  stores/           uiStore, recentTickersStore, technicalsRangeStore (zustand + persist)
+  styles/           globals.css (focus-visible ring, prefers-reduced-motion, launchpad tokens)
 ```
+
+## Contributing
+
+Local dev + conventions + DB migration pattern + IPC boundary rules: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
