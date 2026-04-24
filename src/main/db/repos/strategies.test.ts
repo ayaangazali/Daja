@@ -22,9 +22,9 @@ describe('strategies zod schema', () => {
   })
 
   it('rejects invalid operator', () => {
-    expect(() =>
-      parseStrategyRules([{ metric: 'trailingPE', operator: 'hmm', value: 5 }])
-    ).toThrow(/operator/)
+    expect(() => parseStrategyRules([{ metric: 'trailingPE', operator: 'hmm', value: 5 }])).toThrow(
+      /operator/
+    )
   })
 
   it('rejects scalar value with between operator', () => {
@@ -41,9 +41,7 @@ describe('strategies zod schema', () => {
 
   it('rejects between with min > max', () => {
     expect(() =>
-      parseStrategyRules([
-        { metric: 'trailingPE', operator: 'between', value: [100, 5] }
-      ])
+      parseStrategyRules([{ metric: 'trailingPE', operator: 'between', value: [100, 5] }])
     ).toThrow(/min/)
   })
 

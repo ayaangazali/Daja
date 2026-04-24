@@ -42,8 +42,13 @@ export function TradeCsvImport(): React.JSX.Element {
   const [fileName, setFileName] = useState<string>('')
   const [importedCount, setImportedCount] = useState<number | null>(null)
 
-  const dupKey = (t: { date: string; ticker: string; side: string; quantity: number; price: number }): string =>
-    `${t.date}|${t.ticker.toUpperCase()}|${t.side}|${t.quantity}|${t.price}`
+  const dupKey = (t: {
+    date: string
+    ticker: string
+    side: string
+    quantity: number
+    price: number
+  }): string => `${t.date}|${t.ticker.toUpperCase()}|${t.side}|${t.quantity}|${t.price}`
 
   const existingKeys = new Set(existingTrades.map((t) => dupKey(t)))
 
@@ -191,9 +196,7 @@ export function TradeCsvImport(): React.JSX.Element {
                     {p.trade.price}
                   </span>
                 ) : (
-                  <span className="flex-1 text-[var(--color-neg)]">
-                    {p.errors.join(', ')}
-                  </span>
+                  <span className="flex-1 text-[var(--color-neg)]">{p.errors.join(', ')}</span>
                 )}
                 {p.duplicate && (
                   <span className="flex items-center gap-1 text-[10px] text-[var(--color-warn)]">

@@ -137,7 +137,61 @@ function CompareTable({ a, b }: { a: string; b: string }): React.JSX.Element {
       pick: (f) => (f.dividendYield != null ? f.dividendYield * 100 : null),
       higherBetter: true,
       fmt: (v) => fmtPct(v)
-    }
+    },
+    // Parity additions — align with StockDetail FundamentalsGrid
+    { label: 'P/S', pick: (f) => f.priceToSales, higherBetter: false },
+    { label: 'P/B', pick: (f) => f.priceToBook, higherBetter: false },
+    {
+      label: 'Op Margin',
+      pick: (f) => (f.operatingMargins != null ? f.operatingMargins * 100 : null),
+      higherBetter: true,
+      fmt: (v) => fmtPct(v)
+    },
+    {
+      label: 'ROA',
+      pick: (f) => (f.returnOnAssets != null ? f.returnOnAssets * 100 : null),
+      higherBetter: true,
+      fmt: (v) => fmtPct(v)
+    },
+    { label: 'Current Ratio', pick: (f) => f.currentRatio, higherBetter: true },
+    {
+      label: 'Total Cash',
+      pick: (f) => f.totalCash,
+      higherBetter: true,
+      fmt: (v) => `$${fmtLargeNum(v)}`
+    },
+    {
+      label: 'Total Debt',
+      pick: (f) => f.totalDebt,
+      higherBetter: false,
+      fmt: (v) => `$${fmtLargeNum(v)}`
+    },
+    {
+      label: 'Insider %',
+      pick: (f) => (f.insiderPercent != null ? f.insiderPercent * 100 : null),
+      higherBetter: true,
+      fmt: (v) => fmtPct(v)
+    },
+    {
+      label: 'Institutional %',
+      pick: (f) => (f.institutionalPercent != null ? f.institutionalPercent * 100 : null),
+      higherBetter: true,
+      fmt: (v) => fmtPct(v)
+    },
+    {
+      label: 'Short % of Float',
+      pick: (f) => (f.shortPercent != null ? f.shortPercent * 100 : null),
+      higherBetter: false,
+      fmt: (v) => fmtPct(v)
+    },
+    {
+      label: 'Analyst Target',
+      pick: (f) => f.targetMean,
+      higherBetter: true,
+      fmt: (v) => `$${fmtPrice(v)}`
+    },
+    { label: 'Rec Mean', pick: (f) => f.recommendationMean, higherBetter: false },
+    { label: 'Employees', pick: (f) => f.employees, higherBetter: true, fmt: (v) => fmtLargeNum(v) }
   ]
 
   return (

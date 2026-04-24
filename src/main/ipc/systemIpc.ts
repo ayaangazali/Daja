@@ -105,12 +105,16 @@ export function registerSystemIpc(): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.aiUsageSummary, async (_e, raw) => {
-    const { days } = z.object({ days: z.number().int().min(1).max(365).optional() }).parse(raw ?? {})
+    const { days } = z
+      .object({ days: z.number().int().min(1).max(365).optional() })
+      .parse(raw ?? {})
     return summarizeUsage(days ?? 30)
   })
 
   ipcMain.handle(IPC_CHANNELS.aiUsageList, async (_e, raw) => {
-    const { limit } = z.object({ limit: z.number().int().min(1).max(10_000).optional() }).parse(raw ?? {})
+    const { limit } = z
+      .object({ limit: z.number().int().min(1).max(10_000).optional() })
+      .parse(raw ?? {})
     return getUsage(limit ?? 200)
   })
 

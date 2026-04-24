@@ -1,5 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
-import { TrendingDown, TrendingUp, Flame, RefreshCw, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+  TrendingDown,
+  TrendingUp,
+  Flame,
+  RefreshCw,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { fmtLargeNum, fmtPct, fmtPrice, signColor } from '../../../lib/format'

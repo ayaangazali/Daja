@@ -50,8 +50,7 @@ export function registerAiIpc(): void {
     const wc: WebContents = event.sender
 
     const startTime = Date.now()
-    const inputChars =
-      system.length + messages.reduce((s, m) => s + m.content.length, 0)
+    const inputChars = system.length + messages.reduce((s, m) => s + m.content.length, 0)
     let outputChars = 0
 
     ;(async (): Promise<void> => {

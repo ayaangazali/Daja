@@ -53,7 +53,12 @@ export function UsagePanel(): React.JSX.Element {
   }, [days])
 
   const clear = async (): Promise<void> => {
-    if (!confirm('Clear all AI usage telemetry? This only affects local stats, not your provider billing.')) return
+    if (
+      !confirm(
+        'Clear all AI usage telemetry? This only affects local stats, not your provider billing.'
+      )
+    )
+      return
     await window.daja.aiUsage.clear()
     void load(days)
   }
@@ -123,7 +128,10 @@ export function UsagePanel(): React.JSX.Element {
                   </thead>
                   <tbody>
                     {Object.entries(summary.byProvider).map(([p, s]) => (
-                      <tr key={p} className="border-t border-[var(--color-border)] font-mono tabular">
+                      <tr
+                        key={p}
+                        className="border-t border-[var(--color-border)] font-mono tabular"
+                      >
                         <td className="py-1 capitalize">{p}</td>
                         <td className="py-1 text-right">{s.calls}</td>
                         <td className="py-1 text-right">{fmtNum(s.inputTokens)}</td>
@@ -150,7 +158,10 @@ export function UsagePanel(): React.JSX.Element {
                   </thead>
                   <tbody>
                     {Object.entries(summary.byModule).map(([m, s]) => (
-                      <tr key={m} className="border-t border-[var(--color-border)] font-mono tabular">
+                      <tr
+                        key={m}
+                        className="border-t border-[var(--color-border)] font-mono tabular"
+                      >
                         <td className="py-1 capitalize">{m}</td>
                         <td className="py-1 text-right">{s.calls}</td>
                         <td className="py-1 text-right text-[var(--color-accent)]">

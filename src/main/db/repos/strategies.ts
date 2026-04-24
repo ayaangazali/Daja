@@ -43,10 +43,7 @@ export const StrategyRuleSchema = z
   .object({
     metric: z.enum(STRATEGY_METRICS),
     operator: z.enum(['>', '>=', '<', '<=', '==', '!=', 'between']),
-    value: z.union([
-      z.number(),
-      z.tuple([z.number(), z.number()])
-    ]),
+    value: z.union([z.number(), z.tuple([z.number(), z.number()])]),
     label: z.string().max(200).optional()
   })
   .superRefine((rule, ctx) => {
@@ -80,9 +77,7 @@ export const StrategyRuleArraySchema = z.array(StrategyRuleSchema)
 export function parseStrategyRules(raw: unknown): StrategyRule[] {
   const result = StrategyRuleArraySchema.safeParse(raw)
   if (result.success) return result.data
-  const issues = result.error.issues
-    .map((i) => `  • [${i.path.join('.')}] ${i.message}`)
-    .join('\n')
+  const issues = result.error.issues.map((i) => `  • [${i.path.join('.')}] ${i.message}`).join('\n')
   throw new Error(`Strategy rules failed validation:\n${issues}`)
 }
 

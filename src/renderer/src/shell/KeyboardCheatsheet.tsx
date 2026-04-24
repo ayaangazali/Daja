@@ -12,12 +12,14 @@ const SHORTCUTS = [
     category: 'Global',
     items: [
       ['Cmd/Ctrl + K', 'Open command palette'],
+      ['Cmd/Ctrl + H', 'Launchpad home'],
+      ['Cmd/Ctrl + ,', 'Settings (macOS app menu)'],
       ['?', 'Show this cheatsheet'],
-      ['Esc', 'Close palette / cheatsheet / modals']
+      ['Esc', 'Close palette / cheatsheet / modals · clear search on Launchpad']
     ]
   },
   {
-    category: 'Navigate',
+    category: 'Navigate (g-chord)',
     items: [
       ['g then f', 'Finance home'],
       ['g then p', 'Portfolio'],
@@ -34,6 +36,23 @@ const SHORTCUTS = [
     ]
   },
   {
+    category: 'Launchpad',
+    items: [
+      ['← → ↑ ↓', 'Navigate tile grid'],
+      ['Home / End', 'First / last tile'],
+      ['Enter', 'Open focused tile'],
+      ['Esc', 'Clear search, return to input']
+    ]
+  },
+  {
+    category: 'Stock detail',
+    items: [
+      ['1 – 9', 'Jump to detail tab (Overview, Analyst, Financials, Technicals, Earnings, Options, Ownership, Peers, News)'],
+      ['Back / Forward', 'Browser history preserves ?tab='],
+      ['(disabled in modals)', 'Shortcuts bail when a dialog is open']
+    ]
+  },
+  {
     category: 'Watchlist',
     items: [
       ['j', 'Next ticker in watchlist'],
@@ -41,11 +60,21 @@ const SHORTCUTS = [
     ]
   },
   {
+    category: 'Assistant',
+    items: [
+      ['Enter', 'Send message'],
+      ['Shift + Enter', 'New line in composer'],
+      ['Hover a bubble', 'Copy button appears'],
+      ['↓ pill', 'Jump to newest when scrolled up']
+    ]
+  },
+  {
     category: 'Window',
     items: [
       ['Topbar pin', 'Always on top'],
       ['Topbar maximize', 'Focus mode (hide chrome)'],
-      ['Topbar sun/moon', 'Toggle dark/light']
+      ['Topbar sun/moon', 'Toggle dark/light'],
+      ['(Resize/move)', 'Bounds persist across restarts']
     ]
   }
 ]
@@ -68,6 +97,9 @@ export function KeyboardCheatsheet({ open, onClose }: Props): React.JSX.Element 
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cheatsheet-title"
     >
       <div
         className={cn(
@@ -79,7 +111,9 @@ export function KeyboardCheatsheet({ open, onClose }: Props): React.JSX.Element 
         <div className="flex items-center justify-between border-b border-[var(--color-border)] px-4 py-3">
           <div className="flex items-center gap-2">
             <Keyboard className="h-4 w-4 text-[var(--color-info)]" />
-            <span className="text-sm font-semibold">Keyboard shortcuts</span>
+            <span id="cheatsheet-title" className="text-sm font-semibold">
+              Keyboard shortcuts
+            </span>
           </div>
           <button
             onClick={onClose}
