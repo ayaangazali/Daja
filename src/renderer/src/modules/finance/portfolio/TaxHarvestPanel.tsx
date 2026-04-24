@@ -152,9 +152,9 @@ export function TaxHarvestPanel(): React.JSX.Element {
           </div>
           <div className="mt-2 text-[9px] text-[var(--color-fg-muted)]">
             IRS §1091 wash-sale rule disallows the loss if a substantially identical security is
-            bought within <strong>30 days before or after</strong> the sale. The 'yes' column catches
-            the past half; the date shown for 'no' rows is the earliest you can re-buy without
-            triggering the forward half. Rates default: ST 32% · LT 15%. Adjust above.
+            bought within <strong>30 days before or after</strong> the sale. The 'yes' column
+            catches the past half; the date shown for 'no' rows is the earliest you can re-buy
+            without triggering the forward half. Rates default: ST 32% · LT 15%. Adjust above.
           </div>
         </>
       )}

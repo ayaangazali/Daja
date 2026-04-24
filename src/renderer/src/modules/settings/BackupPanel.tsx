@@ -4,10 +4,11 @@ import { cn } from '../../lib/cn'
 
 export function BackupPanel(): React.JSX.Element {
   const [busy, setBusy] = useState<'none' | 'exporting' | 'restoring'>('none')
-  const [message, setMessage] = useState<
-    | { tone: 'ok' | 'warn' | 'err'; text: string; detail?: string }
-    | null
-  >(null)
+  const [message, setMessage] = useState<{
+    tone: 'ok' | 'warn' | 'err'
+    text: string
+    detail?: string
+  } | null>(null)
 
   const handleExport = async (): Promise<void> => {
     setBusy('exporting')
@@ -35,7 +36,12 @@ export function BackupPanel(): React.JSX.Element {
   }
 
   const handleRestore = async (): Promise<void> => {
-    if (!confirm('Restoring will overwrite your local data. A pre-restore backup is saved alongside for recovery. Continue?')) return
+    if (
+      !confirm(
+        'Restoring will overwrite your local data. A pre-restore backup is saved alongside for recovery. Continue?'
+      )
+    )
+      return
     setBusy('restoring')
     setMessage(null)
     try {
@@ -46,9 +52,7 @@ export function BackupPanel(): React.JSX.Element {
       }
       setMessage({
         tone: 'ok',
-        text: r.requiresRestart
-          ? 'Restored — restart the app to reopen the database'
-          : 'Restored',
+        text: r.requiresRestart ? 'Restored — restart the app to reopen the database' : 'Restored',
         detail: `From backup dated ${r.manifestDate?.slice(0, 10) ?? 'unknown'}. Files: ${r.restored?.join(', ')}. Pre-restore copies: ${r.backedUp?.length ?? 0}.`
       })
     } catch (err) {
@@ -118,8 +122,8 @@ export function BackupPanel(): React.JSX.Element {
       )}
 
       <p className="mt-3 text-[10px] text-[var(--color-fg-muted)]">
-        On restore, existing files are kept alongside as <code>*.pre-restore-&lt;timestamp&gt;</code> for
-        manual recovery.
+        On restore, existing files are kept alongside as{' '}
+        <code>*.pre-restore-&lt;timestamp&gt;</code> for manual recovery.
       </p>
     </section>
   )

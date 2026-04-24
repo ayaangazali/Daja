@@ -6,6 +6,7 @@ import { TradeForm } from './TradeForm'
 import { TradesTable } from './TradesTable'
 import { EquityCurve } from './EquityCurve'
 import { WatchlistImport } from './WatchlistImport'
+import { TradeCsvImport } from './TradeCsvImport'
 import { RiskDashboard } from './RiskDashboard'
 import { DividendTracker } from './DividendTracker'
 import { TaxLotView } from './TaxLotView'
@@ -171,6 +172,9 @@ export function PortfolioPage(): React.JSX.Element {
             <>
               <Panel label="TradeForm">
                 <TradeForm />
+              </Panel>
+              <Panel label="TradeCsvImport">
+                <TradeCsvImport />
               </Panel>
               <Panel label="DripCalculator">
                 <DripCalculator />

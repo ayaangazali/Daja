@@ -14,7 +14,10 @@ function makeStubDb(): {
   pragma: (sql: string, opts?: PragmaOpts) => unknown
   transaction: <T>(fn: () => T) => () => T
   exec: (sql: string) => void
-  prepare: (sql: string) => { run: (...args: unknown[]) => unknown; all: (...args: unknown[]) => unknown[] }
+  prepare: (sql: string) => {
+    run: (...args: unknown[]) => unknown
+    all: (...args: unknown[]) => unknown[]
+  }
 } {
   const state = { version: 0 as number }
   return {
@@ -88,9 +91,9 @@ describe('migrations framework (stub-db)', () => {
     }
     MIGRATIONS.push(failing)
     try {
-      expect(() =>
-        runMigrations(db as unknown as Parameters<typeof runMigrations>[0])
-      ).toThrow(/v999/)
+      expect(() => runMigrations(db as unknown as Parameters<typeof runMigrations>[0])).toThrow(
+        /v999/
+      )
     } finally {
       const idx = MIGRATIONS.indexOf(failing)
       if (idx >= 0) MIGRATIONS.splice(idx, 1)
