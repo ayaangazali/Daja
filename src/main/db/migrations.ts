@@ -44,6 +44,64 @@ export const MIGRATIONS: Migration[] = [
     up: (_db) => {
       // no-op
     }
+  },
+  {
+    version: 2,
+    description: 'data-integrity triggers on trades quantity/price + watchlist ticker format',
+    up: (db) => {
+      // SQLite doesn't let us add CHECK constraints to existing tables, but
+      // BEFORE INSERT triggers enforce the same contract. Defensive against
+      // pathological IPC payloads that escape Zod (e.g., negative qty, Infinity).
+      db.exec(`
+        CREATE TRIGGER IF NOT EXISTS trg_trades_quantity_positive
+        BEFORE INSERT ON trades
+        FOR EACH ROW
+        WHEN NEW.quantity <= 0 OR NEW.quantity IS NULL
+        BEGIN
+          SELECT RAISE(ABORT, 'trades.quantity must be > 0');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS trg_trades_price_positive
+        BEFORE INSERT ON trades
+        FOR EACH ROW
+        WHEN NEW.price <= 0 OR NEW.price IS NULL
+        BEGIN
+          SELECT RAISE(ABORT, 'trades.price must be > 0');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS trg_trades_fees_nonneg
+        BEFORE INSERT ON trades
+        FOR EACH ROW
+        WHEN NEW.fees IS NOT NULL AND NEW.fees < 0
+        BEGIN
+          SELECT RAISE(ABORT, 'trades.fees must be >= 0');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS trg_watchlist_ticker_nonempty
+        BEFORE INSERT ON watchlist
+        FOR EACH ROW
+        WHEN NEW.ticker IS NULL OR length(trim(NEW.ticker)) = 0
+        BEGIN
+          SELECT RAISE(ABORT, 'watchlist.ticker must be non-empty');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS trg_paper_trades_quantity_positive
+        BEFORE INSERT ON paper_trades
+        FOR EACH ROW
+        WHEN NEW.quantity <= 0 OR NEW.quantity IS NULL
+        BEGIN
+          SELECT RAISE(ABORT, 'paper_trades.quantity must be > 0');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS trg_paper_trades_price_positive
+        BEFORE INSERT ON paper_trades
+        FOR EACH ROW
+        WHEN NEW.price <= 0 OR NEW.price IS NULL
+        BEGIN
+          SELECT RAISE(ABORT, 'paper_trades.price must be > 0');
+        END;
+      `)
+    }
   }
 ]
 

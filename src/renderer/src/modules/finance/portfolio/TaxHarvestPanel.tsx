@@ -137,7 +137,12 @@ export function TaxHarvestPanel(): React.JSX.Element {
                           <AlertTriangle className="h-3 w-3" /> yes
                         </span>
                       ) : (
-                        <span className="text-[var(--color-fg-muted)]">no</span>
+                        <span
+                          className="text-[var(--color-fg-muted)]"
+                          title={`Safe to re-buy after ${c.nextSafeBuyDate.toISOString().slice(0, 10)} to avoid triggering forward-half of §1091`}
+                        >
+                          no · safe {c.nextSafeBuyDate.toISOString().slice(5, 10)}
+                        </span>
                       )}
                     </td>
                   </tr>
@@ -146,8 +151,10 @@ export function TaxHarvestPanel(): React.JSX.Element {
             </table>
           </div>
           <div className="mt-2 text-[9px] text-[var(--color-fg-muted)]">
-            Wash-sale risk = you bought this ticker within the last 30 days. Selling now would
-            trigger IRS §1091 and defer the loss. Rates default: ST 32% · LT 15%. Adjust above.
+            IRS §1091 wash-sale rule disallows the loss if a substantially identical security is
+            bought within <strong>30 days before or after</strong> the sale. The 'yes' column catches
+            the past half; the date shown for 'no' rows is the earliest you can re-buy without
+            triggering the forward half. Rates default: ST 32% · LT 15%. Adjust above.
           </div>
         </>
       )}
