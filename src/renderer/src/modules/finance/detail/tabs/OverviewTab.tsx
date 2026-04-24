@@ -6,6 +6,7 @@ import { AnalystRatings } from '../panels/AnalystRatings'
 import { NewsPanel } from '../panels/NewsPanel'
 import { BreakEvenCalc } from '../panels/BreakEvenCalc'
 import { DividendPanel } from '../panels/DividendPanel'
+import { DividendSustainabilityPanel } from '../panels/DividendSustainabilityPanel'
 import { RelativePerformance } from '../panels/RelativePerformance'
 import { TrendScorePanel } from '../panels/TrendScorePanel'
 import { ExitSignalsPanel } from '../panels/ExitSignalsPanel'
@@ -68,6 +69,9 @@ export function OverviewTab({
       </PanelBoundary>
       <PanelBoundary label="Dividends">
         <DividendPanel ticker={ticker} />
+      </PanelBoundary>
+      <PanelBoundary label="Dividend sustainability">
+        <DividendSustainabilityPanel ticker={ticker} />
       </PanelBoundary>
       <PanelBoundary label="News">
         <NewsPanel ticker={ticker} />

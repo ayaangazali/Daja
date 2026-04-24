@@ -2,6 +2,7 @@ import { Trash2, TrendingDown, TrendingUp, Minus } from 'lucide-react'
 import { useMemo } from 'react'
 import { useHealthLogs, useRemoveHealthLog } from '../../hooks/useHealth'
 import { Sparkline } from '../../shared/Sparkline'
+import { StreakCard } from './StreakCard'
 import { cn } from '../../lib/cn'
 
 interface TrendStats {
@@ -52,6 +53,7 @@ export function HealthTimeline(): React.JSX.Element {
 
   return (
     <div className="space-y-3">
+      <StreakCard />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <Chart label="Mood" stats={series.mood} />
         <Chart label="Energy" stats={series.energy} />
