@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Moon, Sun, Monitor } from 'lucide-react'
 import { useUIStore } from '../../stores/uiStore'
 import { useSetTheme } from '../../hooks/usePrefs'
+import { useAccent, ACCENTS, type AccentId } from '../../stores/accentStore'
 import { cn } from '../../lib/cn'
 
 type ThemeChoice = 'dark' | 'light' | 'system'
@@ -95,6 +96,53 @@ export function ThemeToggle(): React.JSX.Element {
           })}
         </div>
       </div>
+      <AccentPicker />
     </section>
+  )
+}
+
+function AccentPicker(): React.JSX.Element {
+  const accent = useAccent((s) => s.accent)
+  const setAccent = useAccent((s) => s.setAccent)
+  return (
+    <div className="mt-4">
+      <h3 className="text-[12px] font-semibold">Accent color</h3>
+      <p className="mt-0.5 text-[11px] text-[var(--color-fg-muted)]">
+        Accent drives buttons, selection rings, and launchpad tile focus. Applies live.
+      </p>
+      <div
+        role="radiogroup"
+        aria-label="Accent color"
+        className="mt-3 flex flex-wrap items-center gap-2"
+      >
+        {ACCENTS.map((a) => {
+          const active = accent === a.id
+          return (
+            <button
+              key={a.id}
+              role="radio"
+              aria-checked={active}
+              onClick={() => setAccent(a.id as AccentId)}
+              className={cn(
+                'flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] transition-colors',
+                active
+                  ? 'border-[var(--color-accent)] bg-[var(--color-accent)]/10'
+                  : 'border-[var(--color-border)] hover:bg-[var(--color-bg)]'
+              )}
+            >
+              <span
+                className="inline-block h-3 w-3 rounded-full"
+                style={{
+                  background: `linear-gradient(135deg, ${a.main}, ${a.soft})`,
+                  boxShadow: `0 0 0 1px ${a.main}33`
+                }}
+                aria-hidden="true"
+              />
+              {a.label}
+            </button>
+          )
+        })}
+      </div>
+    </div>
   )
 }

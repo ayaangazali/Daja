@@ -7,10 +7,12 @@ import { KeyboardCheatsheet } from './KeyboardCheatsheet'
 import { StatusBar } from './StatusBar'
 import { useKeyboardNav } from '../hooks/useKeyboardNav'
 import { useUIStore } from '../stores/uiStore'
+import { useAccentSync } from '../stores/accentStore'
 import { cn } from '../lib/cn'
 
 export function Shell(): React.JSX.Element {
   useKeyboardNav()
+  useAccentSync()
   const focusMode = useUIStore((s) => s.focusMode)
   const [cheatsheetOpen, setCheatsheetOpen] = useState(false)
   const location = useLocation()
