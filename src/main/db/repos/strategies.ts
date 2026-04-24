@@ -1,10 +1,89 @@
 import { getDb } from '../client'
+import { z } from 'zod'
 
-export interface StrategyRule {
-  metric: string
-  operator: '>' | '>=' | '<' | '<=' | '==' | '!=' | 'between'
-  value: number | [number, number]
-  label?: string
+/** Metrics a rule can reference. Keep in sync with the scorer in the renderer. */
+export const STRATEGY_METRICS = [
+  // valuation
+  'trailingPE',
+  'forwardPE',
+  'pegRatio',
+  'priceToSales',
+  'priceToBook',
+  'priceToFcf',
+  'marketCap',
+  // growth
+  'revenueGrowth',
+  'earningsGrowth',
+  // margins
+  'profitMargins',
+  'operatingMargins',
+  'grossMargins',
+  // balance
+  'debtToEquity',
+  'currentRatio',
+  'totalCash',
+  'totalDebt',
+  // returns
+  'returnOnEquity',
+  'returnOnAssets',
+  // yields
+  'dividendYield',
+  'payoutRatio',
+  // ownership
+  'insiderPercent',
+  'institutionalPercent',
+  'shortPercent',
+  // price action
+  'changePercent',
+  'price'
+] as const
+export type StrategyMetric = (typeof STRATEGY_METRICS)[number]
+
+export const StrategyRuleSchema = z
+  .object({
+    metric: z.enum(STRATEGY_METRICS),
+    operator: z.enum(['>', '>=', '<', '<=', '==', '!=', 'between']),
+    value: z.union([
+      z.number(),
+      z.tuple([z.number(), z.number()])
+    ]),
+    label: z.string().max(200).optional()
+  })
+  .superRefine((rule, ctx) => {
+    // 'between' requires a tuple value, comparisons require a scalar.
+    if (rule.operator === 'between') {
+      if (!Array.isArray(rule.value)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "operator 'between' requires value tuple [min, max]"
+        })
+      } else if (rule.value[0] > rule.value[1]) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `between tuple min (${rule.value[0]}) must be ≤ max (${rule.value[1]})`
+        })
+      }
+    } else {
+      if (Array.isArray(rule.value)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `operator '${rule.operator}' requires scalar value, got tuple`
+        })
+      }
+    }
+  })
+
+export type StrategyRule = z.infer<typeof StrategyRuleSchema>
+export const StrategyRuleArraySchema = z.array(StrategyRuleSchema)
+
+/** Validate + coerce raw JSON into typed rules. Throws with human-friendly error. */
+export function parseStrategyRules(raw: unknown): StrategyRule[] {
+  const result = StrategyRuleArraySchema.safeParse(raw)
+  if (result.success) return result.data
+  const issues = result.error.issues
+    .map((i) => `  • [${i.path.join('.')}] ${i.message}`)
+    .join('\n')
+  throw new Error(`Strategy rules failed validation:\n${issues}`)
 }
 
 export interface Strategy {
@@ -63,6 +142,9 @@ export const strategiesRepo = {
     natural_language?: string
     asset_classes?: string[]
   }): Strategy {
+    // Validate rules before persisting — catches malformed AI output at the
+    // trust boundary. Throws a descriptive error the caller can surface.
+    const validated = parseStrategyRules(s.rules)
     const info = getDb()
       .prepare(
         `INSERT INTO strategies (name, description, rules, natural_language, asset_classes) VALUES (?,?,?,?,?)`
@@ -70,7 +152,7 @@ export const strategiesRepo = {
       .run(
         s.name,
         s.description ?? null,
-        JSON.stringify(s.rules),
+        JSON.stringify(validated),
         s.natural_language ?? null,
         JSON.stringify(s.asset_classes ?? ['stock'])
       )
@@ -82,10 +164,12 @@ export const strategiesRepo = {
   ): Strategy | null {
     const cur = this.get(id)
     if (!cur) return null
+    // Re-validate rules if the patch touches them
+    const validatedRules = patch.rules != null ? parseStrategyRules(patch.rules) : cur.rules
     const merged: Strategy = {
       ...cur,
       ...patch,
-      rules: patch.rules ?? cur.rules,
+      rules: validatedRules,
       asset_classes: patch.asset_classes ?? cur.asset_classes
     } as Strategy
     getDb()
