@@ -93,5 +93,8 @@ export const IPC_CHANNELS = {
   fsSavePath: 'fs:save-path',
   backupExport: 'backup:export',
   backupRestore: 'backup:restore',
-  backupListPreRestore: 'backup:list-pre-restore'
+  backupListPreRestore: 'backup:list-pre-restore',
+  aiUsageSummary: 'ai:usage:summary',
+  aiUsageList: 'ai:usage:list',
+  aiUsageClear: 'ai:usage:clear'
 } as const

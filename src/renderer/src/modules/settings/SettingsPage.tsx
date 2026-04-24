@@ -4,6 +4,7 @@ import { ApiKeyManager } from './ApiKeyManager'
 import { ProviderPreferences } from './ProviderPreferences'
 import { ThemeToggle } from './ThemeToggle'
 import { BackupPanel } from './BackupPanel'
+import { UsagePanel } from './UsagePanel'
 import { PageHeader } from '../../shared/PageHeader'
 import { cn } from '../../lib/cn'
 
@@ -74,7 +75,12 @@ export function SettingsPage(): React.JSX.Element {
           </nav>
           <div className="min-w-0 flex-1 space-y-6">
             {section === 'keys' && <ApiKeyManager />}
-            {section === 'providers' && <ProviderPreferences />}
+            {section === 'providers' && (
+              <>
+                <ProviderPreferences />
+                <UsagePanel />
+              </>
+            )}
             {section === 'appearance' && <ThemeToggle />}
             {section === 'data' && <BackupPanel />}
           </div>

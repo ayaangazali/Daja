@@ -149,6 +149,25 @@ const daja = {
       ok: boolean
       list: { name: string; path: string; sizeBytes: number }[]
     }> => ipcRenderer.invoke(IPC_CHANNELS.backupListPreRestore)
+  },
+  aiUsage: {
+    summary: (
+      days = 30
+    ): Promise<{
+      totalCalls: number
+      totalInputTokens: number
+      totalOutputTokens: number
+      totalCostUsd: number
+      byProvider: Record<
+        string,
+        { calls: number; inputTokens: number; outputTokens: number; costUsd: number }
+      >
+      byModule: Record<string, { calls: number; costUsd: number }>
+      since: string | null
+    }> => ipcRenderer.invoke(IPC_CHANNELS.aiUsageSummary, { days }),
+    list: (limit = 200): Promise<unknown[]> =>
+      ipcRenderer.invoke(IPC_CHANNELS.aiUsageList, { limit }),
+    clear: (): Promise<{ ok: boolean }> => ipcRenderer.invoke(IPC_CHANNELS.aiUsageClear)
   }
 }
 

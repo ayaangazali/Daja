@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync } from 'fs'
 import { z } from 'zod'
 import { IPC_CHANNELS } from '../../shared/ipc'
 import { exportBackup, restoreBackup, listPreRestoreBackups } from '../services/backup'
+import { clearUsage, getUsage, summarizeUsage } from '../services/aiUsage'
 import { closeDatabase } from '../db/client'
 
 /**
@@ -101,5 +102,20 @@ export function registerSystemIpc(): void {
 
   ipcMain.handle(IPC_CHANNELS.backupListPreRestore, async () => {
     return { ok: true, list: listPreRestoreBackups() }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.aiUsageSummary, async (_e, raw) => {
+    const { days } = z.object({ days: z.number().int().min(1).max(365).optional() }).parse(raw ?? {})
+    return summarizeUsage(days ?? 30)
+  })
+
+  ipcMain.handle(IPC_CHANNELS.aiUsageList, async (_e, raw) => {
+    const { limit } = z.object({ limit: z.number().int().min(1).max(10_000).optional() }).parse(raw ?? {})
+    return getUsage(limit ?? 200)
+  })
+
+  ipcMain.handle(IPC_CHANNELS.aiUsageClear, async () => {
+    clearUsage()
+    return { ok: true }
   })
 }

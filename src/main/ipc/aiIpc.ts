@@ -7,6 +7,7 @@ import { getPreferredAI, getPreferredModel } from '../services/prefs'
 import { getProvider, DEFAULT_MODELS } from '../ai/router'
 import { buildUserContextBlock } from '../ai/contextInjector'
 import { PROMPTS, type PromptKey } from '../ai/prompts'
+import { charsToTokens, estimateCost, recordUsage } from '../services/aiUsage'
 
 const MessageSchema = z.object({
   role: z.enum(['user', 'assistant', 'system']),
@@ -48,6 +49,11 @@ export function registerAiIpc(): void {
     activeRequests.set(requestId, ctrl)
     const wc: WebContents = event.sender
 
+    const startTime = Date.now()
+    const inputChars =
+      system.length + messages.reduce((s, m) => s + m.content.length, 0)
+    let outputChars = 0
+
     ;(async (): Promise<void> => {
       try {
         for await (const chunk of provider.stream({
@@ -58,6 +64,7 @@ export function registerAiIpc(): void {
           signal: ctrl.signal
         })) {
           if (ctrl.signal.aborted) break
+          outputChars += chunk.length
           if (!wc.isDestroyed()) wc.send(IPC_CHANNELS.aiChatChunk, requestId, chunk)
         }
         if (!wc.isDestroyed()) wc.send(IPC_CHANNELS.aiChatDone, requestId)
@@ -66,6 +73,23 @@ export function registerAiIpc(): void {
         if (!wc.isDestroyed()) wc.send(IPC_CHANNELS.aiChatError, requestId, msg)
       } finally {
         activeRequests.delete(requestId)
+        // Telemetry — best-effort, never throws past this point
+        try {
+          const inputTokens = charsToTokens(inputChars)
+          const outputTokens = charsToTokens(outputChars)
+          recordUsage({
+            at: new Date().toISOString(),
+            provider: providerId,
+            model,
+            module,
+            inputTokens,
+            outputTokens,
+            estCostUsd: estimateCost(providerId, model, inputTokens, outputTokens),
+            durationMs: Date.now() - startTime
+          })
+        } catch (err) {
+          console.warn('[aiIpc] usage recording failed', err)
+        }
       }
     })()
 
