@@ -90,5 +90,8 @@ export const IPC_CHANNELS = {
   windowAlwaysOnTop: 'window:always-on-top',
   windowToggleDevtools: 'window:toggle-devtools',
   notify: 'notify',
-  fsSavePath: 'fs:save-path'
+  fsSavePath: 'fs:save-path',
+  backupExport: 'backup:export',
+  backupRestore: 'backup:restore',
+  backupListPreRestore: 'backup:list-pre-restore'
 } as const

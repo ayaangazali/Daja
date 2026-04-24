@@ -9,6 +9,7 @@ import { registerAiIpc } from './ipc/aiIpc'
 import { registerFinanceIpc } from './ipc/financeIpc'
 import { registerSportsIpc } from './ipc/sportsIpc'
 import { registerPdfIpc } from './ipc/pdfIpc'
+import { registerSystemIpc } from './ipc/systemIpc'
 import { openDatabase, closeDatabase } from './db/client'
 
 interface WindowState {
@@ -278,6 +279,7 @@ if (!gotTheLock) {
     registerFinanceIpc()
     registerSportsIpc()
     registerPdfIpc()
+    registerSystemIpc()
 
     createWindow()
 

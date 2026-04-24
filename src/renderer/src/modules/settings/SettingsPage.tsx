@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { Key, Cpu, Palette } from 'lucide-react'
+import { Key, Cpu, Palette, HardDrive } from 'lucide-react'
 import { ApiKeyManager } from './ApiKeyManager'
 import { ProviderPreferences } from './ProviderPreferences'
 import { ThemeToggle } from './ThemeToggle'
+import { BackupPanel } from './BackupPanel'
 import { PageHeader } from '../../shared/PageHeader'
 import { cn } from '../../lib/cn'
 
-type Section = 'keys' | 'providers' | 'appearance'
+type Section = 'keys' | 'providers' | 'appearance' | 'data'
 
 const SECTIONS: { id: Section; label: string; description: string; icon: typeof Key }[] = [
   {
@@ -26,6 +27,12 @@ const SECTIONS: { id: Section; label: string; description: string; icon: typeof 
     label: 'Appearance',
     description: 'Theme · density · motion preferences',
     icon: Palette
+  },
+  {
+    id: 'data',
+    label: 'Data',
+    description: 'Backup · restore · device migration',
+    icon: HardDrive
   }
 ]
 
@@ -69,6 +76,7 @@ export function SettingsPage(): React.JSX.Element {
             {section === 'keys' && <ApiKeyManager />}
             {section === 'providers' && <ProviderPreferences />}
             {section === 'appearance' && <ThemeToggle />}
+            {section === 'data' && <BackupPanel />}
           </div>
         </div>
       </div>

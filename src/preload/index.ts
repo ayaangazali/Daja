@@ -134,6 +134,21 @@ const daja = {
       contents: string
     }): Promise<{ ok: boolean; path: string | null }> =>
       ipcRenderer.invoke(IPC_CHANNELS.fsSavePath, args)
+  },
+  backup: {
+    export: (): Promise<{ ok: boolean; path: string | null }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.backupExport),
+    restore: (): Promise<{
+      ok: boolean
+      restored?: string[]
+      backedUp?: string[]
+      manifestDate?: string
+      requiresRestart?: boolean
+    }> => ipcRenderer.invoke(IPC_CHANNELS.backupRestore),
+    listPreRestore: (): Promise<{
+      ok: boolean
+      list: { name: string; path: string; sizeBytes: number }[]
+    }> => ipcRenderer.invoke(IPC_CHANNELS.backupListPreRestore)
   }
 }
 

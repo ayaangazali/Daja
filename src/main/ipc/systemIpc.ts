@@ -1,7 +1,9 @@
 import { BrowserWindow, Notification, dialog, ipcMain, shell } from 'electron'
-import { writeFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 import { z } from 'zod'
 import { IPC_CHANNELS } from '../../shared/ipc'
+import { exportBackup, restoreBackup, listPreRestoreBackups } from '../services/backup'
+import { closeDatabase } from '../db/client'
 
 /**
  * Guard shell.openExternal — only permit http(s) and mailto, reject
@@ -65,5 +67,39 @@ export function registerSystemIpc(): void {
     if (result.canceled || !result.filePath) return { ok: false, path: null }
     writeFileSync(result.filePath, contents, 'utf8')
     return { ok: true, path: result.filePath }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.backupExport, async () => {
+    const { manifestJson, filename } = exportBackup()
+    const r = await dialog.showSaveDialog({
+      defaultPath: filename,
+      filters: [{ name: 'Daja Backup', extensions: ['json'] }]
+    })
+    if (r.canceled || !r.filePath) return { ok: false, path: null }
+    writeFileSync(r.filePath, manifestJson, 'utf8')
+    return { ok: true, path: r.filePath }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.backupRestore, async () => {
+    const r = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'Daja Backup', extensions: ['json'] }]
+    })
+    if (r.canceled || r.filePaths.length === 0) return { ok: false }
+    const manifestJson = readFileSync(r.filePaths[0], 'utf8')
+    // Close DB before overwriting daja.db — main must reopen after restore
+    closeDatabase()
+    const result = restoreBackup(manifestJson)
+    return {
+      ok: true,
+      restored: result.restored,
+      backedUp: result.backedUp,
+      manifestDate: result.manifestDate,
+      requiresRestart: result.restored.includes('daja.db')
+    }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.backupListPreRestore, async () => {
+    return { ok: true, list: listPreRestoreBackups() }
   })
 }
