@@ -55,6 +55,21 @@ export function TradeCsvImport(): React.JSX.Element {
   const onFile = async (file: File): Promise<void> => {
     setImportedCount(null)
     setFileName(file.name)
+    // Cap file size — typical portfolio CSVs are < 500 KB; 10 MB is generous.
+    // Prevents main-thread stall + memory spike on pathological input.
+    if (file.size > 10 * 1024 * 1024) {
+      setPreview([
+        {
+          row: 0,
+          trade: null,
+          errors: [
+            `CSV is ${Math.round(file.size / 1024 / 1024)} MB — exceeds 10 MB import limit. Split it into smaller files or compress duplicate rows first.`
+          ],
+          duplicate: false
+        }
+      ])
+      return
+    }
     const text = await file.text()
     const { header, rows } = fromCsv(text)
     const lowerHeader = header.map((h) => h.trim().toLowerCase())

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -285,7 +285,7 @@ export function AssistantHome(): React.JSX.Element {
   )
 }
 
-function Bubble({
+const Bubble = memo(function Bubble({
   message,
   streaming
 }: {
@@ -293,10 +293,17 @@ function Bubble({
   streaming?: boolean
 }): React.JSX.Element {
   const [copied, setCopied] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
   const copy = (): void => {
     void navigator.clipboard.writeText(message.content)
     setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => setCopied(false), 1500)
   }
   return (
     <div
@@ -327,9 +334,13 @@ function Bubble({
       )}
     </div>
   )
-}
+})
 
-function MarkdownContent({ content }: { content: string }): React.JSX.Element {
+const MarkdownContent = memo(function MarkdownContent({
+  content
+}: {
+  content: string
+}): React.JSX.Element {
   return (
     <div className="prose prose-sm max-w-none leading-relaxed [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_code]:rounded [&_code]:bg-[var(--color-bg)] [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[11px] [&_h1]:text-[14px] [&_h1]:font-semibold [&_h2]:text-[13px] [&_h2]:font-semibold [&_h3]:text-[12px] [&_h3]:font-semibold [&_hr]:my-2 [&_hr]:border-[var(--color-border)] [&_li]:my-0.5 [&_ol]:ml-4 [&_p]:my-1 [&_pre]:overflow-x-auto [&_pre]:rounded [&_pre]:bg-[var(--color-bg)] [&_pre]:p-2 [&_pre_code]:bg-transparent [&_pre_code]:px-0 [&_table]:my-2 [&_table]:w-full [&_table]:text-[11px] [&_td]:border-t [&_td]:border-[var(--color-border)] [&_td]:px-2 [&_td]:py-1 [&_th]:border-b [&_th]:border-[var(--color-border)] [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_ul]:ml-4 [&_ul]:list-disc">
       <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
@@ -337,4 +348,4 @@ function MarkdownContent({ content }: { content: string }): React.JSX.Element {
       </ReactMarkdown>
     </div>
   )
-}
+})

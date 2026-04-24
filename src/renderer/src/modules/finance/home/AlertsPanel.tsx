@@ -12,25 +12,31 @@ import { cn } from '../../../lib/cn'
  */
 export function AlertsPanel(): React.JSX.Element | null {
   const { data: items = [] } = useWatchlist()
-  const tickers = items.map((i) => i.ticker)
+  // Stable ticker array — react-query uses the array as queryKey. Without
+  // useMemo we'd spawn spurious refetches on every parent render.
+  const tickers = useMemo(() => items.map((i) => i.ticker), [items])
   const quotes = useQuotes(tickers)
 
   const alerts = useMemo(() => {
+    const safePct = (num: number, denom: number): number | null =>
+      denom > 0 && Number.isFinite(num / denom) ? (num / denom) * 100 : null
     return items
       .map((item, i) => {
         const q = quotes[i]?.data
-        const price = q?.price ?? null
+        const price = q?.price != null && Number.isFinite(q.price) && q.price > 0 ? q.price : null
         const above = item.alert_above
         const below = item.alert_below
         if (above == null && below == null) return null
-        const aboveDist =
-          price != null && above != null ? ((above - price) / price) * 100 : null
-        const belowDist =
-          price != null && below != null ? ((price - below) / price) * 100 : null
+        const aboveDist = price != null && above != null ? safePct(above - price, price) : null
+        const belowDist = price != null && below != null ? safePct(price - below, price) : null
         const nearestDist =
           aboveDist != null && belowDist != null
             ? Math.min(Math.abs(aboveDist), Math.abs(belowDist))
-            : (aboveDist ?? belowDist)
+            : aboveDist != null
+              ? Math.abs(aboveDist)
+              : belowDist != null
+                ? Math.abs(belowDist)
+                : null
         return {
           ticker: item.ticker,
           price,
@@ -40,7 +46,7 @@ export function AlertsPanel(): React.JSX.Element | null {
           belowDist,
           aboveTriggered: aboveDist != null && aboveDist <= 0,
           belowTriggered: belowDist != null && belowDist <= 0,
-          nearestDist: nearestDist != null ? Math.abs(nearestDist) : null
+          nearestDist
         }
       })
       .filter((x): x is NonNullable<typeof x> => x != null)

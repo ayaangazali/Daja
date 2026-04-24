@@ -4,10 +4,12 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  renameSync,
   writeFileSync,
   statSync,
   readdirSync
 } from 'fs'
+import { randomUUID } from 'crypto'
 import { join } from 'path'
 
 /**
@@ -36,6 +38,10 @@ import { join } from 'path'
  */
 
 const MANIFEST_SCHEMA_VERSION = 1
+// Resource caps — reject pathological manifests before they exhaust memory.
+const MAX_FILES_IN_MANIFEST = 20
+const MAX_PER_FILE_BYTES = 100 * 1024 * 1024 // 100 MB per file
+const MAX_TOTAL_BYTES = 200 * 1024 * 1024 // 200 MB aggregate
 
 interface BackupManifest {
   schemaVersion: number
@@ -102,6 +108,29 @@ export function restoreBackup(manifestJson: string): {
   if (!manifest.files || typeof manifest.files !== 'object') {
     throw new Error('Backup is missing a files manifest')
   }
+  const fileEntries = Object.entries(manifest.files)
+  if (fileEntries.length > MAX_FILES_IN_MANIFEST) {
+    throw new Error(
+      `Backup manifest has ${fileEntries.length} files — more than the ${MAX_FILES_IN_MANIFEST} expected. Refusing to process.`
+    )
+  }
+  let totalBytes = 0
+  for (const [, entry] of fileEntries) {
+    const b64len = entry?.b64?.length ?? 0
+    // base64 decoded size ≈ b64len * 0.75. Cap before decoding.
+    const approxBytes = Math.floor(b64len * 0.75)
+    if (approxBytes > MAX_PER_FILE_BYTES) {
+      throw new Error(
+        `Backup file too large (${Math.round(approxBytes / 1024 / 1024)} MB > ${MAX_PER_FILE_BYTES / 1024 / 1024} MB limit)`
+      )
+    }
+    totalBytes += approxBytes
+  }
+  if (totalBytes > MAX_TOTAL_BYTES) {
+    throw new Error(
+      `Backup total size ${Math.round(totalBytes / 1024 / 1024)} MB exceeds ${MAX_TOTAL_BYTES / 1024 / 1024} MB aggregate limit`
+    )
+  }
 
   const dir = app.getPath('userData')
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
@@ -113,7 +142,8 @@ export function restoreBackup(manifestJson: string): {
     // Sanitize — only permit our known filenames, never an absolute or relative path
     if (!BACKUP_FILES.includes(name as (typeof BACKUP_FILES)[number])) continue
     const target = join(dir, name)
-    const staging = `${target}.restoring.${stamp}`
+    // UUID-suffixed staging filename avoids any pid/time collision risk
+    const staging = `${target}.restoring-${randomUUID()}`
 
     // Backup existing if present
     if (existsSync(target)) {
@@ -125,7 +155,6 @@ export function restoreBackup(manifestJson: string): {
     // Write to staging + atomic rename
     const bytes = Buffer.from(entry.b64, 'base64')
     writeFileSync(staging, bytes)
-    const { renameSync } = require('fs') as typeof import('fs')
     renameSync(staging, target)
     restored.push(name)
   }

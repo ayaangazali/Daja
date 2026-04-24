@@ -108,10 +108,28 @@ interface Row {
 }
 
 function hydrate(r: Row): Strategy {
+  // Defensive parse — DB blob could be corrupt, wash through the typed parser
+  // rather than trusting an `as` cast. Yields a clear error at the repo
+  // boundary instead of a mysterious crash deep inside the scorer.
+  let rules: StrategyRule[] = []
+  try {
+    rules = parseStrategyRules(JSON.parse(r.rules))
+  } catch (err) {
+    console.error(`[strategies] row ${r.id} has invalid rules:`, err)
+  }
+  let assetClasses: string[] = ['stock']
+  try {
+    const parsed = JSON.parse(r.asset_classes)
+    if (Array.isArray(parsed) && parsed.every((x) => typeof x === 'string')) {
+      assetClasses = parsed
+    }
+  } catch {
+    /* fall back to default */
+  }
   return {
     ...r,
-    rules: JSON.parse(r.rules) as StrategyRule[],
-    asset_classes: JSON.parse(r.asset_classes) as string[]
+    rules,
+    asset_classes: assetClasses
   }
 }
 

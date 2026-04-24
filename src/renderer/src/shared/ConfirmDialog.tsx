@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import { cn } from '../lib/cn'
 
@@ -127,14 +127,13 @@ function TypedConfirm({
   onConfirm: () => void
   onCancel: () => void
 }): React.JSX.Element {
-  const enable = false // placeholder; this component is controlled by an input below
+  const [value, setValue] = useState('')
+  const enabled = value.trim() === expected
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault()
-        const input = (e.currentTarget.elements.namedItem('confirm') as HTMLInputElement | null)
-          ?.value
-        if (input?.trim() === expected) onConfirm()
+        if (enabled) onConfirm()
       }}
     >
       <label className="mb-2 block text-[11px] text-[var(--color-fg-muted)]">
@@ -147,8 +146,12 @@ function TypedConfirm({
       <input
         name="confirm"
         autoFocus
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
         className="mb-3 w-full rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 font-mono text-[11px]"
         autoComplete="off"
+        spellCheck={false}
+        autoCapitalize="off"
       />
       <div className="flex justify-end gap-2">
         <button
@@ -160,8 +163,8 @@ function TypedConfirm({
         </button>
         <button
           type="submit"
-          disabled={enable}
-          className="rounded bg-[var(--color-neg)] px-3 py-1.5 text-[11px] font-medium text-white"
+          disabled={!enabled}
+          className="rounded bg-[var(--color-neg)] px-3 py-1.5 text-[11px] font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
         >
           Confirm
         </button>
